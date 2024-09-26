@@ -11,6 +11,6 @@ spec:
     server: {{ .Values.spec.destination.server }}
   project: horizon-sdv
   source:
-    path: helm-guestbook
+    path: gitops/sbx/apps/helm-guestbook
     repoURL: {{ .Values.spec.source.repoURL }}
     targetRevision: {{ .Values.spec.source.targetRevision }}
