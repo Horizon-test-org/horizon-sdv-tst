@@ -1,7 +1,7 @@
 apiVersion: v1
-kind: NAmespace
+kind: Namespace
 metadata:
-  name: helm-guestbook
+  name: mywaves
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 ---
@@ -22,7 +22,7 @@ spec:
     path: gitops/sbx/apps/helm-guestbook
   destination:
     server: https://kubernetes.default.svc
-    namespace: helm-guestbook
+    namespace: mywaves
   syncPolicy:
     automated:
       prune: true
