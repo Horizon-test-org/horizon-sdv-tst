@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: mywaves
+  name: mywaves1
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 ---

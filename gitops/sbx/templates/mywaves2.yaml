@@ -1,26 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mywaves
+  name: mywaves2
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: mywaves
+    namespace: mywaves2
     server: {{ .Values.spec.destination.server }}
   project: horizon-sdv
   source:
-    path: gitops/sbx/apps/mywaves
+    path: gitops/sbx/apps/mywaves2
     repoURL: {{ .Values.spec.source.repoURL }}
     targetRevision: {{ .Values.spec.source.targetRevision }}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        maxDuration: 3m0s
-        factor: 2
