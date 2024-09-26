@@ -3,33 +3,11 @@ kind: Namespace
 metadata:
   name: mywaves
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "-1"
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: horizon-sdv
-  namespace: argocd
+  name: mywaves2
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: horizon-sdv
-  source:
-    repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
-    targetRevision: gitops
-    path: gitops/sbx/apps/helm-guestbook
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: mywaves
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        maxDuration: 3m0s
-        factor: 2
+    argocd.argoproj.io/sync-wave: "-1"
