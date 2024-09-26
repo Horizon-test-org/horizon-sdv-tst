@@ -1,19 +1,28 @@
+apiVersion: v1
+kind: NAmespace
+metadata:
+  name: helm-guestbook
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: helm-guestbook
+  name: horizon-sdv
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
-  destination:
-    namespace: helm-guestbook
-    server: {{ .Values.spec.destination.server }}
   project: horizon-sdv
   source:
+    repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
+    targetRevision: gitops
     path: gitops/sbx/apps/helm-guestbook
-    repoURL: {{ .Values.spec.source.repoURL }}
-    targetRevision: {{ .Values.spec.source.targetRevision }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: helm-guestbook
   syncPolicy:
     automated:
       prune: true
@@ -24,5 +33,3 @@ spec:
         duration: 5s
         maxDuration: 3m0s
         factor: 2
-    syncOptions:
-      - CreateNamespace=true
