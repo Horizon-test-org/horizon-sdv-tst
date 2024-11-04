@@ -38,6 +38,11 @@ resource "google_container_cluster" "sdv_cluster" {
     enabled = true
   }
 
+  # enable gateway api
+  gateway_api_config {
+    channel = "CHANNEL_STANDARD"
+  }
+
   addons_config {
     http_load_balancing {
       disabled = false
