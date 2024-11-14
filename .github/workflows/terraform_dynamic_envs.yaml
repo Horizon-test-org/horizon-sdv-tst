@@ -111,7 +111,7 @@ jobs:
       gh-argocd-initial-password: "${{ secrets.gh-argocd-initial-password }}"
       gh-jenkins-initial-password: "${{ secrets.gh-jenkins-initial-password }}"
       gh-keycloak-initial-password: "${{ secrets.gh-keycloak-initial-password }}"
-      gh-mtkc-regred: "${{ secrets.gh-mtkc-regcred }}"
+      gh-mtkc-regcred: "${{ secrets.gh-mtkc-regcred }}"
     with:
       terraform-version: ${{ inputs.terraform-version }}
       directory: ${{ inputs.path }}
