@@ -33,3 +33,8 @@ variable "sdv_gh_keycloak_initial_password" {
   description = "The secret KEYCLOAK_INITIAL_PASSWORD value"
   type        = string
 }
+
+variable "sdv_gh_mtkc_regcred" {
+  description = "The secret Github MTKC-REGRED value"
+  type        = string
+}

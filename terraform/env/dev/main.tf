@@ -41,6 +41,7 @@ module "base" {
     "user:edson.schlei@accenture.com",
     "user:wojciech.kobryn@accenture.com",
     "user:marta.kania@accenture.com",
+    "user:lukasz.domke@accenture.com",
   ]
 
   sdv_network_egress_router_name = "sdv-egress-internet"
@@ -50,6 +51,7 @@ module "base" {
     "user:edson.schlei@accenture.com",
     "user:wojciech.kobryn@accenture.com",
     "user:marta.kania@accenture.com",
+    "user:lukasz.domke@accenture.com",
   ]
   sdv_artifact_registry_repository_reader_members = [
     "serviceAccount:${local.sdv_default_computer_sa}",
@@ -227,11 +229,29 @@ module "base" {
         }
       ]
     }
+    # GCP secret name: mtkc-regcred
+    # WI to GKE at ns/mtk-connect/sa/mtk-connect-sa.
+    s9 = {
+      secret_id        = "mtkc-regcred"
+      value            = var.sdv_gh_mtkc_regcred
+      use_github_value = true
+      gke_access = [
+        {
+          ns = "mtk-connect"
+          sa = "mtk-connect-sa"
+        }
+      ]
+    }
+
   }
 
-  sdv_bastion_host_bash_command = <<EOT
-    chmod +x ~/horizon-stage-01.sh
-    ~/horizon-stage-01.sh
+   sdv_bastion_host_bash_command = <<EOT
+    export GITHUB_ACCESS_TOKEN=${var.sdv_gh_access_token}
+    echo $GITHUB_ACCESS_TOKEN
+    cd bash-scripts
+    chmod +x horizon-stage-01.sh
+    ./horizon-stage-01.sh
+    cd -
   EOT
 
 }

@@ -48,6 +48,7 @@ jobs:
       gh-argocd-initial-password: "${{ secrets.ARGOCD_INITIAL_PASSWORD }}"
       gh-jenkins-initial-password: "${{ secrets.JENKINS_INITIAL_PASSWORD }}"
       gh-keycloak-initial-password: "${{ secrets.KEYCLOAK_INITIAL_PASSWORD }}"
+      gh-mtkc-regred: "${{ secrets.MTKC_REGRED }}"
     with:
       environment: ${{ matrix.environment }}
       path: terraform/env/${{ matrix.environment }}

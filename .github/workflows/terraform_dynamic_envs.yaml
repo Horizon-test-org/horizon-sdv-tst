@@ -21,6 +21,9 @@ on:
       gh-keycloak-initial-password:
         required: false
         description: "Github Secret KEYCLOAK_INITIAL_PASSWORD"
+      gh-mtkc-regred:
+        required: false
+        description: "Github Secret MTKC-REGRED"
 
     inputs:
       environment:
@@ -108,6 +111,7 @@ jobs:
       gh-argocd-initial-password: "${{ secrets.gh-argocd-initial-password }}"
       gh-jenkins-initial-password: "${{ secrets.gh-jenkins-initial-password }}"
       gh-keycloak-initial-password: "${{ secrets.gh-keycloak-initial-password }}"
+      gh-mtkc-regred: "${{ secrets.gh-mtkc-regred }}"
     with:
       terraform-version: ${{ inputs.terraform-version }}
       directory: ${{ inputs.path }}
