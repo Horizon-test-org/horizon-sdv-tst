@@ -142,7 +142,7 @@ pipeline {
             AAOS_RPI_REVISION="${AAOS_RPI_REVISION}" \
             AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
             AAOS_CLEAN_BUILD=${AAOS_CLEAN_BUILD} \
-            ./workloads/pipelines/aaos_builder/aaos_initialise.sh
+            ./workloads/android/pipelines/aaos_builder/aaos_initialise.sh
           '''
         }
       }
@@ -155,7 +155,7 @@ pipeline {
           sh '''
             AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
             AAOS_CLEAN_BUILD=0 \
-            ./workloads/pipelines/aaos_builder/aaos_build.sh
+            ./workloads/android/pipelines/aaos_builder/aaos_build.sh
           '''
         }
       }
@@ -171,7 +171,7 @@ pipeline {
             AAOS_ARTIFACT_ROOT_NAME="${AAOS_ARTIFACT_ROOT_NAME}" \
             AAOS_ARTIFACT_STORAGE_SOLUTION="${AAOS_ARTIFACT_STORAGE_SOLUTION}" \
             CLOUD_REGION="${CLOUD_REGION}" \
-            ./workloads/pipelines/aaos_builder/aaos_storage.sh
+            ./workloads/android/pipelines/aaos_builder/aaos_storage.sh
           '''
         }
       }

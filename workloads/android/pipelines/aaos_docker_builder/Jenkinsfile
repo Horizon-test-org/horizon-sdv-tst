@@ -58,8 +58,8 @@ pipeline {
           sh '''
             # Build the docker image and push to Artifact registry using service account configured with
             # correct roles/permissions.
-            /kaniko/executor -f workloads/pipelines/aaos_docker_builder/Dockerfile \
-              -c workloads/pipelines/aaos_docker_builder --skip-tls-verify-pull \
+            /kaniko/executor -f workloads/android/pipelines/aaos_docker_builder/Dockerfile \
+              -c workloads/android/pipelines/aaos_docker_builder --skip-tls-verify-pull \
               --insecure --skip-tls-verify "${KANIKO_OPTIONS}"
           '''
         }
