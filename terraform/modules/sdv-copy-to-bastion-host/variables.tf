@@ -1,6 +1,6 @@
 
-variable "file" {
-  description = "The path of the file to be copied."
+variable "local_file_path" {
+  description = "The path of the local file to be copied."
   type        = string
 }
 
@@ -9,8 +9,13 @@ variable "bastion_host" {
   type        = string
 }
 
-variable "destination_path" {
+variable "destination_directory" {
   description = "The destination path for the file"
+  type        = string
+}
+
+variable "destination_filename" {
+  description = "The destination filename for the file"
   type        = string
 }
 

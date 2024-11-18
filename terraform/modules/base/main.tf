@@ -116,8 +116,9 @@ module "sdv_copy_to_bastion_host" {
   source = "../sdv-copy-to-bastion-host"
 
   bastion_host            = var.sdv_bastion_host_name
-  file                    = "../../bash-scripts/horizon-stage-01.sh"
-  destination_path        = "~/bash-scripts/horizon-stage-01.sh"
+  local_file_path         = "../../bash-scripts/horizon-stage-01.sh"
+  destination_directory   = "~/bash-scripts"
+  destination_filename    = "horizon-stage-01.sh"
   zone                    = var.sdv_zone
   location                = var.sdv_location
   bucket_name             = "${data.google_project.project.project_id}-scripts"
