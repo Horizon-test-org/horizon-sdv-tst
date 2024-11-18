@@ -11,9 +11,21 @@ Sample of a feature branch created by Edson for the Jira ticket TAA-001:
 
 + /feature/eds/taa-001
 
-## Deploy and test on dev
+## Implementation Workflow
 
-When a feature is pushed the plan is executed, if no problem is found the apply is executed using the env/dev/main.tf file
++ Create a feature branch from main
++ Add the ticket implementation to the modules
++ Check the plan if it does what it is expected
++ Push the feature branch
++ Add a change to the env/dev/main.tf file and push the feature branch
++ Check the github workflow plan result, when fail fix the issues found
++ Create a PR for the feature branch to main
++ Wait the github workflow to check the PR
++ Check the created plan in the PR comments
++ If a problem was found, fix the issue
++ If PR check is successful, merge the feature to the main branch
++ Check if the github workflow execution on main was successful
++ When not, fix the issue found, sometimes just rerun the github workflow to fix it.
 
 
 ## Release a new version
