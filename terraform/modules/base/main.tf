@@ -1,12 +1,6 @@
 
 data "google_project" "project" {}
 
-resource "google_project_iam_member" "storage_object_viewer" {
-  project = data.google_project.project.project_id
-  role    = "roles/storage.objectViewer"
-  member  = "serviceAccount:${var.sdv_default_computer_sa}"
-}
-
 module "sdv_apis" {
   source = "../sdv-apis"
 
