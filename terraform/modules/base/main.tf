@@ -1,6 +1,12 @@
 
 data "google_project" "project" {}
 
+resource "google_project_iam_member" "storage_object_viewer" {
+  project = data.google_project.project.project_id
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${var.sdv_default_computer_sa}"
+}
+
 module "sdv_apis" {
   source = "../sdv-apis"
 
@@ -23,7 +29,8 @@ module "sdv_wi" {
 module "sdv_gcs" {
   source = "../sdv-gcs"
 
-  location = var.sdv_location
+  bucket_name = "${data.google_project.project.project_id}-aaos"
+  location    = var.sdv_location
 }
 
 module "sdv_network" {
@@ -141,17 +148,27 @@ module "sdv_ssl_policy" {
   profile         = "RESTRICTED"
 }
 
+module "sdv_gcs_scripts" {
+  source = "../sdv-gcs"
+
+  bucket_name = "${data.google_project.project.project_id}-scripts"
+  location    = var.sdv_location
+}
+
 module "sdv_copy_to_bastion_host" {
   source = "../sdv-copy-to-bastion-host"
 
-  bastion_host     = var.sdv_bastion_host_name
-  file             = "../../bash-scripts/horizon-stage-01.sh"
-  destination_path = "~/bash-scripts/horizon-stage-01.sh"
-  zone             = var.sdv_zone
-  location         = var.sdv_location
+  bastion_host            = var.sdv_bastion_host_name
+  file                    = "../../bash-scripts/horizon-stage-01.sh"
+  destination_path        = "~/bash-scripts/horizon-stage-01.sh"
+  zone                    = var.sdv_zone
+  location                = var.sdv_location
+  bucket_name             = "${data.google_project.project.project_id}-scripts"
+  bucket_destination_path = "bash-scripts/horizon-stage-01.sh"
 
   depends_on = [
-    module.sdv_bastion_host
+    module.sdv_bastion_host,
+    module.sdv_gcs_scripts
   ]
 }
 

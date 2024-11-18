@@ -23,3 +23,12 @@ variable "location" {
   description = "Define the loation of the storage"
   type        = string
 }
+
+variable "bucket_name" {
+  description = "Name of the bucket"
+}
+
+variable "bucket_destination_path" {
+  description = "Define the path of the file inside the defined bucket"
+  type        = string
+}
