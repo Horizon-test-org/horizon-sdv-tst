@@ -139,7 +139,7 @@ variable "sdv_build_node_pool_node_count" {
 variable "sdv_build_node_pool_machine_type" {
   description = "Type fo the machine for the build node pool"
   type        = string
-  default     = "c2d-highcpu-32"
+  default     = "c2d-highcpu-112"
 }
 
 variable "sdv_build_node_pool_min_node_count" {
@@ -151,7 +151,7 @@ variable "sdv_build_node_pool_min_node_count" {
 variable "sdv_build_node_pool_max_node_count" {
   description = "Number of max of nodes for the build node pool"
   type        = number
-  default     = 3
+  default     = 20
 }
 
 
