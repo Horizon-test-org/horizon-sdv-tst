@@ -38,3 +38,9 @@ How to create a secret and assign Kubernetes SAs to read the values:
 + value - Value for the secret
 + use_github_value - will update the secret on GC if the value is updated on GitHub
 + gke_access - define the Namespace **ns** and Service Account **sa** that can access this secret from the Kubernetes instance.
+
+
+# Terraform doc
+
+[Terraform-doc](terraform-doc.md)
+

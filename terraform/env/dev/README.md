@@ -21,3 +21,6 @@ echo "TF_VAR_sdv_gh_app_id=${{ vars.GH_APP_ID }}" >> $GITHUB_ENV;
 ```
 
 
+# Terraform doc
+
+[Terraform-doc](terraform-doc.md)
