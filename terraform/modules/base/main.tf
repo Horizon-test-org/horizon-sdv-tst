@@ -143,3 +143,18 @@ module "sdv_bash_on_bastion_host" {
     module.sdv_copy_to_bastion_host,
   ]
 }
+
+
+module "sdv_sa_key_secret_gce_creds" {
+  source = "../sdv-sa-key-secret"
+
+  service_account_id = var.sdv_default_computer_sa
+  secret_id          = "gce-creds"
+  location           = var.sdv_location
+  gke_access = [
+    {
+      ns = "jenkins"
+      sa = "jenkins-sa"
+    }
+  ]
+}
