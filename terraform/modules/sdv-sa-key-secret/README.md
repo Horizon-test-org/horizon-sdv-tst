@@ -1,9 +1,8 @@
-# SA key to Secret
+# SDV SA key Secret
 
-This module create a JSON Key from defined SA and save it on a secret.
+This module creates a JSON Key from the defined SA and save it on a secret.
 
-Define which GKE SAs can access the saved secret.
-
+Give access to the defined GKE SAs to the created secret.
 
 # Terraform doc
 

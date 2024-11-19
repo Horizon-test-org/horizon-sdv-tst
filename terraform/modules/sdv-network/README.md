@@ -1,7 +1,6 @@
 # SDV Network
 
-Create the GCP network.
-
+This module creates the GC network.
 
 # Terraform doc
 

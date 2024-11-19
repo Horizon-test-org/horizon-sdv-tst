@@ -1,5 +1,6 @@
-# Create GCS
+# SDV GCS
 
+This module creates a GC Storage.
 
 # Terraform doc
 

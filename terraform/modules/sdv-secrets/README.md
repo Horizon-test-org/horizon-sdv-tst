@@ -1,7 +1,7 @@
 
-# Create a GCP secret from Github Secret
+# SDV Secrets
 
-This module create several secrets and give the access to the defined Kubernetes
+This module creates several secrets and give the access to the defined Kubernetes
 SAs.
 
 ## How does it works
@@ -13,7 +13,9 @@ SAs.
 
 
 ## Define the terraform to create the secret
-How to create a secret and assign Kubernetes SAs to read the values:
+
+Example how to define the secret creation:
+
 ```terraform
   sdv_gcp_secrets_map = {
     s1 = {

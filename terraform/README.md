@@ -25,3 +25,14 @@ Directories:
 + Check if the github workflow execution on main was successful
 + When not, fix the issue found, sometimes just rerun the github workflow to fix it.
 
+# Terraform doc
+
+The script uses docker to create the **terraform-doc.md** file, make sure that
+your user can run docker.
+
+To update the terraform-doc.md file for all the modules, execute the
+**create-terraform-doc.sh** script.
+
+```bash
+./create-terraform-doc.sh
+```

@@ -1,5 +1,5 @@
 
-# Base module
+# Base
 
 This module uses all the others modules to create all the GC resources.
 

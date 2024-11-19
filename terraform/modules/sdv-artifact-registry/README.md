@@ -1,6 +1,6 @@
 # SDV Artifact registry
 
-It creates an Artifact Registry
+This module creates an Artifact Registry.
 
 # Terraform doc
 
