@@ -50,6 +50,13 @@ NUM_INSTANCES=${NUM_INSTANCES:-8}
 VM_CPUS=${VM_CPUS:-8}
 VM_MEMORY_MB=${VM_MEMORY_MB:-16384}
 
+# Support local vs Jenkins.
+if [ -z "${WORKSPACE}" ]; then
+    CVD_PATH=../cvd_launcher
+else
+    CVD_PATH=workloads/android/pipelines/cvd_launcher
+fi
+
 # Show variables.
 VARIABLES="
 Environment:
@@ -72,6 +79,7 @@ Environment:
 
     CVD variables:
     CUTTLEFISH_DOWNLOAD_URL=${CUTTLEFISH_DOWNLOAD_URL}
+    CVD_PATH=${CVD_PATH}
     NUM_INSTANCES=${NUM_INSTANCES} (--num_instances=${NUM_INSTANCES})
     VM_CPUS=${VM_CPUS} (--cpu ${VM_CPUS})
     VM_MEMORY_MB=${VM_MEMORY_MB} (--memory_mb ${VM_MEMORY_MB})
