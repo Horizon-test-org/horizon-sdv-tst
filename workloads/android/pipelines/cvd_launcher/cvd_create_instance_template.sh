@@ -85,6 +85,7 @@
 #                    drop older versions of Cuttlefish.
 #  No args:          run all stages with exception 6 (delete).
 #
+set -x
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
