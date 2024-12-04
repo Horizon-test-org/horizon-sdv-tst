@@ -49,6 +49,9 @@ function cuttlefish_install_additional_packages() {
             echo "${package} already installed"
         fi
     done
+    dpkg -s default-jdk
+    which java
+    java -version
 }
 
 # Install CTS test harness on instance to avoid lengthy CTS runs.
