@@ -158,6 +158,14 @@ async function configureDevice(i) {
           }
         ]
       },
+      'log': {
+        'types': [
+          {
+            'name': 'logcat',
+            'driver': 'logcat'
+          }
+        ]
+      },
       'mjpeg': {
         'types': [
           {
