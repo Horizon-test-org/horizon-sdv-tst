@@ -33,6 +33,12 @@ on:
       gh-gerrit-admin-private-key:
         required: false
         description: "Github Secret GERRIT_ADMIN_PRIVATE_KEY"
+      gh-keycloak-horizon-admin-password:
+        required: false
+        description: "Github Secret KEYCLOAK_HORIZON_ADMIN_PASSWORD"
+      gh-cuttlefish-vm-ssh-private-key:
+        required: false
+        description: "Github Secret CUTTLEFISH_VM_SSH_PRIVATE_KEY"
 
     inputs:
       environment:
@@ -124,11 +130,15 @@ jobs:
         echo "TF_VAR_sdv_gh_gerrit_admin_private_key<<EOF">> $GITHUB_ENV
         echo  "${{ secrets.gh-gerrit-admin-private-key }}" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+        echo "TF_VAR_sdv_gh_cuttlefish_vm_ssh_private_key<<EOF">> $GITHUB_ENV
+        echo  "${{ secrets.gh-cuttlefish-vm-ssh-private-key }}" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
         echo "TF_VAR_sdv_gh_argocd_initial_password=${{ secrets.gh-argocd-initial-password }}" >> $GITHUB_ENV
         echo "TF_VAR_sdv_gh_jenkins_initial_password=${{ secrets.gh-jenkins-initial-password }}" >> $GITHUB_ENV
         echo "TF_VAR_sdv_gh_keycloak_initial_password=${{ secrets.gh-keycloak-initial-password }}" >> $GITHUB_ENV
         echo "TF_VAR_sdv_gh_mtkc_regcred=${{ secrets.gh-mtkc-regcred }}" >> $GITHUB_ENV
         echo "TF_VAR_sdv_gh_gerrit_admin_initial_password=${{ secrets.gh-gerrit-admin-initial-password }}" >> $GITHUB_ENV
+        echo "TF_VAR_sdv_gh_keycloak_horizon_admin_password=${{ secrets.gh-keycloak-horizon-admin-password }}" >> $GITHUB_ENV
 
 
         if [[ "${{ secrets.gcp-sa }}" != '' && "${{ secrets.wif-provider }}" != '' ]]; then

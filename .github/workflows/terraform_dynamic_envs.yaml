@@ -30,6 +30,12 @@ on:
       gh-gerrit-admin-private-key:
         required: false
         description: "Github Secret GERRIT_ADMIN_PRIVATE_KEY"
+      gh-keycloak-horizon-admin-password:
+        required: false
+        description: "Github Secret KEYCLOAK_HORIZON_ADMIN_PASSWORD"
+      gh-cuttlefish-vm-ssh-private-key:
+        required: false
+        description: "Github Secret CUTTLEFISH_VM_SSH_PRIVATE_KEY"
 
     inputs:
       environment:
@@ -120,6 +126,8 @@ jobs:
       gh-mtkc-regcred: "${{ secrets.gh-mtkc-regcred }}"
       gh-gerrit-admin-initial-password: "${{ secrets.gh-gerrit-admin-initial-password }}"
       gh-gerrit-admin-private-key: "${{ secrets.gh-gerrit-admin-private-key }}"
+      gh-keycloak-horizon-admin-password: "${{ secrets.gh-keycloak-horizon-admin-password }}"
+      gh-cuttlefish-vm-ssh-private-key: "${{ secrets.gh-cuttlefish-vm-ssh-private-key }}"
 
     with:
       terraform-version: ${{ inputs.terraform-version }}

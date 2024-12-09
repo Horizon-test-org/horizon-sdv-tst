@@ -306,6 +306,32 @@ module "base" {
         }
       ]
     }
+    # GCP secret name:  gh-keycloak-horizon-admin-password
+    # WI to GKE at ns/jenkins/sa/jenkins-sa.
+    s12 = {
+      secret_id        = "keycloakHorizonAdminPassword"
+      value            = var.sdv_gh_keycloak_horizon_admin_password
+      use_github_value = true
+      gke_access = [
+        {
+          ns = "jenkins"
+          sa = "jenkins-sa"
+        }
+      ]
+    }
+    # GCP secret name:  gh-cuttlefish-vm-ssh-private-key
+    # WI to GKE at ns/jenkins/sa/jenkins-sa.
+    s13 = {
+      secret_id        = "jenkinsCuttlefishVmSshPrivateKey"
+      value            = var.sdv_gh_cuttlefish_vm_ssh_private_key
+      use_github_value = true
+      gke_access = [
+        {
+          ns = "jenkins"
+          sa = "jenkins-sa"
+        }
+      ]
+    }
 
   }
 

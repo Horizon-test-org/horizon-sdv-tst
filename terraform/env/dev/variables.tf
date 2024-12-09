@@ -49,6 +49,16 @@ variable "sdv_gh_gerrit_admin_private_key" {
   type        = string
 }
 
+variable "sdv_gh_keycloak_horizon_admin_password" {
+  description = "The secret Github KEYCLOAK_HORIZON_ADMIN_PASSWORD value"
+  type        = string
+}
+
+variable "sdv_gh_cuttlefish_vm_ssh_private_key" {
+  description = "The secret Github CUTTLEFISH_VM_SSH_PRIVATE_KEY value"
+  type        = string
+}
+
 variable "sdv_gh_access_token" {
   description = "Github access token"
   type        = string

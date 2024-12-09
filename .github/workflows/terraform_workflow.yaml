@@ -51,6 +51,8 @@ jobs:
       gh-mtkc-regcred: "${{ secrets.MTKC_REGCRED }}"
       gh-gerrit-admin-initial-password: "${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}"
       gh-gerrit-admin-private-key: "${{ secrets.GERRIT_ADMIN_PRIVATE_KEY }}"
+      gh-keycloak-horizon-admin-password: "${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}"
+      gh-cuttlefish-vm-ssh-private-key: "${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}"
 
     with:
       environment: ${{ matrix.environment }}
