@@ -14,7 +14,7 @@ class API_REQUEST_OPT(Enum) :
 # New key settings: name, expiration date.
 # Current settings: name is empty, expiration date is set to 1 month after creation date (UTC+00:00 Timezone)
 KEY_EXPIRATION_DATE = datetime.datetime.now(tz=datetime.timezone.utc) + relativedelta(months=1)
-REQUEST_BODY = {
+KEY_CREATE_REQUEST_BODY = {
   "name": "",
   "expiryTime": f"{KEY_EXPIRATION_DATE.strftime("%Y-%m-%dT%H:%M:%SZ")}"
 }
@@ -49,5 +49,5 @@ print("Script start")
 print("\nGet version of MTK Connect")
 connect_to_api()
 print(f"\nCreate key for user id {USER_ID}")
-connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=REQUEST_BODY)
+connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
 
