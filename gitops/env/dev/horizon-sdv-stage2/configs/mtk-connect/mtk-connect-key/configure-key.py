@@ -10,6 +10,7 @@ KEY_ID = ''
 
 class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
+  GET_CURRENT_USER = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/me"
   CREATE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys"
 
 # New key settings: name, expiration date.
@@ -24,6 +25,8 @@ def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None):
   global KEY_VAL, KEY_ID
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
+      response_api = requests.get(operation.value, auth=(USERNAME, KEY_VAL))
+    elif operation is API_REQUEST_OPT.GET_CURRENT_USER:
       response_api = requests.get(operation.value, auth=(USERNAME, KEY_VAL))
     elif operation is API_REQUEST_OPT.CREATE_KEY:
       response_api = requests.post(operation.value, auth=(USERNAME, KEY_VAL), json=request_body)
@@ -54,3 +57,7 @@ connect_to_api()
 print(f"\nCreate key for user id {USER_ID}")
 connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
 
+print("\nTesting new key...")
+
+print("\nGet current user")
+connect_to_api(operation=API_REQUEST_OPT.GET_CURRENT_USER)
