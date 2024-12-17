@@ -12,6 +12,7 @@ class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
   GET_CURRENT_USER = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/me"
   CREATE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys"
+  DELETE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys/"
 
 # New key settings: name, expiration date.
 # Current settings: name is empty, expiration date is set to 1 month after creation date (UTC+00:00 Timezone)
@@ -21,7 +22,7 @@ KEY_CREATE_REQUEST_BODY = {
   "expiryTime": f"{KEY_EXPIRATION_DATE.strftime("%Y-%m-%dT%H:%M:%SZ")}"
 }
 
-def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None):
+def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, delete_key_id=""):
   global KEY_VAL, KEY_ID
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
@@ -32,6 +33,10 @@ def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None):
       response_api = requests.post(operation.value, auth=(USERNAME, KEY_VAL), json=request_body)
       KEY_VAL = response_api.json()["data"]["key"]
       KEY_ID = response_api.json()["data"]["id"]
+    elif operation is API_REQUEST_OPT.DELETE_KEY:
+      response_api = requests.delete(operation.value+str(delete_key_id), auth=(USERNAME, KEY_VAL))
+    
+
   except Exception as e:
     print(f"Exception occured when requesting response from API. \n\t{e}")
   else:
@@ -61,3 +66,8 @@ print("\nTesting new key...")
 
 print("\nGet current user")
 connect_to_api(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+
+print(f"\nDeleting key id: {KEY_ID} \tval: {KEY_VAL}")
+connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
+
+
