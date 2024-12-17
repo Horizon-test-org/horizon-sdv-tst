@@ -5,7 +5,8 @@ from dateutil.relativedelta import relativedelta
 
 USERNAME = 
 USER_ID = 
-KEY = 
+KEY_VAL = 
+KEY_ID = ''
 
 class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
@@ -20,12 +21,14 @@ KEY_CREATE_REQUEST_BODY = {
 }
 
 def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None):
-  
+  global KEY_VAL, KEY_ID
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
-      response_api = requests.get(operation.value, auth=(USERNAME, KEY))
+      response_api = requests.get(operation.value, auth=(USERNAME, KEY_VAL))
     elif operation is API_REQUEST_OPT.CREATE_KEY:
-      response_api = requests.post(operation.value, auth=(USERNAME, KEY), json=request_body)
+      response_api = requests.post(operation.value, auth=(USERNAME, KEY_VAL), json=request_body)
+      KEY_VAL = response_api.json()["data"]["key"]
+      KEY_ID = response_api.json()["data"]["id"]
   except Exception as e:
     print(f"Exception occured when requesting response from API. \n\t{e}")
   else:
