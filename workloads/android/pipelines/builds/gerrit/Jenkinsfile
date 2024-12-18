@@ -148,6 +148,7 @@ pipeline {
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
             ./workloads/android/pipelines/tests/cts_execution/cts_initialise.sh
             ./workloads/android/pipelines/tests/cts_execution/cts_execution.sh
+            ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --stop || true
           '''
         }
       }
@@ -156,13 +157,6 @@ pipeline {
 
   // REVIEW what is returned.
   post {
-    always {
-      // Ensure we always stop CVD.
-      sh '''
-        ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --stop || true
-      '''
-    }
-
     success {
       gerritReview labels: [Verified: 1], message: 'Build was successful.'
     }
