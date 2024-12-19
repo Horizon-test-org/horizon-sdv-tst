@@ -55,19 +55,24 @@ def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, del
     print(f"Status code: {response_api.status_code} \nResponse from API: \n\t{response_api.text}")
     print("Request to API finished")
 
+if __name__ == "__main__":
+  print("Script start")
+  print("\nGet version of MTK Connect")
+  connect_to_api()
 
-print("Script start")
-print("\nGet version of MTK Connect")
-connect_to_api()
-print(f"\nCreate key for user id {USER_ID}")
-connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
+  print(f"\nOld key id: {KEY_ID} \tval: {KEY_VAL}")
 
-print("\nTesting new key...")
+  print(f"\nCreate key for user id {USER_ID}")
+  connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
 
-print("\nGet current user")
-connect_to_api(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+  print(f"\nNew key id: {KEY_ID} \tval: {KEY_VAL}")
 
-print(f"\nDeleting key id: {KEY_ID} \tval: {KEY_VAL}")
-connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
+  print("\nTesting new key...")
+
+  print("\nGet current user")
+  connect_to_api(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+
+  print(f"\nDeleting key id: {KEY_ID} \tval: {KEY_VAL}")
+  connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
 
 
