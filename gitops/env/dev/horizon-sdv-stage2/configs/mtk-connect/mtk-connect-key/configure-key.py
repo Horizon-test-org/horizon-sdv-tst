@@ -2,11 +2,16 @@ import requests
 from enum import Enum
 import datetime
 from dateutil.relativedelta import relativedelta
+import base64
+import json
+from kubernetes import client, config
 
 USERNAME = 
 USER_ID = 
 KEY_VAL = 
 KEY_ID = ''
+
+SECRET_FILE = "gitops\env\dev\horizon-sdv-stage2\configs\mtk-connect\mtk-connect-key\secret.json"
 
 class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
@@ -55,6 +60,27 @@ def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, del
     print(f"Status code: {response_api.status_code} \nResponse from API: \n\t{response_api.text}")
     print("Request to API finished")
 
+
+def create_secret_from_json(json_file):
+  with open(json_file, 'r') as f:
+    secret_data = json.load(f)
+    print(f"secret loaded: \n\t{secret_data}")
+
+  if "stringData" in secret_data:
+    encoded_data = {
+        key: base64.b64encode(value.encode()).decode()
+        for key, value in secret_data["stringData"].items()
+    }
+    secret_data["data"] = encoded_data
+    del secret_data["stringData"]
+  else:
+    raise ValueError("The JSON does not contain a 'stringData' field.")
+  
+  print(f"encoded secret: \n\t{encoded_data}")
+
+
+
+
 if __name__ == "__main__":
   print("Script start")
   print("\nGet version of MTK Connect")
@@ -74,5 +100,9 @@ if __name__ == "__main__":
 
   print(f"\nDeleting key id: {KEY_ID} \tval: {KEY_VAL}")
   connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
+  # Load Kubernetes configuration
+  config.load_kube_config()
+  create_secret_from_json(SECRET_FILE)
 
 
+  print("Script end")
