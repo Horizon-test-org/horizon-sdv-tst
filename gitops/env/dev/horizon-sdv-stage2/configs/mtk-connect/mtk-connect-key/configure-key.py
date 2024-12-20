@@ -11,7 +11,7 @@ USER_ID =
 KEY_VAL = 
 KEY_ID = ''
 
-SECRET_FILE = "gitops\env\dev\horizon-sdv-stage2\configs\mtk-connect\mtk-connect-key\secret.json"
+SECRET_FILE = "secret.json"
 SECRET_NAME = "mtk-connect-admin-key"
 
 class API_REQUEST_OPT(Enum) :
@@ -111,7 +111,6 @@ def create_secret_from_json(json_file):
         name=secret_data["metadata"]["name"],
         namespace=secret_data["metadata"].get("namespace", "default"),
         labels=secret_data["metadata"].get("labels"),
-        annotations=secret_data["metadata"]["annotations"].get("jenkins.io/credentials-description"),
     ),
     type=secret_data.get("type", "Opaque"),
     data=secret_data["data"]
