@@ -12,6 +12,7 @@ KEY_VAL =
 KEY_ID = ''
 
 SECRET_FILE = "gitops\env\dev\horizon-sdv-stage2\configs\mtk-connect\mtk-connect-key\secret.json"
+SECRET_NAME = "mtk-connect-admin-key"
 
 class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
@@ -24,7 +25,7 @@ class API_REQUEST_OPT(Enum) :
 KEY_EXPIRATION_DATE = datetime.datetime.now(tz=datetime.timezone.utc) + relativedelta(months=1)
 KEY_CREATE_REQUEST_BODY = {
   "name": "",
-  "expiryTime": f"{KEY_EXPIRATION_DATE.strftime("%Y-%m-%dT%H:%M:%SZ")}"
+  "expiryTime": f"{KEY_EXPIRATION_DATE.strftime('%Y-%m-%dT%H:%M:%SZ')}"
 }
 
 def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, delete_key_id=""):
@@ -80,22 +81,59 @@ def demo_api_connection(): # TODO: delete. Just for testing purposes
   connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
 
 def create_secret_from_json(json_file):
+  """
+  Reads a secret JSON file, transforms stringData to base64-encoded data, 
+  and creates or updates the Kubernetes Secret.
+  """
+
   with open(json_file, 'r') as f:
     secret_data = json.load(f)
-    print(f"secret loaded: \n\t{secret_data}")
 
+  # Ensure `stringData` exists in the JSON and process it
   if "stringData" in secret_data:
     encoded_data = {
+      # Encode the `stringData` values to base64 and replace it with `data`
         key: base64.b64encode(value.encode()).decode()
         for key, value in secret_data["stringData"].items()
     }
     secret_data["data"] = encoded_data
-    del secret_data["stringData"]
+    del secret_data["stringData"]  # Remove `stringData` as it's now replaced
   else:
     raise ValueError("The JSON does not contain a 'stringData' field.")
   
-  print(f"encoded secret: \n\t{encoded_data}")
+  print(f"encoded secret: \n\t{secret_data}")
 
+# Create the secret object using the Kubernetes Python client
+  secret = client.V1Secret(
+    api_version=secret_data.get("apiVersion", "v1"),
+    kind=secret_data.get("kind", "Secret"),
+    metadata=client.V1ObjectMeta(
+        name=secret_data["metadata"]["name"],
+        namespace=secret_data["metadata"].get("namespace", "default"),
+        labels=secret_data["metadata"].get("labels"),
+        annotations=secret_data["metadata"]["annotations"].get("jenkins.io/credentials-description"),
+    ),
+    type=secret_data.get("type", "Opaque"),
+    data=secret_data["data"]
+  )
+
+  print(f"secret: \n{secret}")
+
+  # Load Kubernetes configuration
+  config.load_kube_config()
+  v1 = client.CoreV1Api()
+    
+  # Create or update the secret in Kubernetes
+  try:
+    v1.create_namespaced_secret(namespace=secret.metadata.namespace, body=secret)
+    print(f"Secret '{secret.metadata.name}' created successfully in namespace '{secret.metadata.namespace}'!")
+  except client.exceptions.ApiException as e:
+    if e.status == 409:  # Secret already exists
+      print(f"Secret '{secret.metadata.name}' already exists. Updating it instead.")
+      v1.replace_namespaced_secret(name=secret.metadata.name, namespace=secret.metadata.namespace, body=secret)
+      print(f"Secret '{secret.metadata.name}' updated successfully!")
+    else:
+      raise e
 
 
 
@@ -103,7 +141,6 @@ if __name__ == "__main__":
   print("Script start")
 
   # Load Kubernetes configuration
-  config.load_kube_config()
   create_secret_from_json(SECRET_FILE)
 
 
