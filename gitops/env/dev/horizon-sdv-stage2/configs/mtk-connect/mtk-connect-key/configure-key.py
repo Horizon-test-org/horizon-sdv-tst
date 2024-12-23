@@ -11,6 +11,8 @@ USER_ID =
 KEY_VAL = 
 KEY_ID = ''
 
+NAMESPACE = "mtk-connect"
+
 SECRET_FILE = "secret.json"
 SECRET_NAME = "mtk-connect-admin-key"
 
@@ -128,19 +130,39 @@ def create_secret_from_json(json_file):
     print(f"Secret '{secret.metadata.name}' created successfully in namespace '{secret.metadata.namespace}'!")
   except client.exceptions.ApiException as e:
     if e.status == 409:  # Secret already exists
-      print(f"Secret '{secret.metadata.name}' already exists. Updating it instead.")
-      v1.replace_namespaced_secret(name=secret.metadata.name, namespace=secret.metadata.namespace, body=secret)
-      print(f"Secret '{secret.metadata.name}' updated successfully!")
+      print(f"Secret '{secret.metadata.name}' already exists.")
     else:
       raise e
 
+def retrieve_secret_value(secret_name, key="password"):
+    """
+    Retrieves the value of a specific key from a Kubernetes Secret.
+    """
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+    
+    try:
+        secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
+        if key in secret.data:
+            # Decode the base64 value
+            value = base64.b64decode(secret.data[key]).decode()
+            print(f"Retrieved value for key '{key}': {value}")
+            return value
+        else:
+            raise KeyError(f"Key '{key}' not found in secret '{secret_name}'.")
+    except client.exceptions.ApiException as e:
+        if e.status == 404:
+            print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
+        else:
+            raise e
 
 
 if __name__ == "__main__":
   print("Script start")
 
-  # Load Kubernetes configuration
-  create_secret_from_json(SECRET_FILE)
+  # create_secret_from_json(SECRET_FILE)
+
+  retrieve_secret_value(SECRET_NAME)
 
 
   print("Script end")
