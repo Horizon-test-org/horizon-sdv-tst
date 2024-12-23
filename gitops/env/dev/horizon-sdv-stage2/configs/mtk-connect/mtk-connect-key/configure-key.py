@@ -30,7 +30,7 @@ KEY_CREATE_REQUEST_BODY = {
   "expiryTime": f"{KEY_EXPIRATION_DATE.strftime('%Y-%m-%dT%H:%M:%SZ')}"
 }
 
-def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, delete_key_id=""):
+def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, delete_key_id=""):
   global KEY_VAL, KEY_ID
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
@@ -65,22 +65,22 @@ def connect_to_api(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, del
 
 def demo_api_connection(): # TODO: delete. Just for testing purposes
   print("\nGet version of MTK Connect")
-  connect_to_api()
+  perform_api_request()
 
   print(f"\nOld key id: {KEY_ID} \tval: {KEY_VAL}")
 
   print(f"\nCreate key for user id {USER_ID}")
-  connect_to_api(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
+  perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY, request_body=KEY_CREATE_REQUEST_BODY)
 
   print(f"\nNew key id: {KEY_ID} \tval: {KEY_VAL}")
 
   print("\nTesting new key...")
 
   print("\nGet current user")
-  connect_to_api(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
 
   print(f"\nDeleting key id: {KEY_ID} \tval: {KEY_VAL}")
-  connect_to_api(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
+  perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
 
 def create_secret_from_json(json_file):
   """
