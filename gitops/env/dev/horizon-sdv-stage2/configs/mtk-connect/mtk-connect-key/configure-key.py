@@ -186,11 +186,11 @@ def update_secret_value(secret_name, new_value, key="password"):
 if __name__ == "__main__":
   print("Script start")
 
-  # create_secret_from_json(SECRET_FILE)
-
   KEY_VAL = retrieve_secret_value(SECRET_NAME)
 
-  update_secret_value(SECRET_NAME, "unicorn")
+  perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
+
+  update_secret_value(SECRET_NAME, KEY_VAL)
 
 
   print("Script end")
