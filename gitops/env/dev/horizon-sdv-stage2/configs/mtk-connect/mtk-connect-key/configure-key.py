@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
   # create_secret_from_json(SECRET_FILE)
 
-  retrieve_secret_value(SECRET_NAME)
+  KEY_VAL = retrieve_secret_value(SECRET_NAME)
 
 
   print("Script end")
