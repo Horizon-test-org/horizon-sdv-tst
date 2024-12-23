@@ -145,7 +145,7 @@ def retrieve_secret_value(secret_name, key="password"):
         secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
         if key in secret.data:
             # Decode the base64 value
-            value = base64.b64decode(secret.data[key]).decode()
+            value = base64.b64decode(secret.data[key]).decode().strip()
             print(f"Retrieved value for key '{key}': {value}")
             return value
         else:
