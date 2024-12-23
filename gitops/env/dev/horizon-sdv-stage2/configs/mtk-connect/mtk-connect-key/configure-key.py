@@ -31,6 +31,9 @@ KEY_CREATE_REQUEST_BODY = {
 }
 
 def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, request_body=None, delete_key_id=""):
+  """
+  Sends request to api. Possible actions are listed in API_REQUEST_OPT.
+  """
   global KEY_VAL, KEY_ID
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
