@@ -18,7 +18,7 @@ SECRET_NAME = "mtk-connect-admin-key"
 
 class API_REQUEST_OPT(Enum) :
   GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
-  GET_CURRENT_USER = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/me"
+  GET_CURRENT_USER = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}"
   CREATE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys"
   DELETE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys/"
 
@@ -191,6 +191,8 @@ if __name__ == "__main__":
   perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
 
   update_secret_value(SECRET_NAME, KEY_VAL)
+
+  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
 
 
   print("Script end")
