@@ -6,10 +6,9 @@ import base64
 import json
 from kubernetes import client, config
 
-USERNAME = 
 USER_ID = 
-KEY_VAL = 
-KEY_ID = ''
+OLD_KEY_ID = ''
+OLD_KEY_VAL = ''
 
 NAMESPACE = "mtk-connect"
 
@@ -153,13 +152,14 @@ def create_secret_from_json(json_file):
     else:
       raise e
 
-def retrieve_secret_value(secret_name, key="password"):
+def retrieve_secret_value(secret_name, key):
     """
     Retrieves the value of a specific key from a Kubernetes Secret.
     """
     config.load_kube_config()
     v1 = client.CoreV1Api()
-    
+    print(f"\nRetrieving {key} value from secret.")
+
     try:
         secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
         if key in secret.data:
@@ -205,7 +205,8 @@ def update_secret_value(secret_name, new_value, key="password"):
 if __name__ == "__main__":
   print("Script start")
 
-  KEY_VAL = retrieve_secret_value(SECRET_NAME)
+  USERNAME = retrieve_secret_value(SECRET_NAME, "username")
+  KEY_VAL = retrieve_secret_value(SECRET_NAME, "password")
 
   perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
 
