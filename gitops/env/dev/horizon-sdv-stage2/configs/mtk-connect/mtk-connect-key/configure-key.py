@@ -22,19 +22,40 @@ class API_REQUEST_OPT(Enum) :
   CREATE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys"
   DELETE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys/"
 
-def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id=""):
+def get_key_id(key_list, key_val_ref):
+  """
+  Searches the key_list and finds the key based on the provided beginning of the key value (key_start variable),
+  returns id of the key.
+  """   
+  key_id = None
+  
+  try:
+    for key in key_list:
+      if key["key"][:8] == key_val_ref[:8]:
+        key_id = key["id"]      
+        print(f"\tThere is a key starting from: {key["key"][:8]}, its id is: {key_id}") 
+  except Exception as e:
+    print(f"Exception occured when getting key id. \n\t{e}")
+
+  return key_id
+
+def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id="", is_delete_key_id=False):
   """
   Sends request to api. Possible actions are listed in API_REQUEST_OPT.
   """
-  global KEY_VAL, KEY_ID
+  global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID
 
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
       print("\nGet version of MTK Connect")
       response_api = requests.get(operation.value, auth=(USERNAME, KEY_VAL))
     elif operation is API_REQUEST_OPT.GET_CURRENT_USER:
+      # Gets user data and stores value of the old key id, which will be used to delete the key
       print("\nGet current user data")
       response_api = requests.get(operation.value, auth=(USERNAME, KEY_VAL))
+      if is_delete_key_id:
+        OLD_KEY_ID = get_key_id(response_api.json()["data"]["keys"], OLD_KEY_VAL)
+
     elif operation is API_REQUEST_OPT.CREATE_KEY:
       print(f"\nCreate key for user id {USER_ID}")
       # New key settings: name, expiration date.
@@ -45,10 +66,10 @@ def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id="")
         "expiryTime": f"{key_expiration_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
       }
       response_api = requests.post(operation.value, auth=(USERNAME, KEY_VAL), json=key_create_request_body)
+      OLD_KEY_VAL = KEY_VAL
       KEY_VAL = response_api.json()["data"]["key"]
-      KEY_ID = response_api.json()["data"]["id"]
     elif operation is API_REQUEST_OPT.DELETE_KEY:
-      print(f"\nDeleting key id: {KEY_ID}")
+      print(f"\nDeleting key id: {OLD_KEY_ID}")
       response_api = requests.delete(operation.value+str(delete_key_id), auth=(USERNAME, KEY_VAL))
 
   except Exception as e:
@@ -73,14 +94,12 @@ def demo_api_connection(): # TODO: delete. Just for testing purposes
   
   perform_api_request()
 
-  print(f"\nOld key id: {KEY_ID} \tval: {KEY_VAL}")
   perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
-  print(f"\nNew key id: {KEY_ID} \tval: {KEY_VAL}")
 
   print("\nTesting new key...")
 
   perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
-  perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=KEY_ID)
+  perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=OLD_KEY_ID)
 
 def create_secret_from_json(json_file):
   """
@@ -192,7 +211,10 @@ if __name__ == "__main__":
 
   update_secret_value(SECRET_NAME, KEY_VAL)
 
-  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER, is_delete_key_id=True)
 
+  perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=OLD_KEY_ID)
+
+  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
 
   print("Script end")
