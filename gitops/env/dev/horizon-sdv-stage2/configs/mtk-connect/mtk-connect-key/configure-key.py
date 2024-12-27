@@ -6,7 +6,9 @@ import base64
 import json
 from kubernetes import client, config
 
-USER_ID = 
+USERNAME = ""
+KEY_VAL = ""
+USER_ID = ""
 OLD_KEY_ID = ''
 OLD_KEY_VAL = ''
 
@@ -32,7 +34,6 @@ def get_key_id(key_list, key_val_ref):
     for key in key_list:
       if key["key"][:8] == key_val_ref[:8]:
         key_id = key["id"]      
-        print(f"\tThere is a key starting from: {key["key"][:8]}, its id is: {key_id}") 
   except Exception as e:
     print(f"Exception occured when getting key id. \n\t{e}")
 
@@ -207,6 +208,7 @@ if __name__ == "__main__":
 
   USERNAME = retrieve_secret_value(SECRET_NAME, "username")
   KEY_VAL = retrieve_secret_value(SECRET_NAME, "password")
+  USER_ID = retrieve_secret_value(SECRET_NAME, "user_id")
 
   perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
 
