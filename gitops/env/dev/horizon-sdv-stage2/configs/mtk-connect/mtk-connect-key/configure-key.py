@@ -236,10 +236,10 @@ if __name__ == "__main__":
 
   print(f"-----\n\tUSERNAME: {USERNAME}, KEY: {KEY_VAL}, USER ID: {USER_ID}.")
   print(f"\tUSERNAME: {type(USERNAME)}, KEY: {type(KEY_VAL)}, USER ID: {type(USER_ID)}.\n------")
-  print(f"next request is: {API_REQUEST_OPT["CREATE_KEY"]}")
+  print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
 
   update_request_urls()
-  print(f"next request is: {API_REQUEST_OPT["CREATE_KEY"]}")
+  print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
 
   operation_result = perform_api_request(operation="CREATE_KEY")
 
