@@ -17,11 +17,20 @@ NAMESPACE = "mtk-connect"
 SECRET_FILE = "secret.json"
 SECRET_NAME = "mtk-connect-admin-key"
 
-class API_REQUEST_OPT(Enum) :
-  GET_VERSION = "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version"
-  GET_CURRENT_USER = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}"
-  CREATE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys"
-  DELETE_KEY = f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/{USER_ID}/keys/"
+API_REQUEST_OPT = {
+  "GET_VERSION": "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version",
+  "GET_CURRENT_USER": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID",
+  "CREATE_KEY": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID/keys",
+  "DELETE_KEY": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID/keys/",
+}
+
+def update_request_urls():
+  global API_REQUEST_OPT
+
+  for key, val in API_REQUEST_OPT:
+    val.replace("USER_ID", f"{USER_ID}")
+  
+  print(f"after {API_REQUEST_OPT}")
 
 def get_key_id(key_list, key_val_ref):
   """
@@ -222,6 +231,10 @@ if __name__ == "__main__":
 
   print(f"-----\n\tUSERNAME: {USERNAME}, KEY: {KEY_VAL}, USER ID: {USER_ID}.")
   print(f"\tUSERNAME: {type(USERNAME)}, KEY: {type(KEY_VAL)}, USER ID: {type(USER_ID)}.\n------")
+  print(f"next request is: {API_REQUEST_OPT.CREATE_KEY}")
+
+  update_request_urls()
+  print(f"next request is: {API_REQUEST_OPT.CREATE_KEY}")
 
   operation_result = perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
 
