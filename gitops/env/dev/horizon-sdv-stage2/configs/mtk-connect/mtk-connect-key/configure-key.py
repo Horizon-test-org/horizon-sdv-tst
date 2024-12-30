@@ -41,9 +41,11 @@ def get_key_id(key_list, key_val_ref):
 
 def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id="", is_delete_key_id=False):
   """
-  Sends request to api. Possible actions are listed in API_REQUEST_OPT.
+  Sends request to api. Possible actions are listed in API_REQUEST_OPT. 
+  Returns result flag: True if operation was succesfull.
   """
   global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID
+  result = False
 
   try:
     if operation is API_REQUEST_OPT.GET_VERSION:
@@ -78,6 +80,7 @@ def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id="",
     reponse_category = response_api.status_code // 100
     if reponse_category == 2:
       print(f"Operation done succesfully!")
+      result = True
     elif reponse_category == 3:
       print(f"Redirection!")
     elif reponse_category == 4:
@@ -89,6 +92,7 @@ def perform_api_request(operation=API_REQUEST_OPT.GET_VERSION, delete_key_id="",
   finally:
     print(f"Status code: {response_api.status_code} \nResponse from API: \n\t{response_api.text}")
     print("Request to API finished")
+    return result
 
 def demo_api_connection(): # TODO: delete. Just for testing purposes
   
@@ -179,7 +183,9 @@ def retrieve_secret_value(secret_name, key):
 def update_secret_value(secret_name, new_value, key="password"):
     """
     Updates the value of a specific key in a Kubernetes Secret.
+    Returns result flag: True if operation was succesfull.
     """
+    result = False
     config.load_kube_config()
     v1 = client.CoreV1Api()
     
@@ -202,6 +208,10 @@ def update_secret_value(secret_name, new_value, key="password"):
             print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
         else:
             raise e
+    else:
+      result = True
+    finally:
+      return result
 
 if __name__ == "__main__":
   print("Script start")
@@ -210,14 +220,21 @@ if __name__ == "__main__":
   KEY_VAL = retrieve_secret_value(SECRET_NAME, "password")
   USER_ID = retrieve_secret_value(SECRET_NAME, "user_id")
 
-  perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
+  print(f"-----\n\tUSERNAME: {USERNAME}, KEY: {KEY_VAL}, USER ID: {USER_ID}.")
+  print(f"\tUSERNAME: {type(USERNAME)}, KEY: {type(KEY_VAL)}, USER ID: {type(USER_ID)}.\n------")
 
-  update_secret_value(SECRET_NAME, KEY_VAL)
+  operation_result = perform_api_request(operation=API_REQUEST_OPT.CREATE_KEY)
 
-  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER, is_delete_key_id=True)
+  if operation_result:
+    operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
 
-  perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=OLD_KEY_ID)
+  if operation_result:
+    operation_result = perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER, is_delete_key_id=True)
 
-  perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
+  if operation_result:
+    operation_result = perform_api_request(operation=API_REQUEST_OPT.DELETE_KEY, delete_key_id=OLD_KEY_ID)
+
+  if operation_result:
+    operation_result = perform_api_request(operation=API_REQUEST_OPT.GET_CURRENT_USER)
 
   print("Script end")
