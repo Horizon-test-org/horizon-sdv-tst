@@ -27,7 +27,7 @@ API_REQUEST_OPT = {
 def update_request_urls():
   global API_REQUEST_OPT
 
-  for key, val in API_REQUEST_OPT:
+  for key, val in API_REQUEST_OPT.items():
     val.replace("USER_ID", f"{USER_ID}")
   
   print(f"after {API_REQUEST_OPT}")
