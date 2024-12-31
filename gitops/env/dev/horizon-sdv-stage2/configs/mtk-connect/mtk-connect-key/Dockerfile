@@ -10,4 +10,4 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY configure-key.py /app/
-CMD ["python", "/app/my_script.py"]
+CMD ["python", "/app/configure-key.py"]
