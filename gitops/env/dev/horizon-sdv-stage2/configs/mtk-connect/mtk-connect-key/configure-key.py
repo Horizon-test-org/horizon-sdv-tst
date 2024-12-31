@@ -1,5 +1,4 @@
 import requests
-from enum import Enum
 import datetime
 from dateutil.relativedelta import relativedelta
 import base64
