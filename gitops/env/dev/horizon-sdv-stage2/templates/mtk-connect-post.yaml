@@ -84,19 +84,16 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: hello
+  name: mtk-connect-api-key-config
 spec:
-  schedule: "* * * * *"
+  schedule: "0 0 * * *"
+  startingDeadlineSeconds: 300
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: hello
-            image: busybox:1.28
-            imagePullPolicy: IfNotPresent
-            command:
-            - /bin/sh
-            - -c
-            - date; echo Hello from the Kubernetes cluster
+          - name: mtk-connect-api-key-config
+            image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-key:latest
+            imagePullPolicy: Always
           restartPolicy: OnFailure
