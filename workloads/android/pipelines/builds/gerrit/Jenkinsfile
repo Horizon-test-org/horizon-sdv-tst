@@ -75,24 +75,30 @@ pipeline {
 
   agent none
 
+  // FIXME: document how this is created, handle 1st run, ie no trigger found (may add fake trigger in CasC)
   triggers {
     gerrit customUrl: '', gerritProjects: [[branches: [[compareType: 'PLAIN', pattern: 'accenture/android14-qpr1-automotiveos-release']], compareType: 'PLAIN', disableStrictForbiddenFileVerification: false, pattern: 'android/device/generic/car']], serverName: 'Gerrit'
+  }
+
+  environment {
+    GERRIT_CREDENTIALS_ID="jenkins-gerrit-http-password"
   }
 
   stages {
 
     stage ('Build: sdk_car_x86_64-userdebug') {
       agent { kubernetes { yaml kubernetesPodTemplate } }
+      when { expression { env.GERRIT_CHANGE_ID } }
       steps {
         container(name: 'builder') {
-          withCredentials([usernamePassword(credentialsId: 'jenkins-gerrit-http-password', passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
+          withCredentials([usernamePassword(credentialsId: env.GERRIT_CREDENTIALS_ID, passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
             sh '''
               git config --global credential.helper store
               git config --global url."https://${GERRIT_USERNAME}@${HORIZON_DOMAIN}".insteadOf "https://${HORIZON_DOMAIN}"
               echo https://"${GERRIT_USERNAME}":"${GERRIT_PASSWORD}"@"${HORIZON_DOMAIN}" > ~/.git-credentials
 
               export AAOS_GERRIT_MANIFEST_URL="https://${HORIZON_DOMAIN}/android/platform/manifest"
-              export AAOS_REVISION="android14-qpr1-automotiveos-release"
+              export AAOS_REVISION="${GERRIT_BRANCH}"
               export AAOS_LUNCH_TARGET="sdk_car_x86_64-userdebug"
               export AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}"
               export CLOUD_REGION="${CLOUD_REGION}"
@@ -103,6 +109,7 @@ pipeline {
               ./workloads/android/pipelines/builds/aaos_builder/aaos_avd_sdk.sh || true
               ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
             '''
+            archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
           }
         }
       }
@@ -110,6 +117,7 @@ pipeline {
 
     stage ('Build: aosp_cf_x86_64_auto-userdebug') {
       agent { kubernetes { yaml kubernetesPodTemplate } }
+      when { expression { env.GERRIT_CHANGE_ID } }
       steps {
         container(name: 'builder') {
           withCredentials([usernamePassword(credentialsId: 'jenkins-gerrit-http-password', passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
@@ -119,7 +127,7 @@ pipeline {
               echo https://"${GERRIT_USERNAME}":"${GERRIT_PASSWORD}"@"${HORIZON_DOMAIN}" > ~/.git-credentials
 
               export AAOS_GERRIT_MANIFEST_URL="https://${HORIZON_DOMAIN}/android/platform/manifest"
-              export AAOS_REVISION="android14-qpr1-automotiveos-release"
+              export AAOS_REVISION="${GERRIT_BRANCH}"
               export AAOS_LUNCH_TARGET="aosp_cf_x86_64_auto-userdebug"
               export AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}"
               export AAOS_BUILD_NUMBER=${BUILD_NUMBER}/${AAOS_LUNCH_TARGET}
@@ -128,7 +136,8 @@ pipeline {
               ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
               ./workloads/android/pipelines/builds/aaos_builder/aaos_build.sh
               ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
-          '''
+            '''
+            archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
           }
         }
       }
@@ -136,13 +145,13 @@ pipeline {
 
     stage ('Test: aosp_cf_x86_64_auto-userdebug') {
       agent { label 'cuttlefish-vm-main' }
+      when { expression { env.GERRIT_CHANGE_ID } }
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
           sh '''
             # Sleep because storage, takes time!
             BUCKET_FOLDER=$(echo "$JOB_NAME" | tr ' ' '_')
             export CUTTLEFISH_DOWNLOAD_URL="gs://${CLOUD_PROJECT}-aaos/$BUCKET_FOLDER/$BUILD_NUMBER/aosp_cf_x86_64_auto-userdebug"
-            export CTS_DOWNLOAD_URL="${CUTTLEFISH_DOWNLOAD_URL}"
             export CTS_VERSION=14
             export CTS_MODULE="CtsHostsideNumberBlockingTestCases"
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
@@ -150,24 +159,23 @@ pipeline {
             ./workloads/android/pipelines/tests/cts_execution/cts_execution.sh
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --stop || true
           '''
+          archiveArtifacts artifacts: 'cts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+          archiveArtifacts artifacts: 'android-cts-results/invocation_summary.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+          archiveArtifacts artifacts: 'android-cts-results/*.zip', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
         }
       }
     }
   }
 
-  // REVIEW what is returned.
   post {
-    always {
-      archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
-    }
-    success {
-      gerritReview labels: [Verified: 1], message: 'Build was successful.'
-    }
     unstable {
       gerritReview labels: [Verified: 0], message: 'Build is unstable.'
     }
     failure {
       gerritReview labels: [Verified: -1], message: 'Build has failed.'
+    }
+    success {
+      gerritReview labels: [Verified: 1], message: 'Build successful.'
     }
   }
 }
