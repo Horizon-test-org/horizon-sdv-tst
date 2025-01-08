@@ -90,6 +90,11 @@ spec:
                 jenkins:
                   systemMessage: Welcome to Horizon SDV server.
                   clouds:
+                    - kubernetes:
+                        containerCap: 20
+                        containerCapStr: "20"
+                        name: "kubernetes"
+                        namespace: "jenkins"
                     - computeEngine:
                         cloudName: cuttlefish-vm-main
                         configurations:
