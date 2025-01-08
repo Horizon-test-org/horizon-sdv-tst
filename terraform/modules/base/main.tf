@@ -259,7 +259,7 @@ resource "google_compute_firewall" "allow_tcp_22" {
   #source_ranges = ["10.1.0.0/24"]
   source_ranges = ["0.0.0.0/0"]
 
-  #target_service_accounts = [var.sdv_default_computer_sa]
+  target_service_accounts = [var.sdv_default_computer_sa]
 }
 
 
