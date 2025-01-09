@@ -248,13 +248,13 @@ spec:
               memory: 400Mi
           env:
             - name: devices__version
-              value: "v1.6.0-2f34680"
+              value: "v1.7.0"
           volumeMounts:
             - mountPath: /usr/src/config/config.json
               name: mtk-connect-config
               subPath: config.json
         - name: portal
-          image: harbor.scpmtk.com/mtk-connect/mtk-connect-portal:v5.6.0-9f364fc9
+          image: harbor.scpmtk.com/mtk-connect/mtk-connect-portal:v5.7.0
           resources:
             requests:
               cpu: 50m
@@ -270,7 +270,7 @@ spec:
               name: mtk-connect-config
               subPath: config.json
         - name: docs
-          image: harbor.scpmtk.com/mtk-connect/mtk-connect-docs:v2.0.9-f393447
+          image: harbor.scpmtk.com/mtk-connect/mtk-connect-docs:v2.0.10
           resources:
             requests:
               cpu: 50m

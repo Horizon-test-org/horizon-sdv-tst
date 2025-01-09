@@ -64,11 +64,11 @@ spec:
         - name: mtk-connect-post-container
           env:
             - name: AGENT_VERSION
-              value: "v1.6.0"
+              value: "v1.7.0"
             - name: TUNNEL_VERSION
-              value: "v1.6.0"
+              value: "v1.7.0"
             - name: GUACD_VERSION
-              value: "v1.6.0"
+              value: "v1.7.0"
             - name: NAMESPACE
               value: "mtk-connect"
           image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-post:latest
