@@ -68,6 +68,7 @@ resource "google_container_node_pool" "sdv_main_node_pool" {
   node_count     = var.node_count
   node_locations = var.node_locations
   node_config {
+    preemptible  = false
     machine_type = var.machine_type
 
     # Google recommends custom service accounts that have cloud-platform
@@ -96,7 +97,7 @@ resource "google_container_node_pool" "sdv_build_node_pool" {
   node_count     = var.build_node_pool_node_count
   node_locations = var.node_locations
   node_config {
-    preemptible  = true
+    preemptible  = false
     machine_type = var.build_node_pool_machine_type
 
     # Google recommends custom service accounts that have cloud-platform
