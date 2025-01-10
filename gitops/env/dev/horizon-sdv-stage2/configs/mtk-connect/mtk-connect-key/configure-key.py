@@ -13,7 +13,6 @@ OLD_KEY_VAL = ''
 
 NAMESPACE = "mtk-connect"
 
-SECRET_FILE = "secret.json"
 SECRET_NAME = "mtk-connect-admin-key"
 
 API_REQUEST_OPT = {
