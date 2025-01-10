@@ -85,6 +85,9 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: mtk-connect-api-key-config
+  namespace: mtk-connect
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
 spec:
   schedule: "0 0 * * *"
   startingDeadlineSeconds: 300
