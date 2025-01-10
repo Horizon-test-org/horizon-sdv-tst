@@ -106,17 +106,6 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
     print("Request to API finished")
     return result
 
-def demo_api_connection(): # TODO: delete. Just for testing purposes
-  
-  perform_api_request()
-
-  perform_api_request(operation=API_REQUEST_OPT["CREATE_KEY"])
-
-  print("\nTesting new key...")
-
-  perform_api_request(operation=API_REQUEST_OPT["GET_CURRENT_USER"])
-  perform_api_request(operation=API_REQUEST_OPT["DELETE_KEY"], delete_key_id=OLD_KEY_ID)
-
 def create_secret_from_json(json_file):
   """
   Reads a secret JSON file, transforms stringData to base64-encoded data, 
