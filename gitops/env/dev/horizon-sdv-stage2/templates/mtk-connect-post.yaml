@@ -99,4 +99,5 @@ spec:
           - name: mtk-connect-api-key-config
             image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
             imagePullPolicy: Always
+            args: ["--api-domain", "dev.horizon-sdv.scpmtk.com"]
           restartPolicy: OnFailure
