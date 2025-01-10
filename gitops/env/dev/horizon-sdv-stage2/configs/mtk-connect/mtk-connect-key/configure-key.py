@@ -4,31 +4,30 @@ from dateutil.relativedelta import relativedelta
 import base64
 import json
 from kubernetes import client, config
+import argparse
 
 USERNAME = ""
 KEY_VAL = ""
 USER_ID = ""
+URL_DOMAIN = ""
 OLD_KEY_ID = ''
 OLD_KEY_VAL = ''
 
 NAMESPACE = "mtk-connect"
-
 SECRET_NAME = "mtk-connect-admin-key"
 
 API_REQUEST_OPT = {
-  "GET_VERSION": "https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/config/version",
-  "GET_CURRENT_USER": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID",
-  "CREATE_KEY": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID/keys",
-  "DELETE_KEY": f"https://dev.horizon-sdv.scpmtk.com/mtk-connect/api/v1/users/USER_ID/keys/",
+  "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version", # TODO: czesc dev.horizon-sdv.scpmtk.com powinno byc w zmiennej zeby moc to updatowac
+  "GET_CURRENT_USER": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID",
+  "CREATE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys",
+  "DELETE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys/",
 }
 
 def update_request_urls():
   global API_REQUEST_OPT
-
-  for key, val in API_REQUEST_OPT.items():
-    API_REQUEST_OPT[key] = val.replace("USER_ID", f"{USER_ID}")
-  
-  print(f"after {API_REQUEST_OPT}")
+  for key in API_REQUEST_OPT:
+    API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("URL_DOMAIN", f"{URL_DOMAIN}")
+    API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("USER_ID", f"{USER_ID}")
 
 def get_key_id(key_list, key_val_ref):
   """
@@ -101,7 +100,7 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
       print(f"Server Error!")
     else:
       print(f"There was a problem!")
-  finally:
+
     print(f"Status code: {response_api.status_code} \nResponse from API: \n\t{response_api.text}")
     print("Request to API finished")
     return result
@@ -217,6 +216,10 @@ def update_secret_value(secret_name, new_value, key="password"):
 if __name__ == "__main__":
   print("Script start")
 
+  parser = argparse.ArgumentParser(description="Run the script with parameters. Required parameters: domain")
+  parser.add_argument("--api-domain", type=str, required=True, help="API domain")
+  args = parser.parse_args()
+  URL_DOMAIN = vars(args)["api_domain"]
   USERNAME = retrieve_secret_value(SECRET_NAME, "username")
   KEY_VAL = retrieve_secret_value(SECRET_NAME, "password")
   USER_ID = retrieve_secret_value(SECRET_NAME, "user_id")
@@ -226,6 +229,7 @@ if __name__ == "__main__":
   print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
 
   update_request_urls()
+
   print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
 
   operation_result = perform_api_request(operation="CREATE_KEY")
