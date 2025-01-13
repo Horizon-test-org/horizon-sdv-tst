@@ -95,9 +95,26 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: mtk-connect-writer-sa
           containers:
-          - name: mtk-connect-api-key-config
-            image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
-            imagePullPolicy: Always
-            args: ["--api-domain", "dev.horizon-sdv.scpmtk.com"]
+            - name: mtk-connect-api-key-config
+              env:
+              - name: MTK_KEY_UPD_USER_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: mtk-connect-admin-key
+                    key: user_id
+              - name: MTK_KEY_UPD_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: mtk-connect-admin-key
+                    key: username
+              - name: MTK_KEY_UPD_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mtk-connect-admin-key
+                    key: password
+              image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
+              imagePullPolicy: Always
+              args: ["--api-domain", "dev.horizon-sdv.scpmtk.com"]
           restartPolicy: OnFailure
