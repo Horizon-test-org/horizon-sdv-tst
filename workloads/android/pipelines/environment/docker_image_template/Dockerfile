@@ -26,7 +26,7 @@ RUN apt-get update -y && \
     g++-multilib libncurses5 libssl-dev python3 python3-setuptools python3-pip \
     python3-requests python3-venv python3-virtualenv procps \
     meson bc coreutils dosfstools e2fsprogs fdisk kpartx mtools ninja-build \
-    pkg-config rsync less curl sudo vim ssh findutils gawk && \
+    pkg-config rsync less curl sudo vim ssh findutils gawk wget && \
     apt-get update -y && \
     wget -nv "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
     tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
