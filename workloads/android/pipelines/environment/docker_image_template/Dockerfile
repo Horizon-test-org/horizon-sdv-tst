@@ -29,18 +29,19 @@ RUN apt-get update -y && \
     g++-multilib libncurses5 libssl-dev python3 python3-setuptools python3-pip \
     python3-requests python3-venv python3-virtualenv procps \
     meson bc coreutils dosfstools e2fsprogs fdisk kpartx mtools ninja-build \
-    pkg-config rsync less curl sudo vim ssh findutils gawk jq && \
+    pkg-config rsync less curl sudo vim ssh findutils gawk jq npm nodejs && \
     apt-get update -y && \
-    ls -l /usr/local || true && ls -l /usr/local/bin && ls -l /usr/local/bin/ || true &&  ls -l || true &&\
-    curl -SLO "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
-    tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
-    rm -f "node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
-    ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
-    ls -1 /usr/local/bin/node /usr/local/bin/nodejs && \
-    ls -l /usr/local || true && ls -l /usr/local/bin && ls -l /usr/local/bin/ || true &&  ls -l || true &&\
     npm install -g npm && \
     rm -rf ~/.npm/ && \
     rm -rf /var/lib/apt/lists/*
+
+#    ls -l /usr/local || true && ls -l /usr/local/bin && ls -l /usr/local/bin/ || true &&  ls -l || true &&\
+#    curl -SLO "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
+#    tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
+#    rm -f "node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
+#    ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
+#    ls -1 /usr/local/bin/node /usr/local/bin/nodejs && \
+#    ls -l /usr/local || true && ls -l /usr/local/bin && ls -l /usr/local/bin/ || true &&  ls -l || true &&
 
 # The following installs gcloud sdk including gsutil required for uploading
 # artifacts to Google Cloud Storage. Remove if using alternative storage.
