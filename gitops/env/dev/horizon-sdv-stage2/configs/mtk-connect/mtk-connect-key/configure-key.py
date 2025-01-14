@@ -171,37 +171,42 @@ def retrieve_secret_value(secret_key):
   return secret_value
 
 def update_secret_value(secret_name, new_value, key="password"):
-    """
-    Updates the value of a specific key in a Kubernetes Secret.
-    Returns result flag: True if operation was succesfull.
-    """
-    result = False
+  """
+  Updates the value of a specific key in a Kubernetes Secret.
+  Returns result flag: True if operation was succesfull.
+  """
+  result = False
+  try:
+    config.load_incluster_config()
+    print("Using in-cluster configuration.")
+  except config.ConfigException:
     config.load_kube_config()
-    v1 = client.CoreV1Api()
+    print("Using kubeconfig file.")
+  v1 = client.CoreV1Api()
+  
+  try:
+    # Fetch the existing secret
+    secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
     
-    try:
-        # Fetch the existing secret
-        secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
-        
-        # Update the value of the specified key
-        if secret.data is None:
-            secret.data = {}  # Ensure `data` exists
-        
-        # Encode the new value to base64
-        secret.data[key] = base64.b64encode(new_value.encode()).decode()
-        
-        # Update the secret in Kubernetes
-        v1.replace_namespaced_secret(name=secret_name, namespace=NAMESPACE, body=secret)
-        print(f"Updated key '{key}' in secret '{secret_name}' with new value.")
-    except client.exceptions.ApiException as e:
-        if e.status == 404:
-            print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
-        else:
-            raise e
+    # Update the value of the specified key
+    if secret.data is None:
+      secret.data = {}  # Ensure `data` exists
+    
+    # Encode the new value to base64
+    secret.data[key] = base64.b64encode(new_value.encode()).decode()
+    
+    # Update the secret in Kubernetes
+    v1.replace_namespaced_secret(name=secret_name, namespace=NAMESPACE, body=secret)
+    print(f"Updated key '{key}' in secret '{secret_name}' with new value.")
+  except client.exceptions.ApiException as e:
+    if e.status == 404:
+        print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
     else:
-      result = True
-    finally:
-      return result
+        raise e
+  else:
+    result = True
+  finally:
+    return result
 
 if __name__ == "__main__":
   print("Script start")
