@@ -15,6 +15,9 @@
 # Latest stable.
 FROM --platform=linux/amd64 debian:12
 
+# MTK Connect NodeJS Version
+ENV NODEJS_VERSION=20.18.1
+
 # Install packages required for building AAOSP targets.
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends apt-utils && \
