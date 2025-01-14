@@ -84,6 +84,8 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
         KEY_VAL = response_api.json()["data"]["key"]
         OLD_KEY_VAL = KEY_VAL
 
+      print(f"Thoreticaly key created. Is it saved? Key: {KEY_VAL}, old key: {OLD_KEY_VAL}")
+
     elif operation == "DELETE_KEY":
       print(f"\nDeleting key id: {OLD_KEY_ID}")
       response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
@@ -186,6 +188,7 @@ def update_secret_value(secret_name, new_value, key="password"):
   Returns result flag: True if operation was succesfull.
   """
   result = False
+  print("\nUpdating secret value.")
   try:
     config.load_incluster_config()
     print("Using in-cluster configuration.")
@@ -207,7 +210,7 @@ def update_secret_value(secret_name, new_value, key="password"):
     
     # Update the secret in Kubernetes
     v1.replace_namespaced_secret(name=secret_name, namespace=NAMESPACE, body=secret)
-    print(f"Updated key '{key}' in secret '{secret_name}' with new value.")
+    print(f"Updated key '{key}' in secret '{secret_name}' with new value.{secret}")
   except client.exceptions.ApiException as e:
     if e.status == 404:
         print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
@@ -227,8 +230,8 @@ if __name__ == "__main__":
   parser.add_argument("--api-domain", type=str, required=True, help="API domain")
   args = parser.parse_args()
   URL_DOMAIN = vars(args)["api_domain"]
-  USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
-  KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
+  # USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
+  # KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
 
   if (USERNAME and KEY_VAL):
     operation_result = update_request_urls(upd_domain=True)
@@ -242,16 +245,16 @@ if __name__ == "__main__":
   if operation_result:
     operation_result = perform_api_request(operation="CREATE_KEY")
 
-  if operation_result:
-    operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
+  # if operation_result:
+  #   operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
 
-  if operation_result:
-    operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
+  # if operation_result:
+  #   operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
 
-  if operation_result:
-    operation_result = perform_api_request(operation="DELETE_KEY", delete_key_id=OLD_KEY_ID)
+  # if operation_result:
+  #   operation_result = perform_api_request(operation="DELETE_KEY", delete_key_id=OLD_KEY_ID)
 
-  if operation_result:
-    operation_result = perform_api_request(operation="GET_CURRENT_USER")
+  # if operation_result:
+  #   operation_result = perform_api_request(operation="GET_CURRENT_USER")
 
   print("Script end")
