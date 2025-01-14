@@ -76,7 +76,7 @@ WORKDIR /home/${USER}
 RUN git config --global user.email "aaosp.jenkins@dummy.com" && \
     git config --global user.name "AAOSP Jenkins" && \
     git config --global color.ui false && \
-    echo $PATH
+    echo $PATH && which node || true && ls -l /usr/local/bin/
 
 # Create virtualenv ready for RPi builds (include-system-site-packages=true)
 # Install the required packages.
