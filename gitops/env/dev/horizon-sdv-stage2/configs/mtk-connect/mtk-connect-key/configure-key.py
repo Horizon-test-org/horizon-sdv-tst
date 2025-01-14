@@ -163,7 +163,7 @@ def retrieve_secret_value(secret_key):
   """
   Retrieves the value of a specific key from a Kubernetes Secret.
   """
-  secret_value = os.getenv(secret_key)
+  secret_value = os.getenv(secret_key).strip()
   if secret_value:
     print(f"Retrieved secret value from environment variable: {secret_value}")
   else:
