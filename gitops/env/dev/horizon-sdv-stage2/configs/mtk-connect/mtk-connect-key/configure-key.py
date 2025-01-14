@@ -5,6 +5,7 @@ import base64
 import json
 from kubernetes import client, config
 import argparse
+import os
 
 USERNAME = ""
 KEY_VAL = ""
@@ -164,21 +165,24 @@ def retrieve_secret_value(secret_name, key):
     config.load_kube_config()
     v1 = client.CoreV1Api()
     print(f"\nRetrieving {key} value from secret.")
+    value = os.getenv(key)
+    print(f"Retrieved value for key '{key}': {value}")
+    return value
 
-    try:
-        secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
-        if key in secret.data:
-            # Decode the base64 value
-            value = base64.b64decode(secret.data[key]).decode().strip()
-            print(f"Retrieved value for key '{key}': {value}")
-            return value
-        else:
-            raise KeyError(f"Key '{key}' not found in secret '{secret_name}'.")
-    except client.exceptions.ApiException as e:
-        if e.status == 404:
-            print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
-        else:
-            raise e
+    # try:
+    #     secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
+    #     if key in secret.data:
+    #         # Decode the base64 value
+    #         value = base64.b64decode(secret.data[key]).decode().strip()
+    #         print(f"Retrieved value for key '{key}': {value}")
+    #         return value
+    #     else:
+    #         raise KeyError(f"Key '{key}' not found in secret '{secret_name}'.")
+    # except client.exceptions.ApiException as e:
+    #     if e.status == 404:
+    #         print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
+    #     else:
+    #         raise e
 
 def update_secret_value(secret_name, new_value, key="password"):
     """
@@ -220,9 +224,9 @@ if __name__ == "__main__":
   parser.add_argument("--api-domain", type=str, required=True, help="API domain")
   args = parser.parse_args()
   URL_DOMAIN = vars(args)["api_domain"]
-  USERNAME = retrieve_secret_value(SECRET_NAME, "username")
-  KEY_VAL = retrieve_secret_value(SECRET_NAME, "password")
-  USER_ID = retrieve_secret_value(SECRET_NAME, "user_id")
+  USERNAME = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_USERNAME")
+  KEY_VAL = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_PASSWORD")
+  USER_ID = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_USER_ID")
 
   print(f"-----\n\tUSERNAME: {USERNAME}, KEY: {KEY_VAL}, USER ID: {USER_ID}.")
   print(f"\tUSERNAME: {type(USERNAME)}, KEY: {type(KEY_VAL)}, USER ID: {type(USER_ID)}.\n------")
