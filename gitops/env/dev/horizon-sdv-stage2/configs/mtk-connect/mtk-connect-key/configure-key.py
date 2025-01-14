@@ -14,8 +14,8 @@ URL_DOMAIN = ""
 OLD_KEY_ID = ''
 OLD_KEY_VAL = ''
 
-NAMESPACE = "mtk-connect"
-SECRET_NAME = "mtk-connect-admin-key"
+NAMESPACE = "jenkins"
+SECRET_NAME = "jenkins-mtk-connect-apikey"
 
 API_REQUEST_OPT = {
   "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version",
@@ -118,58 +118,6 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
     print(f"Status code: {response_api.status_code} \nResponse from API: \n\t{response_api.text}")
     print("Request to API finished")
     return result
-
-def create_secret_from_json(json_file):
-  """
-  Reads a secret JSON file, transforms stringData to base64-encoded data, 
-  and creates or updates the Kubernetes Secret.
-  """
-
-  with open(json_file, 'r') as f:
-    secret_data = json.load(f)
-
-  # Ensure `stringData` exists in the JSON and process it
-  if "stringData" in secret_data:
-    encoded_data = {
-      # Encode the `stringData` values to base64 and replace it with `data`
-        key: base64.b64encode(value.encode()).decode()
-        for key, value in secret_data["stringData"].items()
-    }
-    secret_data["data"] = encoded_data
-    del secret_data["stringData"]  # Remove `stringData` as it's now replaced
-  else:
-    raise ValueError("The JSON does not contain a 'stringData' field.")
-  
-  print(f"encoded secret: \n\t{secret_data}")
-
-# Create the secret object using the Kubernetes Python client
-  secret = client.V1Secret(
-    api_version=secret_data.get("apiVersion", "v1"),
-    kind=secret_data.get("kind", "Secret"),
-    metadata=client.V1ObjectMeta(
-        name=secret_data["metadata"]["name"],
-        namespace=secret_data["metadata"].get("namespace", "default"),
-        labels=secret_data["metadata"].get("labels"),
-    ),
-    type=secret_data.get("type", "Opaque"),
-    data=secret_data["data"]
-  )
-
-  print(f"secret: \n{secret}")
-
-  # Load Kubernetes configuration
-  config.load_kube_config()
-  v1 = client.CoreV1Api()
-    
-  # Create or update the secret in Kubernetes
-  try:
-    v1.create_namespaced_secret(namespace=secret.metadata.namespace, body=secret)
-    print(f"Secret '{secret.metadata.name}' created successfully in namespace '{secret.metadata.namespace}'!")
-  except client.exceptions.ApiException as e:
-    if e.status == 409:  # Secret already exists
-      print(f"Secret '{secret.metadata.name}' already exists.")
-    else:
-      raise e
 
 def retrieve_secret_value(secret_key):
   """
