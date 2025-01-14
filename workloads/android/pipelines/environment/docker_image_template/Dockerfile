@@ -75,7 +75,8 @@ WORKDIR /home/${USER}
 # Configure git config (fake details) for Google repo.
 RUN git config --global user.email "aaosp.jenkins@dummy.com" && \
     git config --global user.name "AAOSP Jenkins" && \
-    git config --global color.ui false
+    git config --global color.ui false && \
+    echo $PATH
 
 # Create virtualenv ready for RPi builds (include-system-site-packages=true)
 # Install the required packages.
