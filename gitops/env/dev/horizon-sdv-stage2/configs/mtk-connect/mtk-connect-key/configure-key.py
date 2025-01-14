@@ -25,11 +25,13 @@ API_REQUEST_OPT = {
   "GET_USER_DETAILS": "https://URL_DOMAIN/mtk-connect/api/v1/users?q=%7B%22username%22%3A%20%22marta.kania%40accenture.com%22%7D" #users?q=%7B%22username%22%3A%20%22mtk-connect-admin%22%7D"
 }
 
-def update_request_urls():
+def update_request_urls(upd_domain=False, upd_user_id=False):
   global API_REQUEST_OPT
   for key in API_REQUEST_OPT:
-    API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("URL_DOMAIN", f"{URL_DOMAIN}")
-    API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("USER_ID", f"{USER_ID}")
+    if upd_domain:
+      API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("URL_DOMAIN", f"{URL_DOMAIN}")
+    if upd_user_id:
+      API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("USER_ID", f"{USER_ID}")
   return True
 
 def get_key_id(key_list, key_val_ref):
@@ -65,7 +67,7 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
       # Gets user data and stores value of the old key id, which will be used to delete the key
       print("\nGet current user data")
       response_api = requests.get(API_REQUEST_OPT["GET_CURRENT_USER"], auth=(USERNAME, KEY_VAL))
-      if is_delete_key_id:
+      if is_delete_key_id and (response_api.status_code // 100 == 2):
         OLD_KEY_ID = get_key_id(response_api.json()["data"]["keys"], OLD_KEY_VAL)
 
     elif operation == "CREATE_KEY":
@@ -78,8 +80,9 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
         "expiryTime": f"{key_expiration_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
       }
       response_api = requests.post(API_REQUEST_OPT["CREATE_KEY"], auth=(USERNAME, KEY_VAL), json=key_create_request_body)
-      OLD_KEY_VAL = KEY_VAL
-      KEY_VAL = response_api.json()["data"]["key"]
+      if response_api.status_code // 100 == 2:
+        KEY_VAL = response_api.json()["data"]["key"]
+        OLD_KEY_VAL = KEY_VAL
 
     elif operation == "DELETE_KEY":
       print(f"\nDeleting key id: {OLD_KEY_ID}")
@@ -88,7 +91,8 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
     elif operation == "GET_USER_DETAILS":
       print("\nRetreiving detail info for mtk-connect-admin user")
       response_api = requests.get(API_REQUEST_OPT["GET_USER_DETAILS"], auth=(USERNAME, KEY_VAL))
-      USER_ID = response_api.json()["data"][0]["id"]
+      if response_api.status_code // 100 == 2:
+        USER_ID = response_api.json()["data"][0]["id"]
 
     else:
       raise KeyError(f"Operation '{operation}' not found.")
@@ -227,13 +231,13 @@ if __name__ == "__main__":
   KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
 
   if (USERNAME and KEY_VAL):
-    operation_result = update_request_urls()
+    operation_result = update_request_urls(upd_domain=True)
 
   if operation_result:
     operation_result = perform_api_request(operation="GET_USER_DETAILS")
 
   if operation_result:
-    operation_result = update_request_urls()
+    operation_result = update_request_urls(upd_user_id=True)
 
   if operation_result:
     operation_result = perform_api_request(operation="CREATE_KEY")
