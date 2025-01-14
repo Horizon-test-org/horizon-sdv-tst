@@ -81,8 +81,8 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
       }
       response_api = requests.post(API_REQUEST_OPT["CREATE_KEY"], auth=(USERNAME, KEY_VAL), json=key_create_request_body)
       if response_api.status_code // 100 == 2:
-        KEY_VAL = response_api.json()["data"]["key"]
         OLD_KEY_VAL = KEY_VAL
+        KEY_VAL = response_api.json()["data"]["key"]
 
       print(f"Thoreticaly key created. Is it saved? Key: {KEY_VAL}, old key: {OLD_KEY_VAL}")
 
@@ -230,8 +230,8 @@ if __name__ == "__main__":
   parser.add_argument("--api-domain", type=str, required=True, help="API domain")
   args = parser.parse_args()
   URL_DOMAIN = vars(args)["api_domain"]
-  # USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
-  # KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
+  USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
+  KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
 
   if (USERNAME and KEY_VAL):
     operation_result = update_request_urls(upd_domain=True)
