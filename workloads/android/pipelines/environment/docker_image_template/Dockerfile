@@ -28,6 +28,12 @@ RUN apt-get update -y && \
     meson bc coreutils dosfstools e2fsprogs fdisk kpartx mtools ninja-build \
     pkg-config rsync less curl sudo vim ssh findutils gawk && \
     apt-get update -y && \
+    wget -nv "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
+    tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
+    rm -f "node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
+    ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
+    npm install -g npm && \
+    rm -rf ~/.npm/ && \
     rm -rf /var/lib/apt/lists/*
 
 # The following installs gcloud sdk including gsutil required for uploading
@@ -68,5 +74,5 @@ RUN git config --global user.email "aaosp.jenkins@dummy.com" && \
 # Create virtualenv ready for RPi builds (include-system-site-packages=true)
 # Install the required packages.
 RUN virtualenv --system-site-packages venv && \
-    . ${HOME}/venv/bin/activate && pip3 install --user meson==1.1.0 mako \
+    . ${HOME}/venv/bin/activate && pip3 install --user meson==1.1.0 numpy mako \
     jinja2 ply pyyaml dataclasses && deactivate
