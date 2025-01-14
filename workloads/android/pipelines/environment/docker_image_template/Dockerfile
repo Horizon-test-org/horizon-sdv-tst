@@ -33,6 +33,7 @@ RUN apt-get update -y && \
     apt-get update -y && \
     wget -nv "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
     tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
+    ls -l /usr/local || true && ls -l /usr/local/bin || true &&  ls -l || true &&\
     rm -f "node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
     npm install -g npm && \
