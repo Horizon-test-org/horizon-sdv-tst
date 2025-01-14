@@ -18,10 +18,11 @@ NAMESPACE = "mtk-connect"
 SECRET_NAME = "mtk-connect-admin-key"
 
 API_REQUEST_OPT = {
-  "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version", # TODO: czesc dev.horizon-sdv.scpmtk.com powinno byc w zmiennej zeby moc to updatowac
+  "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version",
   "GET_CURRENT_USER": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID",
   "CREATE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys",
   "DELETE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys/",
+  "GET_USER_DETAILS": "https://URL_DOMAIN/mtk-connect/api/v1/users?q=%7B%22username%22%3A%20%22marta.kania%40accenture.com%22%7D" #users?q=%7B%22username%22%3A%20%22mtk-connect-admin%22%7D"
 }
 
 def update_request_urls():
@@ -52,7 +53,7 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
   Sends request to api. Possible actions are listed in API_REQUEST_OPT. 
   Returns result flag: True if operation was succesfull.
   """
-  global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID
+  global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID, USER_ID
   result = False
 
   try:
@@ -83,6 +84,11 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
     elif operation == "DELETE_KEY":
       print(f"\nDeleting key id: {OLD_KEY_ID}")
       response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
+
+    elif operation == "GET_USER_DETAILS":
+      print("\nRetreiving detail info for mtk-connect-admin user")
+      response_api = requests.get(API_REQUEST_OPT["GET_USER_DETAILS"], auth=(USERNAME, KEY_VAL))
+      USER_ID = response_api.json()["data"][0]["id"]
 
     else:
       raise KeyError(f"Operation '{operation}' not found.")
@@ -219,9 +225,14 @@ if __name__ == "__main__":
   URL_DOMAIN = vars(args)["api_domain"]
   USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
   KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
-  USER_ID = retrieve_secret_value("MTK_KEY_UPD_USER_ID")
 
-  if (USERNAME and KEY_VAL and USER_ID):
+  if (USERNAME and KEY_VAL):
+    operation_result = update_request_urls()
+
+  if operation_result:
+    operation_result = perform_api_request(operation="GET_USER_DETAILS")
+
+  if operation_result:
     operation_result = update_request_urls()
 
   if operation_result:
