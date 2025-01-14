@@ -193,14 +193,14 @@ if __name__ == "__main__":
   if operation_result:
     operation_result = perform_api_request(operation="CREATE_KEY")
 
-  if operation_result:
-    operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
+  # if operation_result:
+  #   operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
 
-  if operation_result:
-    operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
+  # if operation_result:
+  #   operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
 
-  if operation_result:
-    operation_result = perform_api_request(operation="DELETE_KEY", delete_key_id=OLD_KEY_ID)
+  # if operation_result:
+  #   operation_result = perform_api_request(operation="DELETE_KEY", delete_key_id=OLD_KEY_ID)
 
   if operation_result:
     operation_result = perform_api_request(operation="GET_CURRENT_USER")
