@@ -22,7 +22,7 @@ API_REQUEST_OPT = {
   "GET_CURRENT_USER": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID",
   "CREATE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys",
   "DELETE_KEY": "https://URL_DOMAIN/mtk-connect/api/v1/users/USER_ID/keys/",
-  "GET_USER_DETAILS": "https://URL_DOMAIN/mtk-connect/api/v1/users?q=%7B%22username%22%3A%20%22marta.kania%40accenture.com%22%7D" #users?q=%7B%22username%22%3A%20%22mtk-connect-admin%22%7D"
+  "GET_USER_DETAILS": "https://URL_DOMAIN/mtk-connect/api/v1/users?q=%7B%22username%22%3A%20%22mtk-connect-admin%22%7D"
 }
 
 def update_request_urls(upd_domain=False, upd_user_id=False):
