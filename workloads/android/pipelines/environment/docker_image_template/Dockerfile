@@ -36,6 +36,7 @@ RUN apt-get update -y && \
     tar -xvf "node-v${NODEJS_VERSION}-linux-x64.tar.gz" --strip-components=1 -C /usr/local && \
     rm -f "node-v${NODEJS_VERSION}-linux-x64.tar.gz" && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
+    ls -1 /usr/local/bin/node /usr/local/bin/nodejs && \
     ls -l /usr/local || true && ls -l /usr/local/bin && ls -l /usr/local/bin/ || true &&  ls -l || true &&\
     npm install -g npm && \
     rm -rf ~/.npm/ && \
