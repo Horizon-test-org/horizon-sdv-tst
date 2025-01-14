@@ -99,11 +99,6 @@ spec:
           containers:
             - name: mtk-connect-api-key-config
               env:
-              - name: MTK_KEY_UPD_USER_ID
-                valueFrom:
-                  secretKeyRef:
-                    name: mtk-connect-admin-key
-                    key: user_id
               - name: MTK_KEY_UPD_USERNAME
                 valueFrom:
                   secretKeyRef:
