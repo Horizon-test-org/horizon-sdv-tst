@@ -29,6 +29,7 @@ def update_request_urls():
   for key in API_REQUEST_OPT:
     API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("URL_DOMAIN", f"{URL_DOMAIN}")
     API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("USER_ID", f"{USER_ID}")
+  return True
 
 def get_key_id(key_list, key_val_ref):
   """
@@ -158,31 +159,16 @@ def create_secret_from_json(json_file):
     else:
       raise e
 
-def retrieve_secret_value(secret_name, key):
-    """
-    Retrieves the value of a specific key from a Kubernetes Secret.
-    """
-    config.load_kube_config()
-    v1 = client.CoreV1Api()
-    print(f"\nRetrieving {key} value from secret.")
-    value = os.getenv(key)
-    print(f"Retrieved value for key '{key}': {value}")
-    return value
-
-    # try:
-    #     secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
-    #     if key in secret.data:
-    #         # Decode the base64 value
-    #         value = base64.b64decode(secret.data[key]).decode().strip()
-    #         print(f"Retrieved value for key '{key}': {value}")
-    #         return value
-    #     else:
-    #         raise KeyError(f"Key '{key}' not found in secret '{secret_name}'.")
-    # except client.exceptions.ApiException as e:
-    #     if e.status == 404:
-    #         print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
-    #     else:
-    #         raise e
+def retrieve_secret_value(secret_key):
+  """
+  Retrieves the value of a specific key from a Kubernetes Secret.
+  """
+  secret_value = os.getenv(secret_key)
+  if secret_value:
+    print(f"Retrieved secret value from environment variable: {secret_value}")
+  else:
+    print("Failed to retrieve secret value from environment variable.")
+  return secret_value
 
 def update_secret_value(secret_name, new_value, key="password"):
     """
@@ -220,23 +206,21 @@ def update_secret_value(secret_name, new_value, key="password"):
 if __name__ == "__main__":
   print("Script start")
 
+  operation_result = False
+
   parser = argparse.ArgumentParser(description="Run the script with parameters. Required parameters: domain")
   parser.add_argument("--api-domain", type=str, required=True, help="API domain")
   args = parser.parse_args()
   URL_DOMAIN = vars(args)["api_domain"]
-  USERNAME = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_USERNAME")
-  KEY_VAL = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_PASSWORD")
-  USER_ID = retrieve_secret_value(SECRET_NAME, "MTK_KEY_UPD_USER_ID")
+  USERNAME = retrieve_secret_value("MTK_KEY_UPD_USERNAME")
+  KEY_VAL = retrieve_secret_value("MTK_KEY_UPD_PASSWORD")
+  USER_ID = retrieve_secret_value("MTK_KEY_UPD_USER_ID")
 
-  print(f"-----\n\tUSERNAME: {USERNAME}, KEY: {KEY_VAL}, USER ID: {USER_ID}.")
-  print(f"\tUSERNAME: {type(USERNAME)}, KEY: {type(KEY_VAL)}, USER ID: {type(USER_ID)}.\n------")
-  print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
+  if (USERNAME and KEY_VAL and USER_ID):
+    operation_result = update_request_urls()
 
-  update_request_urls()
-
-  print(f"next request is: {API_REQUEST_OPT['CREATE_KEY']}")
-
-  operation_result = perform_api_request(operation="CREATE_KEY")
+  if operation_result:
+    operation_result = perform_api_request(operation="CREATE_KEY")
 
   if operation_result:
     operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
