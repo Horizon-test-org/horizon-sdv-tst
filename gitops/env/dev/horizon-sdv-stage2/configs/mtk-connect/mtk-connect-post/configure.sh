@@ -60,6 +60,7 @@ done
 
 cd /root
 MTKC_APIKEY=$(kubectl exec "$(kubectl get pod -l app=mtk-connect -n ${NAMESPACE} -o name | sed 's@^pod/@@')" -n ${NAMESPACE} -c authenticator -- node createServiceAccount.js mtk-connect-admin)
+MTK_CONNECT_APIKEY=$(kubectl exec "$(kubectl get pod -l app=mtk-connect -n mtk-connect -o name | sed 's@^pod/@@')" -n mtk-connect -c authenticator -- node createServiceAccount.js mtk-connect-admin)
 
 if [ $? -eq 0 ]; then
   sed -i "s/##MTKC_APIKEY##/${MTKC_APIKEY}/g" ./secret-jenkins.json
