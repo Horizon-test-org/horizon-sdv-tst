@@ -88,6 +88,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: mtk-connect-writer-sa
           containers:
             - name: mtk-connect-api-key-config
               args: ["--api-domain", "dev.horizon-sdv.scpmtk.com"]
