@@ -66,7 +66,13 @@ cd /root
 MTKC_APIKEY=$(kubectl exec "$(kubectl get pod -l app=mtk-connect -n ${NAMESPACE} -o name | sed 's@^pod/@@')" -n ${NAMESPACE} -c authenticator -- node createServiceAccount.js mtk-connect-admin)
 
 if [ $? -eq 0 ]; then
-  sed -i "s/##MTKC_APIKEY##/${MTKC_APIKEY}/g" ./secret.json
+  sed -i "s/##MTKC_APIKEY##/${MTKC_APIKEY}/g" ./secret-jenkins.json
+  sed -i "s/##MTKC_APIKEY##/${MTKC_APIKEY}/g" ./secret-mtk-connect.json
+
   curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X DELETE ${APISERVER}/api/v1/namespaces/jenkins/secrets/jenkins-mtk-connect-apikey
-  curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST ${APISERVER}/api/v1/namespaces/jenkins/secrets -d @secret.json
+  curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST ${APISERVER}/api/v1/namespaces/jenkins/secrets -d @secret-jenkins.json
+
+  curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X DELETE ${APISERVER}/api/v1/namespaces/mtk-connect/secrets/jenkins-mtk-connect-apikey
+  curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST ${APISERVER}/api/v1/namespaces/mtk-connect/secrets -d @secret-mtk-connect.json
+
 fi
