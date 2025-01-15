@@ -11,7 +11,7 @@ USERNAME = ""
 KEY_VAL = ""
 USER_ID = ""
 URL_DOMAIN = ""
-OLD_KEY_ID = ''
+OLD_KEY_ID_LS = []
 OLD_KEY_VAL = ''
 
 NAMESPACE = "mtk-connect"
@@ -34,28 +34,39 @@ def update_request_urls(upd_domain=False, upd_user_id=False):
       API_REQUEST_OPT[key] = API_REQUEST_OPT[key].replace("USER_ID", f"{USER_ID}")
   return True
 
-def get_key_id(key_list, key_val_ref):
+def get_keys_id_ls_to_delete(key_list, current_key):
   """
-  Searches the key_list and finds the key based on the provided beginning of the key value (key_start variable),
-  returns id of the key.
+  Searches the key_list and finds ale the keysthat are two days older than the current key (current_key variable),
+  returns list of key's ids.
   """   
-  key_id = None
+  key_id_ls = []
+
+  # Get creation date of current_key
+  print(f"Current key: {current_key}")
+  print(f"List key: {key_listy}")
+
+  # Calculate what is the threshold datefor keys deletion
+
+
+  # Create list of keys id that older or equal than threshold date 
+
+
   
-  try:
-    for key in key_list:
-      if key["key"][:8] == key_val_ref[:8]:
-        key_id = key["id"]      
-  except Exception as e:
-    print(f"Exception occured when getting key id. \n\t{e}")
+  # try:
+  #   for key in key_list:
+  #     if key["key"][:8] == key_val_ref[:8]:
+  #       key_id = key["id"]      
+  # except Exception as e:
+  #   print(f"Exception occured when getting key id. \n\t{e}")
 
-  return key_id
+  return key_id_ls
 
-def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id="", is_delete_key_id=False):
+def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], is_delete_key_id=False):
   """
   Sends request to api. Possible actions are listed in API_REQUEST_OPT. 
   Returns result flag: True if operation was succesfull.
   """
-  global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID, USER_ID
+  global KEY_VAL, OLD_KEY_VAL, OLD_KEY_ID_LS, USER_ID
   result = False
 
   try:
@@ -68,7 +79,8 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
       print("\nGet current user data")
       response_api = requests.get(API_REQUEST_OPT["GET_CURRENT_USER"], auth=(USERNAME, KEY_VAL))
       if is_delete_key_id and (response_api.status_code // 100 == 2):
-        OLD_KEY_ID = get_key_id(response_api.json()["data"]["keys"], OLD_KEY_VAL)
+        # OLD_KEY_ID = get_key_id(response_api.json()["data"]["keys"], OLD_KEY_VAL)
+        OLD_KEY_ID_LS = get_keys_id_ls_to_delete(response_api.json()["data"]["keys"], KEY_VAL)
 
     elif operation == "CREATE_KEY":
       print(f"\nCreate key for user id {USER_ID}")
@@ -87,8 +99,12 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], delete_key_id=
       print(f"Thoreticaly key created. Is it saved? Key: {KEY_VAL}, old key: {OLD_KEY_VAL}")
 
     elif operation == "DELETE_KEY":
-      print(f"\nDeleting key id: {OLD_KEY_ID}")
-      response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
+      print(f"\nDeleting keys id: {OLD_KEY_ID_LS}")
+      if OLD_KEY_ID_LS:
+        for delete_key_id in OLD_KEY_ID_LS:
+          response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
+      else:
+        print("There are no keys to delete.")
 
     elif operation == "GET_USER_DETAILS":
       print("\nRetreiving detail info for mtk-connect-admin user")
@@ -200,7 +216,7 @@ if __name__ == "__main__":
     operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
 
   if operation_result:
-    operation_result = perform_api_request(operation="DELETE_KEY", delete_key_id=OLD_KEY_ID)
+    operation_result = perform_api_request(operation="DELETE_KEY")
 
   if operation_result:
     operation_result = perform_api_request(operation="GET_CURRENT_USER")
