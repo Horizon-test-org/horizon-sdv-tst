@@ -95,7 +95,7 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: jenkins-sa
+          serviceAccountName: mtk-connect-writer-sa
           containers:
             - name: mtk-connect-api-key-config
               env:
