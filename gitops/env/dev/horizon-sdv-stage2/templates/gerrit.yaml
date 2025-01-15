@@ -1,15 +1,30 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: horizon-sdv-rwx
+  name: standard-rwx
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 provisioner: filestore.csi.storage.gke.io
-volumeBindingMode: Immediate
 allowVolumeExpansion: true
 parameters:
   tier: standard
   network: sdv-network
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-shared-git
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: standard-rwx
+  volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: ServiceAccount

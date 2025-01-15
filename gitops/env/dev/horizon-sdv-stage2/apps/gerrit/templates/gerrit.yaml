@@ -10,10 +10,12 @@ spec:
     brokerType: NONE
   storage:
     storageClasses:
-      readWriteOnce: standard
-      readWriteMany: horizon-sdv-rwx
+      readWriteOnce: standard-rwo
+      readWriteMany: standard-rwx
     sharedStorage:
-      size: 1Ti
+      externalPVC:
+        enabled: true
+        claimName: "gerrit-shared-git"
   refdb:
     database: ZOOKEEPER
     zookeeper:
@@ -66,6 +68,7 @@ spec:
         plugins:
           - name: download-commands
           - name: delete-project
+          - name: gitiles
           - name: gerrit-oauth-provider
             url: https://github.com/davido/gerrit-oauth-provider/releases/download/v3.5.1/gerrit-oauth-provider.jar
             sha1: 8e3903ec02900fdec20208242959724cc10f240c

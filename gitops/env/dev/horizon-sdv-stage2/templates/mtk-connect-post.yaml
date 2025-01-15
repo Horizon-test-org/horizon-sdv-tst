@@ -63,13 +63,6 @@ spec:
       containers:
         - name: mtk-connect-post-container
           env:
-            - name: REGISTRY
-              value: "mywizard-gold.scpmtk.com/mtkc/registry"
-            - name: REGISTRY_CREDS
-              valueFrom:
-                secretKeyRef:
-                  name: mtk-connect-mtkc-regcred
-                  key: .dockerconfigjson
             - name: AGENT_VERSION
               value: "v1.6.0"
             - name: TUNNEL_VERSION

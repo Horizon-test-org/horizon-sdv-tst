@@ -31,7 +31,6 @@
 | <a name="module_sdv_iam_gcs_viewers"></a> [sdv\_iam\_gcs\_viewers](#module\_sdv\_iam\_gcs\_viewers) | ../sdv-iam | n/a |
 | <a name="module_sdv_iam_sceret_manager"></a> [sdv\_iam\_sceret\_manager](#module\_sdv\_iam\_sceret\_manager) | ../sdv-iam | n/a |
 | <a name="module_sdv_iam_secured_tunnel_user"></a> [sdv\_iam\_secured\_tunnel\_user](#module\_sdv\_iam\_secured\_tunnel\_user) | ../sdv-iam | n/a |
-| <a name="module_sdv_iam_security_reviewer"></a> [sdv\_iam\_security\_reviewer](#module\_sdv\_iam\_security\_reviewer) | ../sdv-iam | n/a |
 | <a name="module_sdv_iam_service_account_user"></a> [sdv\_iam\_service\_account\_user](#module\_sdv\_iam\_service\_account\_user) | ../sdv-iam | n/a |
 | <a name="module_sdv_network"></a> [sdv\_network](#module\_sdv\_network) | ../sdv-network | n/a |
 | <a name="module_sdv_sa_key_secret_gce_creds"></a> [sdv\_sa\_key\_secret\_gce\_creds](#module\_sdv\_sa\_key\_secret\_gce\_creds) | ../sdv-sa-key-secret | n/a |
@@ -43,6 +42,7 @@
 
 | Name | Type |
 |------|------|
+| [google_compute_firewall.allow_tcp_22](https://registry.terraform.io/providers/hashicorp/google/6.10.0/docs/resources/compute_firewall) | resource |
 | [google_project.project](https://registry.terraform.io/providers/hashicorp/google/6.10.0/docs/data-sources/project) | data source |
 
 ## Inputs

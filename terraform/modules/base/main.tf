@@ -243,5 +243,25 @@ module "sdv_iam_sceret_manager" {
 
 }
 
+# defininion for custom VPN Firewall to to and from the instances.
+# All traffic to instances, even from other instances, is blocked by the firewall unless firewall rules are created to allow it.
+# allow tcp port 22 for default_computer_sa
+
+resource "google_compute_firewall" "allow_tcp_22" {
+  name    = "cuttflefish-allow-tcp-22"
+  network = var.sdv_network
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  #source_ranges = ["10.1.0.0/24"]
+  source_ranges = ["0.0.0.0/0"]
+
+  target_service_accounts = [var.sdv_default_computer_sa]
+}
+
+
 
 

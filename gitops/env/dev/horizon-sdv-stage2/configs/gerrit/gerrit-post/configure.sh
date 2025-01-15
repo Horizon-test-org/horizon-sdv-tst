@@ -174,7 +174,13 @@ function gerrit-craft-all-users() {
     UUID_SHORT=$(echo ${UUID} | cut -c1-2)
     git fetch origin refs/groups/${UUID_SHORT}/${UUID}:refs/groups/${UUID_SHORT}/${UUID}
     git checkout refs/groups/${UUID_SHORT}/${UUID}
-    echo "1000000" >members
+    if [ -f ./members ]; then
+      if ! grep -q "1000000" ./members; then
+        echo "1000000" >>members
+      fi
+    else
+      echo "1000000" >members
+    fi
     git add members
     git commit -m "Updating members"
     git push origin HEAD:refs/groups/${UUID_SHORT}/${UUID}
@@ -242,7 +248,7 @@ function gerrit-craft-all-users() {
       return
     else
       cd /root
-      HTTP_PASSWORD_BASE64=$(echo $HTTP_PASSWORD | base64 -w0)
+      HTTP_PASSWORD_BASE64=$(echo -n $HTTP_PASSWORD | base64 -w0)
       sed -i "s/##HTTP_PASSWORD##/${HTTP_PASSWORD_BASE64}/g" ./secret.json
 
       curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X DELETE ${APISERVER}/api/v1/namespaces/jenkins/secrets/jenkins-gerrit-http-password
@@ -254,7 +260,7 @@ function gerrit-craft-all-users() {
   fi
 }
 
-function gerrit-disable-anonymous-access() {
+function gerrit-setup-all-projects() {
   retVal="RETVAL_NOK"
   cd /root
   mkdir -p /root/tmp
@@ -267,13 +273,20 @@ function gerrit-disable-anonymous-access() {
     sed -i '/read = group Anonymous Users$/d' project.config
     sed -i '/\[access \"refs\/meta\/version\"\]$/d' project.config
     sed -i '/^global:Anonymous-Users/d' groups
-    git add .
-    git commit -m "Disable anonymous access"
-    git push origin HEAD:refs/meta/config
-    echo "Anonymous access is now disabled"
   else
     echo "Anonymous access is already disabled"
   fi
+  if ! grep -q "label-Verified" ./project.config; then
+    echo "Adding Verified label"
+    sed -i '/label-Code-Review = -1..+1 group Registered Users/a\        label-Verified = -1..+1 group Administrators\n\        label-Verified = -1..+1 group Project Owners\n\        label-Verified = -1..+1 group Registered Users' ./project.config
+    sed -i '/copyCondition = changekind:NO_CHANGE OR changekind:TRIVIAL_REBASE OR is:MIN/a\[label "Verified"]\n\        function = NoBlock\n\        defaultValue = 0\n\        value = -1 Fails\n\        value = 0 No score\n\        value = +1 Verified\n\        copyCondition = changekind:NO_CODE_CHANGE' ./project.config
+  else
+    echo "Verified label is already added"
+  fi
+  git add .
+  git commit -m "Disable anonymous access, add Verified label"
+  git push origin HEAD:refs/meta/config
+
   cd /root
   rm -rf /root/tmp
   retVal="RETVAL_OK"
@@ -282,14 +295,22 @@ function gerrit-disable-anonymous-access() {
 
 function gerrit-create-projects() {
   retVal="RETVAL_NOK"
-  ERR_MSG=$(ssh -q -o LogLevel=ERROR -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -p 29418 -i /root/.ssh/privatekey gerrit-admin@gerrit-service gerrit ls-projects | grep "android/platform/manifest")
+  ERR_MSG=$(ssh -q -o LogLevel=ERROR -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -p 29418 -i /root/.ssh/privatekey gerrit-admin@gerrit-service gerrit ls-projects | grep "^android/platform/manifest")
   if [[ $ERR_MSG == *"android/platform/manifest"* ]]; then
     echo "Project exists."
     retVal="RETVAL_OK"
-    return
   else
     echo "Create android/platform/manifest project."
     ssh -q -o LogLevel=ERROR -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -p 29418 -i /root/.ssh/privatekey gerrit-admin@gerrit-service gerrit create-project android/platform/manifest
+    retVal="RETVAL_OK"
+  fi
+  ERR_MSG=$(ssh -q -o LogLevel=ERROR -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -p 29418 -i /root/.ssh/privatekey gerrit-admin@gerrit-service gerrit ls-projects | grep "^android/device/generic/car")
+  if [[ $ERR_MSG == *"android/device/generic/car"* ]]; then
+    echo "Project exists."
+    retVal="RETVAL_OK"
+  else
+    echo "Create android/device/generic/car project."
+    ssh -q -o LogLevel=ERROR -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -p 29418 -i /root/.ssh/privatekey gerrit-admin@gerrit-service gerrit create-project android/device/generic/car
     retVal="RETVAL_OK"
   fi
 }
@@ -305,10 +326,12 @@ function gerrit-mirror-android() {
     cd manifest.git
     git config --global --add safe.directory /mnt/git/android/platform/manifest.git
     git remote add gerrit /mnt/git/android/platform/manifest.git/
+    git gc --aggressive --force
     chown -R 1000:users /mnt/git/.mirror/
   else
     cd /mnt/git/.mirror/android/platform/manifest.git
     git fetch origin
+    #git gc --aggressive --force
     chown -R 1000:users /mnt/git/.mirror/
     git config --global --add safe.directory /mnt/git/android/platform/manifest.git
   fi
@@ -341,6 +364,28 @@ function gerrit-mirror-android() {
   #TOKEN=$(./get_github_app_token.sh)
   #git clone --mirror https://git:${TOKEN}@github.com/${GH_REPO}
 
+  git config --global --add safe.directory /mnt/git/.mirror/android/device/generic/car.git
+
+  if [ ! -d "/mnt/git/.mirror/android/device/generic/car/" ]; then
+    mkdir -p /mnt/git/.mirror/android/device/generic/car/
+    cd /mnt/git/.mirror/android/device/generic/
+    git clone --mirror https://android.googlesource.com/device/generic/car
+    cd car.git
+    git config --global --add safe.directory /mnt/git/android/device/generic/car.git
+    git remote add gerrit /mnt/git/android/device/generic/car.git/
+    git gc --aggressive --force
+    chown -R 1000:users /mnt/git/.mirror/
+  else
+    cd /mnt/git/.mirror/android/device/generic/car.git
+    git fetch origin
+    #git gc --aggressive --force
+    chown -R 1000:users /mnt/git/.mirror/
+    git config --global --add safe.directory /mnt/git/android/device/generic/car.git
+  fi
+  git fetch gerrit
+  git push gerrit refs/heads/*:refs/heads/*
+  git push gerrit refs/tags/*:refs/tags/*
+
   retVal="RETVAL_OK"
   return
 }
@@ -360,9 +405,9 @@ function main() {
     exit 1
   fi
 
-  gerrit-disable-anonymous-access
+  gerrit-setup-all-projects
   if [[ "${retVal}" == "RETVAL_NOK" ]]; then
-    echo "gerrit-disable-anonymous-access failed"
+    echo "gerrit-setup-all-projects failed"
     exit 1
   fi
 

@@ -98,7 +98,7 @@ spec:
       volumes:
         - name: shared
           persistentVolumeClaim:
-            claimName: shared-pvc
+            claimName: gerrit-shared-git
         - name: ssh-keys
           secret:
             secretName: gerrit-ssh-private-key

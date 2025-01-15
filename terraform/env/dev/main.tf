@@ -1,5 +1,5 @@
 
-# workflow build 166
+# workflow build 177
 
 locals {
   sdv_default_computer_sa = "268541173342-compute@developer.gserviceaccount.com"
@@ -34,7 +34,7 @@ module "base" {
   sdv_cluster_node_pool_machine_type = "n1-standard-4"
   sdv_cluster_node_pool_count        = 3
   sdv_build_node_pool_machine_type   = "c2d-highcpu-112"
-  sdv_build_node_pool_max_node_count = 20
+  sdv_build_node_pool_max_node_count = 10
 
   sdv_bastion_host_name = "sdv-bastion-host"
   sdv_bastion_host_sa   = "sdv-bastion-host-sa-iap"

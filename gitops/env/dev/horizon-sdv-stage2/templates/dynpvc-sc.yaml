@@ -8,3 +8,6 @@ metadata:
 provisioner: pd.csi.storage.gke.io
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
+parameters:
+  type: pd-balanced
+  csi.storage.k8s.io/fstype: ext4

@@ -1,0 +1,207 @@
+// Copyright (c) 2024-2025 Accenture, All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Description:
+// Build Android CTS for Cuttlefish. Only required if testing CTS changes
+// or requiring a new revision without updating the CTS version on CF
+// instances.
+pipeline {
+
+  agent {
+    kubernetes {
+      yaml """\
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          annotations:
+            cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+          labels:
+            aaos_pod: "true"
+        spec:
+          tolerations:
+          - key: workloadType
+            operator: Equal
+            value: android
+            effect: "NoSchedule"
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: aaos_pod
+                    operator: Exists
+                topologyKey: kubernetes.io/hostname
+          hostname: jenkins-aaos-build-pod
+          serviceAccountName: ${JENKINS_SERVICE_ACCOUNT}
+          containers:
+          - name: builder
+            image: ${CLOUD_REGION}-docker.pkg.dev/${CLOUD_PROJECT}/${ANDROID_BUILD_DOCKER_ARTIFACT_PATH_NAME}:latest
+            imagePullPolicy: IfNotPresent
+            command:
+            - sleep
+            args:
+            - 4h
+            resources:
+              limits:
+                cpu: 96000m
+                memory: 160000Mi
+              requests:
+                cpu: 96000m
+                memory: 160000Mi
+            volumeMounts:
+              - mountPath: /aaos-cache
+                name: aaos-cache
+          volumes:
+            - name: aaos-cache
+              ephemeral:
+                volumeClaimTemplate:
+                  spec:
+                    storageClassName: ${JENKINS_CACHE_STORAGE_CLASS_NAME}
+                    resources:
+                      requests:
+                        storage: 2000Gi
+                    accessModes:
+                      - ReadWriteOnce
+          nodeSelector:
+            workloadLabel: android
+      """.stripIndent()
+    }
+  }
+
+  parameters {
+    string(name: 'AAOS_GERRIT_MANIFEST_URL',
+           defaultValue: 'https://android.googlesource.com/platform/manifest',
+           description: "<p>Android Manifest URL.</p>")
+
+    string(name: 'AAOS_REVISION',
+           defaultValue: 'android-14.0.0_r30',
+           description: '''<p>Android revision tag/branch name.</p>''')
+
+    string(name: 'AAOS_LUNCH_TARGET',
+           defaultValue: '',
+           description: '''<p>Build Android CTS from cuttlefish target.</p>''')
+
+    choice(name: 'AAOS_CLEAN',
+           choices: ['NO_CLEAN', 'CLEAN_BUILD', 'CLEAN_ALL'],
+           description: '''<p>Clean build or cache directories, e.g.
+           <ul>
+           <li>NO_CLEAN : do not clean</li>
+           <li>CLEAN_BUILD : this will clean the build target output directory</li>
+           <li>CLEAN_ALL : this will clear the whole cache including source</li>
+           </ul>
+           <b>Warning:</b> Only use when necessary.</p>''')
+
+    string(name: 'AAOS_ARTIFACT_STORAGE_SOLUTION', defaultValue: 'GCS_BUCKET',
+           description: '''<p>Android Artifact Storage:<br/>
+           <ul><li>GCS_BUCKET will store to cloud bucket storage</li>
+           <li>Empty will result in nothing stored</li></ul></p>''')
+
+    // From manual upstream open review change.
+    string(name: 'GERRIT_PROJECT', defaultValue: '',
+           description: '<p>Gerrit Project with open review.</p>')
+    string(name: 'GERRIT_CHANGE_NUMBER', defaultValue: '',
+           description: '<p>Gerrit review item change number.</p>')
+    string(name: 'GERRIT_PATCHSET_NUMBER', defaultValue: '',
+           description: '<p>Gerrit review item patchset number.</p>')
+  }
+
+  stages {
+    stage ('Clean') {
+      when {
+        allOf {
+          expression { env.AAOS_LUNCH_TARGET }
+          expression { env.AAOS_CLEAN != 'NO_CLEAN' }
+        }
+      }
+      steps {
+        script {
+          currentBuild.description = "${env.AAOS_LUNCH_TARGET}"
+        }
+        container(name: 'builder') {
+            sh '''
+              AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
+              AAOS_CLEAN="${AAOS_CLEAN}" \
+              ./workloads/android/pipelines/builds/aaos_builder/aaos_environment.sh
+            '''
+        }
+      }
+    }
+
+    stage ('Initialise') {
+      when { expression { env.AAOS_LUNCH_TARGET } }
+      steps {
+        script {
+          currentBuild.description = "${env.AAOS_LUNCH_TARGET}"
+        }
+        container(name: 'builder') {
+          withCredentials([usernamePassword(credentialsId: 'jenkins-gerrit-http-password', passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
+            sh '''
+              git config --global credential.helper store
+              git config --global url."https://${GERRIT_USERNAME}@${HORIZON_DOMAIN}".insteadOf "https://${HORIZON_DOMAIN}"
+              echo https://"${GERRIT_USERNAME}":"${GERRIT_PASSWORD}"@"${HORIZON_DOMAIN}" > ~/.git-credentials
+
+              AAOS_GERRIT_MANIFEST_URL="${AAOS_GERRIT_MANIFEST_URL}" \
+              AAOS_REVISION="${AAOS_REVISION}" \
+              AAOS_RPI_REVISION="${AAOS_RPI_REVISION}" \
+              AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
+              AAOS_CLEAN="NO_CLEAN" \
+              ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
+            '''
+          }
+        }
+      }
+    }
+
+    stage ('Build'){
+      when { expression { env.AAOS_LUNCH_TARGET } }
+      steps {
+        container(name: 'builder') {
+          sh '''
+            AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
+            AAOS_BUILD_CTS=1 \
+            AAOS_CLEAN="NO_CLEAN" \
+            ./workloads/android/pipelines/builds/aaos_builder/aaos_build.sh
+          '''
+        }
+      }
+    }
+
+    stage ('Storage'){
+      when {
+        allOf {
+          expression { env.AAOS_LUNCH_TARGET }
+          expression { env.AAOS_ARTIFACT_STORAGE_SOLUTION != '' }
+        }
+      }
+      steps {
+        container(name: 'builder') {
+          sh '''
+            AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
+            AAOS_BUILD_CTS=1 \
+            AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}" \
+            AAOS_ARTIFACT_STORAGE_SOLUTION="${AAOS_ARTIFACT_STORAGE_SOLUTION}" \
+            CLOUD_REGION="${CLOUD_REGION}" \
+            AAOS_CLEAN="NO_CLEAN" \
+            ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
+          '''
+        }
+      }
+    }
+  }
+  post {
+    always {
+      archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+    }
+  }
+}

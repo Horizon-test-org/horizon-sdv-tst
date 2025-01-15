@@ -5,17 +5,13 @@ SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
 NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
 TOKEN=$(cat ${SERVICEACCOUNT}/token)
 CACERT=${SERVICEACCOUNT}/ca.crt
+REGISTRY=harbor.scpmtk.com/mtk-connect
 
 basedir=$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)
 
 rm -rf /tmp/installer
 mkdir -p /tmp/installer
 cd /tmp/installer
-
-REGISTRY_USERNAME=$(echo ${REGISTRY_CREDS} | jq -r ".auths[].auth" | base64 -d | awk -F':' '{print $1}')
-REGISTRY_PASSWORD=$(echo ${REGISTRY_CREDS} | jq -r ".auths[].auth" | base64 -d | awk -F':' '{print $2}')
-
-echo ${REGISTRY_PASSWORD} | skopeo login --username ${REGISTRY_USERNAME} --password-stdin ${REGISTRY}
 
 kubectl exec "$(kubectl get pod -l app=mtk-connect -n ${NAMESPACE} -o name | sed 's@^pod/@@')" -n ${NAMESPACE} -c portal -- find /usr/src/artifacts -name "mtk-connect-agent.*" -exec rm {} \;
 declare -a architectures=("amd64" "arm" "arm64" "node" "win" "mac" "linux")

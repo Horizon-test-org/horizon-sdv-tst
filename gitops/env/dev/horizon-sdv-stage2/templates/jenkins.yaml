@@ -12,9 +12,13 @@ spec:
   source:
     chart: jenkins
     repoURL: https://charts.jenkins.io
-    targetRevision: 5.7.14
+    targetRevision: 5.8.2
     helm:
       values: |
+        persistence:
+          accessMode: "ReadWriteOnce"
+          enabled: true
+          existingClaim: "jenkins-home-volume"
         rbac:
           readSecrets: true
         controller:
@@ -86,6 +90,11 @@ spec:
                 jenkins:
                   systemMessage: Welcome to Horizon SDV server.
                   clouds:
+                    - kubernetes:
+                        containerCap: 10
+                        containerCapStr: "10"
+                        name: "horizon-kubernetes"
+                        namespace: "jenkins"
                     - computeEngine:
                         cloudName: cuttlefish-vm-main
                         configurations:
@@ -113,7 +122,7 @@ spec:
                             runAsUser: "jenkins"
                             sshConfiguration:
                               customPrivateKeyCredentialsId: "jenkins-cuttlefish-vm-ssh-private-key"
-                            template: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/global/instanceTemplates/instance-template-cuttlefish-vm-main-debian-12"
+                            template: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/global/instanceTemplates/instance-template-cuttlefish-vm-main-debian"
                             useInternalAddress: true
                             zone: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/zones/europe-west1-d"
                         credentialsId: "gce-creds"
@@ -121,22 +130,22 @@ spec:
                         noDelayProvisioning: true
                         projectId: "sdva-2108202401"
                     - computeEngine:
-                        cloudName: "cuttlefish-vm-v100"
+                        cloudName: "cuttlefish-vm-v101"
                         configurations:
                         - bootDiskAutoDelete: true
                           bootDiskSizeGb: 10
                           bootDiskSizeGbStr: "10"
                           bootDiskType: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/zones/europe-west1-d/diskTypes/hyperdisk-balanced"
-                          description: "cuttlefish-vm-v100"
+                          description: "cuttlefish-vm-v101"
                           javaExecPath: "/usr/bin/java"
                           labelSet:
-                          - name: "cuttlefish-vm-v100"
-                          labelString: "cuttlefish-vm-v100"
-                          labels: "cuttlefish-vm-v100"
+                          - name: "cuttlefish-vm-v101"
+                          labelString: "cuttlefish-vm-v101"
+                          labels: "cuttlefish-vm-v101"
                           launchTimeoutSeconds: 300
                           launchTimeoutSecondsStr: "300"
                           mode: NORMAL
-                          namePrefix: "cuttlefish-vm-v100"
+                          namePrefix: "cuttlefish-vm-v101"
                           numExecutors: 1
                           numExecutorsStr: "1"
                           oneShot: true
@@ -147,41 +156,7 @@ spec:
                           runAsUser: "jenkins"
                           sshConfiguration:
                             customPrivateKeyCredentialsId: "jenkins-cuttlefish-vm-ssh-private-key"
-                          template: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/global/instanceTemplates/instance-template-cuttlefish-vm-v100-debian-12"
-                          useInternalAddress: true
-                          zone: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/zones/europe-west1-d"
-                        credentialsId: "gce-creds"
-                        instanceCapStr: "20"
-                        noDelayProvisioning: true
-                        projectId: "sdva-2108202401"
-                    - computeEngine:
-                        cloudName: "cuttlefish-vm-v0931"
-                        configurations:
-                        - bootDiskAutoDelete: true
-                          bootDiskSizeGb: 10
-                          bootDiskSizeGbStr: "10"
-                          bootDiskType: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/zones/europe-west1-d/diskTypes/hyperdisk-balanced"
-                          description: "cuttlefish-vm-v0931"
-                          javaExecPath: "/usr/bin/java"
-                          labelSet:
-                          - name: "cuttlefish-vm-v0931"
-                          labelString: "cuttlefish-vm-v0931"
-                          labels: "cuttlefish-vm-v0931"
-                          launchTimeoutSeconds: 300
-                          launchTimeoutSecondsStr: "300"
-                          mode: NORMAL
-                          namePrefix: "cuttlefish-vm-v0931"
-                          numExecutors: 1
-                          numExecutorsStr: "1"
-                          oneShot: true
-                          region: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/regions/europe-west1"
-                          remoteFs: "/home/jenkins"
-                          retentionTimeMinutes: 6
-                          retentionTimeMinutesStr: "6"
-                          runAsUser: "jenkins"
-                          sshConfiguration:
-                            customPrivateKeyCredentialsId: "jenkins-cuttlefish-vm-ssh-private-key"
-                          template: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/global/instanceTemplates/instance-template-cuttlefish-vm-v0931-debian-12"
+                          template: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/global/instanceTemplates/instance-template-cuttlefish-vm-v101-debian"
                           useInternalAddress: true
                           zone: "https://www.googleapis.com/compute/v1/projects/sdva-2108202401/zones/europe-west1-d"
                         credentialsId: "gce-creds"
@@ -212,8 +187,28 @@ spec:
                       println("This is groovy !");
                 jobs:
                   - script: >
-                      pipelineJob('AAOS Builder') {
-                        description('Android Automotive build pipeline')
+                      folder('Android') {
+                        displayName('Android Workflows')
+                        description('<p>This folder contains pipelines and jobs related to environment administration, building, testing, and deploying Android applications.<br/>It includes workflows for administration, building and test tasks.</p>')
+                      }
+                  - script: >
+                      folder('Android/Environment') {
+                        displayName('Environment')
+                        description('<p>This folder contains environment administrative jobs related to supporting Android workflows.</p>')
+                      }
+                  - script: >
+                      folder('Android/Builds') {
+                        displayName('Builds')
+                        description('<p>This folder contains jobs to build Android targets.</p>')
+                      }
+                  - script: >
+                      folder('Android/Tests') {
+                        displayName('Tests')
+                        description('<p>This folder contains jobs used to help test and validate Android builds.</p>')
+                      }
+                  - script: >
+                      pipelineJob('Android/Environment/Docker Image Template') {
+                        description('<p>Build the container image used on Kubernetes for building Android targets and Cuttlefish instances.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -226,13 +221,13 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/aaos_builder/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/environment/docker_image_template/Jenkinsfile')
                           }
                         }
                       }
                   - script: >
-                      pipelineJob('AAOS Docker Builder') {
-                        description('AAOS Docker build image for use in building AAOSP')
+                      pipelineJob('Android/Environment/CF Instance Template') {
+                        description('<p>Pipeline for creating and managing GCE instance templates optimized for Cuttlefish workflows, such as CVD Launcher and CTS Execution.<br/>Includes an option to delete outdated instances and artifacts.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -245,13 +240,13 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/aaos_docker_builder/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/environment/cf_instance_template/Jenkinsfile')
                           }
                         }
                       }
                   - script: >
-                      pipelineJob('CF Instance Template') {
-                        description('Pipeline for creating and managing GCE instance templates optimized for Cuttlefish-based workflows, such as CVD Launcher and CTS Execution.<br/>Includes an option to delete outdated instances and artifacts.')
+                      pipelineJob('Android/Builds/AAOS Builder') {
+                        description('<p>Android Automotive build pipeline.<br/>This pipeline builds Android Automotive OS targets.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -264,13 +259,13 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/cf_instance_template/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/builds/aaos_builder/Jenkinsfile')
                           }
                         }
                       }
                   - script: >
-                      pipelineJob('CTS Builder') {
-                        description('Builds Android Compliance Test Suite rather than use standard Google release')
+                      pipelineJob('Android/Builds/CTS Builder') {
+                        description('<p>Builds Android Compliance Test Suite test harness, rather than use standard Google release.<br/>CTS_Execution can then use this instead of default Android CTS test harness.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -283,13 +278,13 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/cts_builder/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/builds/cts_builder/Jenkinsfile')
                           }
                         }
                       }
                   - script: >
-                      pipelineJob('CTS Execution') {
-                        description('Run the CTS test harness against the Cuttlefish Virtual Devices')
+                      pipelineJob('Android/Builds/Gerrit') {
+                        description('<p>Gerrit triggered build and test. Triggered by Gerrit commits.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -302,13 +297,13 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/cts_execution/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/builds/gerrit/Jenkinsfile')
                           }
                         }
                       }
                   - script: >
-                      pipelineJob('CVD Launcher') {
-                        description('Launches Cuttlefish Virtual Devices (CVD) on the Cuttlefish Virtual Machine instances created by GCE from Cuttlefish instance templates')
+                      pipelineJob('Android/Tests/CTS Execution') {
+                        description('<p>Run the CTS test harness against Cuttlefish Virtual Device images.</p>')
                         definition {
                           cpsScm {
                             lightweight()
@@ -321,7 +316,26 @@ spec:
                                 branch('*/main')
                               }
                             }
-                            scriptPath('workloads/android/pipelines/cvd_launcher/Jenkinsfile')
+                            scriptPath('workloads/android/pipelines/tests/cts_execution/Jenkinsfile')
+                          }
+                        }
+                      }
+                  - script: >
+                      pipelineJob('Android/Tests/CVD Launcher') {
+                        description('<p>Launches Cuttlefish Virtual Devices (CVD) on the Cuttlefish Virtual Machine instances created by GCE from Cuttlefish instance templates</p>')
+                        definition {
+                          cpsScm {
+                            lightweight()
+                            scm {
+                              git {
+                                remote {
+                                  url('https://github.com/AGBG-ASG/acn-horizon-sdv.git')
+                                  credentials('jenkins-github-agbg')
+                                }
+                                branch('*/main')
+                              }
+                            }
+                            scriptPath('workloads/android/pipelines/tests/cvd_launcher/Jenkinsfile')
                           }
                         }
                       }

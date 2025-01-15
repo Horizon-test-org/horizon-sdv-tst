@@ -38,6 +38,20 @@ resource "google_container_cluster" "sdv_cluster" {
     enabled = true
   }
 
+  # Release channel feature, which provide control over automatic upgrades of GKE clusters.
+  release_channel {
+    channel = "STABLE"
+  }
+
+  # The maintenance policy to use for the cluster - when updates can occur
+  maintenance_policy {
+    recurring_window {
+    start_time = "2025-01-01T00:00:00Z"
+    end_time  = "2050-01-01T00:00:00Z"
+    recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
+  }
+  }
+
   # enable gateway api
   gateway_api_config {
     channel = "CHANNEL_STANDARD"
@@ -68,7 +82,7 @@ resource "google_container_node_pool" "sdv_main_node_pool" {
   node_count     = var.node_count
   node_locations = var.node_locations
   node_config {
-    preemptible  = true
+    preemptible  = false
     machine_type = var.machine_type
 
     # Google recommends custom service accounts that have cloud-platform
@@ -97,7 +111,7 @@ resource "google_container_node_pool" "sdv_build_node_pool" {
   node_count     = var.build_node_pool_node_count
   node_locations = var.node_locations
   node_config {
-    preemptible  = true
+    preemptible  = false
     machine_type = var.build_node_pool_machine_type
 
     # Google recommends custom service accounts that have cloud-platform
