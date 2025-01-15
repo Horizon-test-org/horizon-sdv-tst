@@ -101,12 +101,12 @@ spec:
               - name: MTK_KEY_UPD_USERNAME
                 valueFrom:
                   secretKeyRef:
-                    name: jenkins-mtk-connect-apikey
+                    name: mtk-connect-apikey
                     key: username
               - name: MTK_KEY_UPD_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: jenkins-mtk-connect-apikey
+                    name: mtk-connect-apikey
                     key: password
               image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
               imagePullPolicy: Always
