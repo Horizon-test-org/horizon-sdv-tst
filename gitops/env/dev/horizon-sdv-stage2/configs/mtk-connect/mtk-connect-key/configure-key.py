@@ -14,8 +14,8 @@ URL_DOMAIN = ""
 OLD_KEY_ID = ''
 OLD_KEY_VAL = ''
 
-NAMESPACE = "jenkins"
-SECRET_NAME = "jenkins-mtk-connect-apikey"
+NAMESPACE = "mtk-connect"
+SECRET_NAME = "mtk-connect-apikey"
 
 API_REQUEST_OPT = {
   "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version",
