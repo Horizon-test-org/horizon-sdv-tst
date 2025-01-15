@@ -95,7 +95,7 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: mtk-connect-writer-sa
+          serviceAccountName: jenkins-sa
           containers:
             - name: mtk-connect-api-key-config
               env:
@@ -103,13 +103,11 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: jenkins-mtk-connect-apikey
-                    namespace: jenkins
                     key: username
               - name: MTK_KEY_UPD_PASSWORD
                 valueFrom:
                   secretKeyRef:
                     name: jenkins-mtk-connect-apikey
-                    namespace: jenkins
                     key: password
               image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
               imagePullPolicy: Always
