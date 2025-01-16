@@ -82,7 +82,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "8"
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "0 0 * * *"
   startingDeadlineSeconds: 300
   jobTemplate:
     spec:
