@@ -14,6 +14,7 @@ URL_DOMAIN = ""
 OLD_KEY_ID_LS = []
 OLD_KEY_VAL = ''
 
+KEY_DEL_TIME_DELTA = 2 # in days
 NAMESPACE = "mtk-connect"
 SECRET_NAME = "mtk-connect-apikey"
 
@@ -40,25 +41,37 @@ def get_keys_id_ls_to_delete(key_list, current_key):
   returns list of key's ids.
   """   
   key_id_ls = []
+  threshold_date = 0
 
   # Get creation date of current_key
+  print("---------------")
   print(f"Current key: {current_key}")
-  print(f"List key: {key_listy}")
+  print(f"List key: {key_list}\n")
 
   # Calculate what is the threshold datefor keys deletion
+  try:
+    for key in key_list:
+      if key["key"][:8] == current_key[:8]:
+        threshold_date = datetime.datetime.strptime(key["creationTime"], "%Y-%m-%dT%H:%M:%S.%fZ")
+        print(f"creation time of the key: {threshold_date}")
+        threshold_date -= relativedelta(days=KEY_DEL_TIME_DELTA)
+        print(f"keys older or equal to will be deleted: {threshold_date}\n")
+        break
+  except Exception as e:
+    print(f"Exception occured when getting key id. \n\tException: {e}")
 
 
   # Create list of keys id that older or equal than threshold date 
+  for key in key_list:
+    key_creation_time = datetime.datetime.strptime(key["creationTime"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    if key_creation_time.date() <= threshold_date.date():
+      print(f"Key will be deleted: \n\t{key}\n")
+      OLD_KEY_ID_LS.append(key)
 
-
+  print(f"Keys for deletion:\n{OLD_KEY_ID_LS}")
   
-  # try:
-  #   for key in key_list:
-  #     if key["key"][:8] == key_val_ref[:8]:
-  #       key_id = key["id"]      
-  # except Exception as e:
-  #   print(f"Exception occured when getting key id. \n\t{e}")
 
+  print("---------------")
   return key_id_ls
 
 def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], is_delete_key_id=False):
