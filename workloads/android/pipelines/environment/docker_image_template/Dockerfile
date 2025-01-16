@@ -26,8 +26,8 @@ RUN apt-get update -y && \
     g++-multilib libncurses5 libssl-dev python3 python3-setuptools python3-pip \
     python3-requests python3-venv python3-virtualenv procps \
     meson bc coreutils dosfstools e2fsprogs fdisk kpartx mtools ninja-build \
-    pkg-config rsync less curl sudo vim ssh findutils gawk && \
-    apt-get update -y && \
+    pkg-config rsync less curl sudo vim ssh findutils gawk jq && \
+    apt-get update -y && apt install -y npm nodejs && \
     rm -rf /var/lib/apt/lists/*
 
 # The following installs gcloud sdk including gsutil required for uploading
@@ -68,5 +68,5 @@ RUN git config --global user.email "aaosp.jenkins@dummy.com" && \
 # Create virtualenv ready for RPi builds (include-system-site-packages=true)
 # Install the required packages.
 RUN virtualenv --system-site-packages venv && \
-    . ${HOME}/venv/bin/activate && pip3 install --user meson==1.1.0 mako \
+    . ${HOME}/venv/bin/activate && pip3 install --user meson==1.1.0 mako numpy \
     jinja2 ply pyyaml dataclasses && deactivate

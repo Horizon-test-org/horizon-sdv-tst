@@ -33,7 +33,7 @@ pipeline {
           containers:
           - name: builder
             image: ${CLOUD_REGION}-docker.pkg.dev/${CLOUD_PROJECT}/${ANDROID_BUILD_DOCKER_ARTIFACT_PATH_NAME}:latest
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             command:
             - sleep
             args:

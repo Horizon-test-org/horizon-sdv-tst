@@ -31,7 +31,7 @@ def kubernetesPodTemplate = """
     containers:
     - name: builder
       image: ${CLOUD_REGION}-docker.pkg.dev/${CLOUD_PROJECT}/${ANDROID_BUILD_DOCKER_ARTIFACT_PATH_NAME}:latest
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       command:
       - sleep
       args:
@@ -60,7 +60,7 @@ pipeline {
 
     string(name: 'CTS_DOWNLOAD_URL',
            defaultValue: '',
-           description: "<p>CTS test harness download URL.<br/>Use official CTS test harness (empty field) or one built from CTS Builder job and stored in GS Bucket, e.g.<br/>gs://${env.CLOUD_PROJECT}-aaos/Android/Builds/CTS_Builder/2/android-cts.zip</p>")
+           description: "<p>CTS test harness download URL.<br/>Use official CTS test harness (empty field) or one built from CTS Builder job and stored in GS Bucket, e.g.<br/>gs://${env.CLOUD_PROJECT}-aaos/Android/Builds/CTS_Builder/<BUILD_NUMBER>/android-cts.zip</p>")
 
     string(name: 'CTS_TESTPLAN',
            defaultValue: 'cts-virtual-device-stable',
@@ -226,8 +226,6 @@ pipeline {
             container(name: 'builder') {
               withCredentials([usernamePassword(credentialsId: 'jenkins-mtk-connect-apikey', passwordVariable: 'MTK_CONNECT_PASSWORD', usernameVariable: 'MTK_CONNECT_USERNAME')]) {
                 sh '''
-                  sudo apt upgrade -y && \
-                  sudo apt install -y npm nodejs && \
                   sudo \
                   MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
                   MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \

@@ -115,3 +115,8 @@ This is required for the SDK Car AVD builds so that the correct `devices.xml` an
     -   `android-15.0.0_r4`  : 43m29s
     -   `android-15.0.0_r10` : 3h and not completed (stuck in `CtsLibcoreOjTestCases` tests).
     -   `android-15.0.0_r10` : very new, latest and thus expect bugs.
+
+## CTS
+
+-   If using later releases than `android-14.0.0_r30`, consider tailoring the CTS Execution resources to suit those of
+    the version under test. The number of instances, CPUs and Memory defaults are set up as default for `android-14.0.0_r30`.
