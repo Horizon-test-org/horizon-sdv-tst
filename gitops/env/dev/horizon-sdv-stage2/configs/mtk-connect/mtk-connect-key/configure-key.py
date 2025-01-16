@@ -15,8 +15,10 @@ OLD_KEY_ID_LS = []
 OLD_KEY_VAL = ''
 
 KEY_DEL_TIME_DELTA = 2 # in days
-NAMESPACE = "mtk-connect"
-SECRET_NAME = "mtk-connect-apikey"
+NAMESPACE_MTK_CONNECT = "mtk-connect"
+SECRET_NAME_MTK_CONNECT = "mtk-connect-apikey"
+NAMESPACE_JENKINS = "jenkins"
+SECRET_NAME_JENKINS = "jenkins-mtk-connect-apikey"
 
 API_REQUEST_OPT = {
   "GET_VERSION": "https://URL_DOMAIN/mtk-connect/api/v1/config/version",
@@ -149,7 +151,7 @@ def retrieve_secret_value(secret_key):
     print("Failed to retrieve secret value from environment variable.")
   return secret_value
 
-def update_secret_value(secret_name, new_value, key="password"):
+def update_secret_value(secret_name, namespace, new_value, key="password"):
   """
   Updates the value of a specific key in a Kubernetes Secret.
   Returns result flag: True if operation was succesfull.
@@ -166,7 +168,7 @@ def update_secret_value(secret_name, new_value, key="password"):
   
   try:
     # Fetch the existing secret
-    secret = v1.read_namespaced_secret(name=secret_name, namespace=NAMESPACE)
+    secret = v1.read_namespaced_secret(name=secret_name, namespace=namespace)
     
     # Update the value of the specified key
     if secret.data is None:
@@ -176,11 +178,11 @@ def update_secret_value(secret_name, new_value, key="password"):
     secret.data[key] = base64.b64encode(new_value.encode()).decode()
     
     # Update the secret in Kubernetes
-    v1.replace_namespaced_secret(name=secret_name, namespace=NAMESPACE, body=secret)
+    v1.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
     print(f"Updated key '{key}' in secret '{secret_name}' with new value.{secret}")
   except client.exceptions.ApiException as e:
     if e.status == 404:
-        print(f"Secret '{secret_name}' not found in namespace '{NAMESPACE}'.")
+        print(f"Secret '{secret_name}' not found in namespace '{namespace}'.")
     else:
         raise e
   else:
@@ -213,7 +215,10 @@ if __name__ == "__main__":
     operation_result = perform_api_request(operation="CREATE_KEY")
 
   if operation_result:
-    operation_result = update_secret_value(SECRET_NAME, KEY_VAL)
+    operation_result = update_secret_value(SECRET_NAME_MTK_CONNECT, NAMESPACE_MTK_CONNECT, KEY_VAL)
+    
+  if operation_result:
+    operation_result = update_secret_value(SECRET_NAME_JENKINS, NAMESPACE_JENKINS, KEY_VAL)
 
   if operation_result:
     operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
