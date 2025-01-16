@@ -105,4 +105,4 @@ spec:
                     key: password
               image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
               imagePullPolicy: Always
-          restartPolicy: OnFailure
+          restartPolicy: Never

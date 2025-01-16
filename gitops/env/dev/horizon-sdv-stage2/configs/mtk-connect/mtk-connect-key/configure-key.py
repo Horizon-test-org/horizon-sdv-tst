@@ -104,9 +104,8 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], is_delete_key_
 
     elif operation == "DELETE_KEY":
       print(f"\nDeleting keys id: {OLD_KEY_ID_LS}")
-      if OLD_KEY_ID_LS:
-        for delete_key_id in OLD_KEY_ID_LS:
-          response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
+      for delete_key_id in OLD_KEY_ID_LS:
+        response_api = requests.delete(API_REQUEST_OPT["DELETE_KEY"]+str(delete_key_id), auth=(USERNAME, KEY_VAL))
       else:
         print("There are no keys to delete.")
 
@@ -219,7 +218,7 @@ if __name__ == "__main__":
   if operation_result:
     operation_result = perform_api_request(operation="GET_CURRENT_USER", is_delete_key_id=True)
 
-  if operation_result:
+  if operation_result and OLD_KEY_ID_LS:
     operation_result = perform_api_request(operation="DELETE_KEY")
 
   if operation_result:
