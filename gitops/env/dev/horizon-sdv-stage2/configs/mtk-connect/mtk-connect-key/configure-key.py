@@ -44,34 +44,24 @@ def get_keys_id_ls_to_delete(key_list, current_key):
   threshold_date = 0
 
   # Get creation date of current_key
-  print("---------------")
-  print(f"Current key: {current_key}")
-  print(f"List key: {key_list}\n")
-
-  # Calculate what is the threshold datefor keys deletion
   try:
     for key in key_list:
       if key["key"][:8] == current_key[:8]:
         threshold_date = datetime.datetime.strptime(key["creationTime"], "%Y-%m-%dT%H:%M:%S.%fZ")
-        print(f"creation time of the key: {threshold_date}")
+        
+        # Calculate what is the threshold datefor keys deletion
         threshold_date -= relativedelta(days=KEY_DEL_TIME_DELTA)
-        print(f"keys older or equal to will be deleted: {threshold_date}\n")
+        print(f"keys older or equal to will be deleted: {threshold_date.date()}\n")
         break
   except Exception as e:
     print(f"Exception occured when getting key id. \n\tException: {e}")
-
 
   # Create list of keys id that older or equal than threshold date 
   for key in key_list:
     key_creation_time = datetime.datetime.strptime(key["creationTime"], "%Y-%m-%dT%H:%M:%S.%fZ")
     if key_creation_time.date() <= threshold_date.date():
-      print(f"Key will be deleted: \n\t{key}\n")
-      OLD_KEY_ID_LS.append(key)
+      key_id_ls.append(key["id"])
 
-  print(f"Keys for deletion:\n{OLD_KEY_ID_LS}")
-  
-
-  print("---------------")
   return key_id_ls
 
 def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], is_delete_key_id=False):
@@ -94,6 +84,7 @@ def perform_api_request(operation=API_REQUEST_OPT["GET_VERSION"], is_delete_key_
       if is_delete_key_id and (response_api.status_code // 100 == 2):
         # OLD_KEY_ID = get_key_id(response_api.json()["data"]["keys"], OLD_KEY_VAL)
         OLD_KEY_ID_LS = get_keys_id_ls_to_delete(response_api.json()["data"]["keys"], KEY_VAL)
+        print(f"----\nKeys for deletion:\n{OLD_KEY_ID_LS}\n----")
 
     elif operation == "CREATE_KEY":
       print(f"\nCreate key for user id {USER_ID}")
