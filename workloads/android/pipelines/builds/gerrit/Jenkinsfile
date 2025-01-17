@@ -75,9 +75,8 @@ pipeline {
 
   agent none
 
-  // FIXME: document how this is created, handle 1st run, ie no trigger found (may add fake trigger in CasC)
   triggers {
-    gerrit customUrl: '', gerritProjects: [[branches: [[compareType: 'PLAIN', pattern: 'horizon/android-14.0.0_r30']], compareType: 'PLAIN', disableStrictForbiddenFileVerification: false, pattern: 'android/device/generic/car']], serverName: 'Gerrit'
+    gerrit customUrl: '', gerritProjects: [[branches: [[compareType: 'PLAIN', pattern: 'horizon/android-14.0.0_r30']], compareType: 'PLAIN', disableStrictForbiddenFileVerification: false, pattern: 'android/platform/frameworks/native']], serverName: 'Gerrit', triggerOnEvents: [patchsetCreated()]
   }
 
   environment {
@@ -85,7 +84,7 @@ pipeline {
   }
 
   stages {
-    stage ('Start Builds') {
+    stage ('Start Build VM Instance') {
       agent { kubernetes { yaml kubernetesPodTemplate } }
       stages {
         stage ('Initialise repository') {
@@ -116,7 +115,7 @@ pipeline {
                 sh '''
                   export AAOS_GERRIT_MANIFEST_URL="https://${HORIZON_DOMAIN}/android/platform/manifest"
                   export AAOS_REVISION="${GERRIT_BRANCH}"
-                  export AAOS_LUNCH_TARGET="sdk_car_x86_64-userdebug"
+                  export AAOS_LUNCH_TARGET="sdk_car_x86_64-ap1a-userdebug"
                   export AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}"
                   export CLOUD_REGION="${CLOUD_REGION}"
                   export AAOS_BUILD_NUMBER=${BUILD_NUMBER}/${AAOS_LUNCH_TARGET}
@@ -139,7 +138,7 @@ pipeline {
                 sh '''
                   export AAOS_GERRIT_MANIFEST_URL="https://${HORIZON_DOMAIN}/android/platform/manifest"
                   export AAOS_REVISION="${GERRIT_BRANCH}"
-                  export AAOS_LUNCH_TARGET="aosp_cf_x86_64_auto-userdebug"
+                  export AAOS_LUNCH_TARGET="aosp_cf_x86_64_auto-ap1a-userdebug"
                   export AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}"
                   export CLOUD_REGION="${CLOUD_REGION}"
                   export AAOS_BUILD_NUMBER=${BUILD_NUMBER}/${AAOS_LUNCH_TARGET}
@@ -155,7 +154,7 @@ pipeline {
       }
     }
 
-    stage ('Start Tests') {
+    stage ('Start Test VM Instance') {
       agent { label 'cuttlefish-vm-main' }
       stages {
         stage ('Test: aosp_cf_x86_64_auto-userdebug') {
@@ -164,7 +163,7 @@ pipeline {
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 BUCKET_FOLDER=$(echo "$JOB_NAME" | tr ' ' '_')
-                export CUTTLEFISH_DOWNLOAD_URL="gs://${CLOUD_PROJECT}-aaos/$BUCKET_FOLDER/$BUILD_NUMBER/aosp_cf_x86_64_auto-userdebug"
+                export CUTTLEFISH_DOWNLOAD_URL="gs://${CLOUD_PROJECT}-aaos/$BUCKET_FOLDER/$BUILD_NUMBER/aosp_cf_x86_64_auto-ap1a-userdebug"
                 export CTS_VERSION=14
                 export CTS_MODULE="CtsHostsideNumberBlockingTestCases"
                 ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start

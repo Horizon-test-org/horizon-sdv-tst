@@ -45,6 +45,8 @@ ARCHITECTURE=${ARCHITECTURE:-x86_64}
 
 # Download URL for artifacts. FIXME: add default
 CUTTLEFISH_DOWNLOAD_URL=${CUTTLEFISH_DOWNLOAD_URL:-gs://aaos_builds/AAOS_Builder/380}
+# Strip any trailing slashes as this can impact on the download URL.
+CUTTLEFISH_DOWNLOAD_URL=${CUTTLEFISH_DOWNLOAD_URL%/}
 
 # Specific Cuttlefish Virtual Device and CTS variables.
 NUM_INSTANCES=${NUM_INSTANCES:-8}
