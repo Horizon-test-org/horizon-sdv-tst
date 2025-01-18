@@ -97,21 +97,16 @@ pipeline {
               withCredentials([usernamePassword(credentialsId: env.GERRIT_CREDENTIALS_ID, passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
                 script {
                   env.ANDROID_BUILD_ID=''
-                  env.ANDROID_VERSION=14
-                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r30" ) then
-                    env.ANDROID_BUILD_ID="ap1a-"
-                  endif
-                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r74" ) then
-                    env.ANDROID_BUILD_ID="ap2a-"
-                  endif
-                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r04" ) then
-                    env.ANDROID_BUILD_ID="ap3a-"
-                    env.ANDROID_VERSION=15
-                  endif
-                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r10" ) then
-                    env.ANDROID_BUILD_ID="ap4a-"
-                    env.ANDROID_VERSION=15
-                  endif
+                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r30" ) env.ANDROID_BUILD_ID="ap1a-"
+                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r74" ) env.ANDROID_BUILD_ID="ap2a-"
+                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r04" ) env.ANDROID_BUILD_ID="ap3a-"
+                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r10" ) env.ANDROID_BUILD_ID="ap4a-"
+
+                  if ( "$ANDROID_BUILD_ID" =~ "" ) env.ANDROID_VERSION=14
+                  if ( "$ANDROID_BUILD_ID" =~ "ap1a" ) env.ANDROID_VERSION=14
+                  if ( "$ANDROID_BUILD_ID" =~ "ap2a" ) env.ANDROID_VERSION=14
+                  if ( "$ANDROID_BUILD_ID" =~ "ap3a" ) env.ANDROID_VERSION=15
+                  if ( "$ANDROID_BUILD_ID" =~ "ap4a" ) env.ANDROID_VERSION=15
                 }
 
                 sh '''
