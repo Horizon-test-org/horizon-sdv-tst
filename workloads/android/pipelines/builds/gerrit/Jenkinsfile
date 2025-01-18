@@ -96,11 +96,22 @@ pipeline {
             container(name: 'builder') {
               withCredentials([usernamePassword(credentialsId: env.GERRIT_CREDENTIALS_ID, passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
                 script {
-                  env.ANDROID_BUILD_ID = ''
-                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r30" ) env.ANDROID_BUILD_ID="ap1a-"
-                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r74" ) env.ANDROID_BUILD_ID="ap2a-"
-                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r04" ) env.ANDROID_BUILD_ID="ap3a-"
-                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r10" ) env.ANDROID_BUILD_ID="ap4a-"
+                  env.ANDROID_BUILD_ID=''
+                  env.ANDROID_VERSION=14
+                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r30" ) then
+                    env.ANDROID_BUILD_ID="ap1a-"
+                  endif
+                  if ( "$GERRIT_BRANCH" =~ "android-14.0.0_r74" ) then
+                    env.ANDROID_BUILD_ID="ap2a-"
+                  endif
+                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r04" ) then
+                    env.ANDROID_BUILD_ID="ap3a-"
+                    env.ANDROID_VERSION=15
+                  endif
+                  if ( "$GERRIT_BRANCH" =~ "android-15.0.0_r10" ) then
+                    env.ANDROID_BUILD_ID="ap4a-"
+                    env.ANDROID_VERSION=15
+                  endif
                 }
 
                 sh '''
@@ -175,8 +186,11 @@ pipeline {
               sh '''
                 BUCKET_FOLDER=$(echo "$JOB_NAME" | tr ' ' '_')
                 export CUTTLEFISH_DOWNLOAD_URL="gs://${CLOUD_PROJECT}-aaos/$BUCKET_FOLDER/$BUILD_NUMBER/aosp_cf_x86_64_auto-${ANDROID_BUILD_ID}userdebug"
-                export CTS_VERSION=14
+                export NUM_INSTANCES=10
+                export VM_CPUS=6
+                export CTS_VERSION=${ANDROID_VERSION}
                 export CTS_MODULE="CtsHostsideNumberBlockingTestCases"
+                export SHARD_COUNT=${NUM_INSTANCES}
                 ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
                 ./workloads/android/pipelines/tests/cts_execution/cts_initialise.sh
                 ./workloads/android/pipelines/tests/cts_execution/cts_execution.sh
