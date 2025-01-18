@@ -175,6 +175,7 @@ pipeline {
               sh '''
                 BUCKET_FOLDER=$(echo "$JOB_NAME" | tr ' ' '_')
                 export CUTTLEFISH_DOWNLOAD_URL="gs://${CLOUD_PROJECT}-aaos/$BUCKET_FOLDER/$BUILD_NUMBER/aosp_cf_x86_64_auto-${ANDROID_BUILD_ID}userdebug"
+                export CUTTLEFISH_MAX_BOOT_TIME=240
                 export CTS_VERSION=14
                 export CTS_MODULE="CtsHostsideNumberBlockingTestCases"
                 ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
