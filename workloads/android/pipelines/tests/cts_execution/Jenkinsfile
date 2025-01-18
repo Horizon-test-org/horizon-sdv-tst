@@ -72,7 +72,7 @@ pipeline {
            description: '''<p>CTS module to test, or leave empty if all modules are to be tested.</p>''')
 
     string(name: 'CUTTLEFISH_MAX_BOOT_TIME',
-           defaultValue: '180',
+           defaultValue: '240',
            description: '''<p>Android Cuttlefish max boot time in seconds.<br/>
            Wait on VIRTUAL_DEVICE_BOOT_COMPLETED across devices.</p>''')
 

@@ -27,7 +27,7 @@ CUTTLEFISH_REPO_NAME=$(basename "${CUTTLEFISH_REPO_URL}" .git)
 # version number, eg main = 1.0.0.
 CUTTLEFISH_UPDATE=${CUTTLEFISH_UPDATE:-false}
 # Time (seconds) to wait for Virtual Device to boot.
-CUTTLEFISH_MAX_BOOT_TIME=${CUTTLEFISH_MAX_BOOT_TIME:-180}
+CUTTLEFISH_MAX_BOOT_TIME=${CUTTLEFISH_MAX_BOOT_TIME:-240}
 # Time (minutes) to keep device alive.
 CUTTLEFISH_KEEP_ALIVE_TIME=${CUTTLEFISH_KEEP_ALIVE_TIME:-20}
 
