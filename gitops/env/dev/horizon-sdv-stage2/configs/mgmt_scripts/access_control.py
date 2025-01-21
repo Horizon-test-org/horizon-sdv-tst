@@ -1,5 +1,6 @@
 import google.auth
 from googleapiclient import discovery
+import subprocess
 
 def authentication():
     '''
@@ -40,7 +41,20 @@ try:
     credentials, project = authentication()
     list_roles(credentials)
 except google.auth.exceptions.DefaultCredentialsError as e:
-    print(f"There was an a problem with authentication. \n------\nError: {e}\n------")
+    print(f"You are not authenticated yet. \n------\nError: {e}\n------")
+    try:
+        result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
+        result.check_returncode()
+    except subprocess.CalledProcessError as e:
+        print(f"------\nError during authentication: {e}\n------")
+    except Exception as e:
+        print(f"There was a problem\nException: {e}")
+    else:
+        print("------\nYou are authenticated.\n------")
+else:
+    print("------\nYou are authenticated.\n------")
+
+
 
 
 
