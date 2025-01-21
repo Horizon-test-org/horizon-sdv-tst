@@ -1,4 +1,5 @@
 import google.auth
+from googleapiclient import discovery
 
 def authentication():
     '''
@@ -17,9 +18,27 @@ def authentication():
 
     return credentials, project
 
+def list_roles(credentials):
+    '''
+    Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
+    '''
+    service = discovery.build('iam', 'v1', credentials=credentials)
+    request = service.roles().list()
+
+    file_name = "Roles.txt"
+    with open(file_name, "w") as file:
+        while True:
+            response = request.execute()
+            for role in response.get('roles', []):
+                file.write(f"{role}\n")
+            request = service.roles().list_next(previous_request=request, previous_response=response)
+            if request is None:
+                break
+    print(f"Roles are listed in a file '{file_name}'.")
         
 try:
     credentials, project = authentication()
+    list_roles(credentials)
 except google.auth.exceptions.DefaultCredentialsError as e:
     print(f"There was an a problem with authentication. \n------\nError: {e}\n------")
 
