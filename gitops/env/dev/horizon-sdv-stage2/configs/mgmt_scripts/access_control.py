@@ -19,11 +19,10 @@ def authentication():
 
     return credentials, project
 
-def list_roles(credentials):
+def list_roles(service):
     '''
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
     '''
-    service = discovery.build('iam', 'v1', credentials=credentials)
     request = service.roles().list()
 
     file_name = "Roles.txt"
@@ -39,7 +38,8 @@ def list_roles(credentials):
         
 try:
     credentials, project = authentication()
-    list_roles(credentials)
+    service = discovery.build('iam', 'v1', credentials=credentials)
+    list_roles(service=service)
 except google.auth.exceptions.DefaultCredentialsError as e:
     print(f"You are not authenticated yet. \n------\nError: {e}\n------")
     try:
