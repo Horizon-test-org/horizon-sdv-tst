@@ -35,24 +35,25 @@ def list_roles(service):
             if request is None:
                 break
     print(f"Roles are listed in a file '{file_name}'.")
-        
-try:
-    credentials, project = authentication()
-    service = discovery.build('iam', 'v1', credentials=credentials)
-    list_roles(service=service)
-except google.auth.exceptions.DefaultCredentialsError as e:
-    print(f"You are not authenticated yet. \n------\nError: {e}\n------")
+
+if __name__ == '__main__':
     try:
-        result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
-        result.check_returncode()
-    except subprocess.CalledProcessError as e:
-        print(f"------\nError during authentication: {e}\n------")
-    except Exception as e:
-        print(f"There was a problem\nException: {e}")
+        credentials, project = authentication()
+        service = discovery.build('iam', 'v1', credentials=credentials)
+        list_roles(service=service)
+    except google.auth.exceptions.DefaultCredentialsError as e:
+        print(f"You are not authenticated yet. \n------\nError: {e}\n------")
+        try:
+            result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
+            result.check_returncode()
+        except subprocess.CalledProcessError as e:
+            print(f"------\nError during authentication: {e}\n------")
+        except Exception as e:
+            print(f"There was a problem\nException: {e}")
+        else:
+            print("------\nYou are authenticated.\n------")
     else:
         print("------\nYou are authenticated.\n------")
-else:
-    print("------\nYou are authenticated.\n------")
 
 
 
