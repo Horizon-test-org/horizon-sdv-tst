@@ -1,7 +1,7 @@
 # ACN Horizon SDV
 
 ## Overview   
-An efficient, simple and consistent infrastructure deployment via IaC platform tool such as Terraform integrated with GitHub and GitHub Actions. Automated deployment of Kubernetes applications to match the desired state of the cluster as defined in this repository.
+ACN Horizon SDV is designed to simplify the deployment and management of Android workloads on Google Kubernetes Engine clusters. By leveraging Infrastructure as Code (IaC) and GitOps, ensuring the cluster consistently matches the desired state, enabling scalable and efficient Android workload operations.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -16,7 +16,7 @@ An efficient, simple and consistent infrastructure deployment via IaC platform t
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
 
 ## Technologies   
-Technologies being used to provision the infracture along with the required applications for the GKE cluster.
+Technologies being used to provision the infrastructure along with the required applications for the GKE cluster.
 * Google Cloud Platform - Cloud service provider for infrastructure provisioning.
 * Terraform - IaC tool used to provision the infrastructure to maintain infrastructure consistency.
 * Github - Source code management tool where infrastructure configuration, Kubernetes application manifests, workflows etc are stored.
@@ -59,7 +59,9 @@ The project is implemented in the following directories:
 * Infrastructure provisioned via CLI or GitHub Actions.
 
 ## Exercise #2 - Setup and Usage (WIP)
-This section covers the steps to be followed for successfully provisioning the insfracture along with other required tools and its configuration.
+This section covers the steps to be followed for successfully provisioning the infrastructure along with other required tools and its configuration.  
+Before getting started, make sure to fork this repository under your namespace.
+
 ### Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
 Below are the resources which are required to be configured:   
