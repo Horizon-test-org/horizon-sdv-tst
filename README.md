@@ -117,7 +117,8 @@ The GitHub Actions Workflow has been configured to trigger if changes are either
 
 After forking the repository and configuring the required GCP IAM and Admin resources, as well as creating the necessary GitHub secrets, follow the steps below.   
 
-#### Trigger Terraform plan workflow
+#### Creating a new branch
+It is recommend to create a new `feature/` or `release/` branch rather than working directly on the `main` branch. Follow the steps below for creating a new branch.
 1. Clone the repository to your machine locally by clicking on the <img src="docs/github_clone_1.png" width="60" /> button, copy the HTTPS URL.
 2. Run the below git command in your preferred directory to clone the repository   
    ``` 
@@ -127,19 +128,25 @@ After forking the repository and configuring the required GCP IAM and Admin reso
    ```
    git checkout -b <feature/BRANCH_NAME>
    ```
-4. Edit the Terraform configuration files under `terraform/` directory.
-5. Add, commit and push the changes with below commands
+If you prefer creating new branches via the GitHub GUI, follow the steps mention in this [document](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository)   
+
+#### Trigger Terraform plan workflow
+Once a new feature branch has been created, follow the below steps to trigger a Terrafrom plan workflow run.
+1. Edit the Terraform configuration files under `terraform/` directory.
+2. Add, commit and push the changes with below commands
    ```
    git add .
    git commit -m "commit message"
    git push origin <feature/BRANCH_NAME>
    ```
+3. This process should have triggered a Terraform plan GitHub Actions workflow.
 
 #### Trigger Terraform apply workflow
+The below steps require either a `feature/` or `release/` branch for creation of a pull request.
 1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
 2. Select `main` as the base branch and your `feature/` branch for compare.
 3. After reviewing the changes, approve the pull request and confirm.
-4. This process should have triggered a GitHub Actions workflow.
+4. This process should have triggered a Terraform apply GitHub Actions workflow.
 
 #### Confirm the workflow run
 If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successfull run should be as shown below   
