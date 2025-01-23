@@ -134,13 +134,13 @@ After forking the repository and configuring the required GCP IAM and Admin reso
    ```
 
 #### Trigger workflow by pull request
-1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="75" />
+1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
 2. Select main as the base branch and your feature branch for compare.
 3. After reviewing the changes, approve the pull request and confirm.
 4. This process should have triggered a GitHub Actions workflow.
 
 #### Confirm the workflow run
-If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successfull run should look like below   
+If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successfull run should be as shown below   
 <img src="docs/github_actions_workflow_1.png" width="500" />
 
 ## Exercise #3 - Verification
