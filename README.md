@@ -117,7 +117,7 @@ The GitHub Actions Workflow has been configured to trigger if changes are either
 
 After forking the repository and configuring the required GCP IAM and Admin resources, as well as creating the necessary GitHub secrets, follow the steps below.   
 
-#### Trigger workflow via new branch
+#### Trigger Terraform plan workflow
 1. Clone the repository to your machine locally by clicking on the <img src="docs/github_clone_1.png" width="60" /> button, copy the HTTPS URL.
 2. Run the below git command in your preferred directory to clone the repository   
    ``` 
@@ -135,7 +135,7 @@ After forking the repository and configuring the required GCP IAM and Admin reso
    git push origin <feature/BRANCH_NAME>
    ```
 
-#### Trigger workflow by pull request
+#### Trigger Terraform apply workflow
 1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
 2. Select `main` as the base branch and your `feature/` branch for compare.
 3. After reviewing the changes, approve the pull request and confirm.
