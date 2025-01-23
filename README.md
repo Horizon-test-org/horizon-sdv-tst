@@ -10,7 +10,7 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #1 - Prerequsites](#exercise-1---prerequsites)
 - [Exercise #2 - Setup and Usage (WIP)](#exercise-2---setup-and-usage-wip)
    - [Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2a---setting-up-gcp-iam-and-admin-for-terraform-workflow)
-   - [Exercise #2b - Cluster](#exercise-2b---cluster)
+   - [Exercise #2b - GitHub Actions workflow](#exercise-2b---github-actions-workflow)
 - [Exercise #3 - Verification](#exercise-3---verification)
    - [Exercise #3a - Running test builds](#exercise-3a---running-test-builds)
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
@@ -60,7 +60,7 @@ The project is implemented in the following directories:
 
 ## Exercise #2 - Setup and Usage (WIP)
 This section covers the steps to be followed for successfully provisioning the infrastructure along with other required tools and its configuration.  
-Before getting started, make sure to fork this repository under your namespace.
+Before getting started, make sure to fork this repository under your GitHub profile.
 
 ### Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
@@ -108,7 +108,40 @@ Refer the following documentation for further details on the setup:
 * [Enabling keyless authentication from GitHub Actions](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions)
 * [Configuring OpenID Connect in Google Cloud Platform](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform)
 
-### Exercise #2b - Cluster
+### Exercise #2b - GitHub Actions workflow   
+This section outlines the steps to trigger a GitHub Actions workflow. Before proceeding, it is recommended to fork this repository into your private GitHub account.   
+
+The GitHub Actions Workflow has been configured to trigger if changes are either pushed to the `main` branch or any branch starting with `feature/` or `release/`. The workflow also gets trigger when pull requests are targeted toward the `main` branch. Provided, in both cases the changes are within `terraform/` directory.
+
+After forking the repository and configuring the required GCP IAM and Admin resources, as well as creating the necessary GitHub secrets, follow the steps below.   
+
+#### Trigger workflow via new branch
+1. Clone the repository to your machine locally by clicking on the <img src="docs/github_clone_1.png" width="60" /> button, copy the HTTPS URL.
+2. Run the below git command in your preferred directory to clone the repository   
+   ``` 
+   git clone <HTTPS_URL_OF_THE_REPOSITORY>
+   ```
+3. Create a new feature/ or release/ branch with the below command
+   ```
+   git checkout -b <feature/BRANCH_NAME>
+   ```
+4. Edit the Terraform configuration files under terraform/ directory.
+5. Add, commit and push the changes with below commands
+   ```
+   git add .
+   git commit -m "commit message"
+   git push origin <feature/BRANCH_NAME>
+   ```
+
+#### Trigger workflow by pull request
+1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="75" />
+2. Select main as the base branch and your feature branch for compare.
+3. After reviewing the changes, approve the pull request and confirm.
+4. This process should have triggered a GitHub Actions workflow.
+
+#### Confirm the workflow run
+If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successfull run should look like below   
+<img src="docs/github_actions_workflow_1.png" width="500" />
 
 ## Exercise #3 - Verification
 ### Exercise #3a - Running test builds
