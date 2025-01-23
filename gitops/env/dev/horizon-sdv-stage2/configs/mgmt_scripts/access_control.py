@@ -3,6 +3,7 @@ import google.auth.credentials
 from googleapiclient import discovery
 import subprocess
 import google.oauth2.credentials
+from google.cloud import resourcemanager_v3
 
 
 def authentication():
@@ -77,6 +78,24 @@ def get_role(service, role):
     response = request.execute()
     print(response)
 
+def get_users_by_roles(service):
+    resource = f'projects/{PROJECT_ID}'
+
+    client = resourcemanager_v3.ProjectsClient()
+    policy = client.get_iam_policy(request={"resource": resource})
+
+    file_name = "Users.txt"
+    with open(file_name, "w") as file:
+        for binding in policy.bindings:
+            role = binding.role
+            members = binding.members
+            file.write(f"Role: {role}\n")
+            for member in members:
+                file.write(f"\tPrincipal: {member}\n")
+
+    print(f"Users are listed in a file '{file_name}'.")
+
+
 if __name__ == '__main__':
 
     operation_status = False
@@ -85,5 +104,6 @@ if __name__ == '__main__':
     operation_status = authentication()
 
 
+    get_users(service=service)
 
 
