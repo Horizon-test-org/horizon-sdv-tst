@@ -71,6 +71,11 @@ def list_roles(service):
                 break
     print(f"Roles are listed in a file '{file_name}'.")
 
+def get_role(service, role):
+    name = f"roles/{role}"
+    request = service.roles().get(name=name)
+    response = request.execute()
+    print(response)
 
 if __name__ == '__main__':
 
