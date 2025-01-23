@@ -121,11 +121,11 @@ After forking the repository and configuring the required GCP IAM and Admin reso
    ``` 
    git clone <HTTPS_URL_OF_THE_REPOSITORY>
    ```
-3. Create a new feature/ or release/ branch with the below command
+3. Create a new `feature/` or `release/` branch with the below command
    ```
    git checkout -b <feature/BRANCH_NAME>
    ```
-4. Edit the Terraform configuration files under terraform/ directory.
+4. Edit the Terraform configuration files under `terraform/` directory.
 5. Add, commit and push the changes with below commands
    ```
    git add .
@@ -135,7 +135,7 @@ After forking the repository and configuring the required GCP IAM and Admin reso
 
 #### Trigger workflow by pull request
 1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
-2. Select main as the base branch and your feature branch for compare.
+2. Select `main` as the base branch and your `feature/` branch for compare.
 3. After reviewing the changes, approve the pull request and confirm.
 4. This process should have triggered a GitHub Actions workflow.
 
