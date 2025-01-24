@@ -102,7 +102,27 @@ def get_users_by_roles():
 
     return users_by_roles
 
+def get_users_and_assigned_roles():
+    '''
+    Retrieve all Users and Roles that are assigned to them.
+    Returns dictionary: 
+        user: [role1, role2]
+    '''
+    users_by_roles = get_users_by_roles()
+    users_and_roles = {}
+    out_file_name = "Users_with_roles.json"
 
+    for role, users in users_by_roles.items():
+        for user in users:
+            if user not in users_and_roles:
+                users_and_roles[user] = []
+            users_and_roles[user].append(role)
+
+    with open(out_file_name, "w") as file:
+        json.dump(users_and_roles, file)
+    print(f"Listed users and roles they are assigned to are saved in a file '{out_file_name}'.")
+
+    return users_and_roles
 
 if __name__ == '__main__':
 
@@ -113,5 +133,6 @@ if __name__ == '__main__':
 
     # GETTING INO
     get_users_by_roles()
+    get_users_and_assigned_roles()
 
 
