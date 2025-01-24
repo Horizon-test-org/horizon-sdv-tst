@@ -4,7 +4,7 @@ from googleapiclient import discovery
 import subprocess
 import google.oauth2.credentials
 from google.cloud import resourcemanager_v3
-
+import json
 
 def authentication():
     '''
@@ -28,7 +28,6 @@ def authentication():
 
     try:
         creds, proj = google.auth.default()
-        print(f"{creds.refresh_token}, \n{creds.token_uri},\n {creds.client_id}, \n {creds.client_secret}")
     except google.auth.exceptions.DefaultCredentialsError as e:
         print(f"You are not authenticated yet. \n------\nError: {e}\n------")
         try:
@@ -54,7 +53,6 @@ def authentication():
     
     return operation_status
 
-
 def list_roles(service):
     '''
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
@@ -78,22 +76,29 @@ def get_role(service, role):
     response = request.execute()
     print(response)
 
-def get_users_by_roles(service):
+def get_users_by_roles():
+    '''
+    '''
     resource = f'projects/{PROJECT_ID}'
-
+    users_by_roles = {}
+    out_file_name = "Users_by_roles.json"
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
 
-    file_name = "Users.txt"
-    with open(file_name, "w") as file:
-        for binding in policy.bindings:
-            role = binding.role
-            members = binding.members
-            file.write(f"Role: {role}\n")
-            for member in members:
-                file.write(f"\tPrincipal: {member}\n")
+    
+    for binding in policy.bindings:
+        role = binding.role
+        members = binding.members
+        users_by_roles[role] = []
+        for member in members:
+            users_by_roles[role].append(member)
 
-    print(f"Users are listed in a file '{file_name}'.")
+    with open(out_file_name, "w") as file:
+        json.dump(users_by_roles, file)
+    print(f"Users listed by roles are saved in a file '{out_file_name}'.")
+
+    return users_by_roles
+
 
 
 if __name__ == '__main__':
@@ -103,7 +108,7 @@ if __name__ == '__main__':
     # AUTHENTICATION #
     operation_status = authentication()
 
-
-    get_users(service=service)
+    # GETTING INO
+    get_users_by_roles()
 
 
