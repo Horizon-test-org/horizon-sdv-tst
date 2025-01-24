@@ -78,6 +78,9 @@ def get_role(service, role):
 
 def get_users_by_roles():
     '''
+    Retrieve all Roles + Users that are assigned to them.
+    Returns dictionary: 
+        role: [user1, user2]
     '''
     resource = f'projects/{PROJECT_ID}'
     users_by_roles = {}
