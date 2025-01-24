@@ -53,7 +53,7 @@ def authentication():
     
     return operation_status
 
-def list_roles(service):
+def list_roles(service, save_to_file=False):
     '''
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
     '''
@@ -69,9 +69,10 @@ def list_roles(service):
         if request is None:
             break
 
-    with open(out_file_name, "w") as file:
-        json.dump(roles_ls, file)
-    print(f"Roles are listed in a file  '{out_file_name}'.")
+    if save_to_file:
+        with open(out_file_name, "w") as file:
+            json.dump(roles_ls, file, indent=4)
+        print(f"Roles are listed in a file  '{out_file_name}'.")
 
     return roles_ls
 
@@ -81,7 +82,7 @@ def get_role(service, role):
     response = request.execute()
     print(response)
 
-def get_users_by_roles():
+def get_users_by_roles(save_to_file=False):
     '''
     Retrieve all Roles + Users that are assigned to them.
     Returns dictionary: 
@@ -101,13 +102,14 @@ def get_users_by_roles():
         for member in members:
             users_by_roles[role].append(member)
 
-    with open(out_file_name, "w") as file:
-        json.dump(users_by_roles, file)
-    print(f"Users listed by roles are saved in a file '{out_file_name}'.")
+    if save_to_file:
+        with open(out_file_name, "w") as file:
+            json.dump(users_by_roles, file, indent=4)
+        print(f"Users listed by roles are saved in a file '{out_file_name}'.")
 
     return users_by_roles
 
-def get_users_and_assigned_roles():
+def get_users_and_assigned_roles(save_to_file=False):
     '''
     Retrieve all Users and Roles that are assigned to them.
     Returns dictionary: 
@@ -123,9 +125,10 @@ def get_users_and_assigned_roles():
                 users_and_roles[user] = []
             users_and_roles[user].append(role)
 
-    with open(out_file_name, "w") as file:
-        json.dump(users_and_roles, file)
-    print(f"Listed users and roles they are assigned to are saved in a file '{out_file_name}'.")
+    if save_to_file:
+        with open(out_file_name, "w") as file:
+            json.dump(users_and_roles, file, indent=4)
+        print(f"Listed users and roles they are assigned to are saved in a file '{out_file_name}'.")
 
     return users_and_roles
 
@@ -137,8 +140,8 @@ if __name__ == '__main__':
     operation_status = authentication()
 
     # GETTING INO
-    get_users_by_roles()
-    get_users_and_assigned_roles()
-    list_roles(service=service)
+    get_users_by_roles(save_to_file=True)
+    get_users_and_assigned_roles(save_to_file=True)
+    list_roles(service=service, save_to_file=True)
 
 
