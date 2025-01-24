@@ -76,11 +76,14 @@ def list_roles(service, save_to_file=False):
 
     return roles_ls
 
-def get_role(service, role):
+def get_role_info(service, role):
+    '''
+    Returns info about specified role.
+    '''
     name = f"roles/{role}"
     request = service.roles().get(name=name)
     response = request.execute()
-    print(response)
+    return response
 
 def get_users_by_roles(save_to_file=False):
     '''
@@ -143,5 +146,5 @@ if __name__ == '__main__':
     get_users_by_roles(save_to_file=True)
     get_users_and_assigned_roles(save_to_file=True)
     list_roles(service=service, save_to_file=True)
-
+    get_role_info(service=service, role="storage.objectViewer")
 
