@@ -58,17 +58,22 @@ def list_roles(service):
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
     '''
     request = service.roles().list()
+    out_file_name = "Roles.json"
+    roles_ls = []
 
-    file_name = "Roles.txt"
-    with open(file_name, "w") as file:
-        while True:
-            response = request.execute()
-            for role in response.get('roles', []):
-                file.write(f"{role}\n")
-            request = service.roles().list_next(previous_request=request, previous_response=response)
-            if request is None:
-                break
-    print(f"Roles are listed in a file '{file_name}'.")
+    while True:
+        response = request.execute()
+        for role in response.get('roles', []):
+            roles_ls.append(role)
+        request = service.roles().list_next(previous_request=request, previous_response=response)
+        if request is None:
+            break
+
+    with open(out_file_name, "w") as file:
+        json.dump(roles_ls, file)
+    print(f"Roles are listed in a file  '{out_file_name}'.")
+
+    return roles_ls
 
 def get_role(service, role):
     name = f"roles/{role}"
@@ -134,5 +139,6 @@ if __name__ == '__main__':
     # GETTING INO
     get_users_by_roles()
     get_users_and_assigned_roles()
+    list_roles(service=service)
 
 
