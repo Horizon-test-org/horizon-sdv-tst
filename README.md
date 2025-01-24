@@ -145,11 +145,13 @@ Once a new feature branch has been created, follow the below steps to trigger a 
 The below steps require either a `feature/` or `release/` branch for creation of a pull request.
 1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
 2. Select `main` as the base branch and your `feature/` branch for compare.
-3. After reviewing the changes, approve the pull request and confirm.
+3. Wait for the github workflow to check the pull request, you can check the created plan in the PR comments.
+4. If a problem was found by the pull request checks, fix the issue.
+5. If pull request check is successful, review the changes and merge the feature to the main branch.
 4. This process should have triggered a Terraform apply GitHub Actions workflow.
 
 #### Confirm the workflow run
-If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successfull run should be as shown below   
+If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successful run should be as shown below   
 <img src="docs/github_actions_workflow_1.png" width="500" />
 
 ## Exercise #3 - Verification
