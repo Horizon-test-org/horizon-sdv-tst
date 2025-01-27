@@ -10,8 +10,9 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #1 - Prerequsites](#exercise-1---prerequsites)
 - [Exercise #2 - Setup and Usage (WIP)](#exercise-2---setup-and-usage-wip)
    - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
-   - [Exercise #2b - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2b---setting-up-gcp-iam-and-admin-for-terraform-workflow)
-   - [Exercise #2c - GitHub Actions workflow](#exercise-2c---github-actions-workflow)
+   - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
+   - [Exercise #2c - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2c---setting-up-gcp-iam-and-admin-for-terraform-workflow)
+   - [Exercise #2d - GitHub Actions workflow](#exercise-2d---github-actions-workflow)
 - [Exercise #3 - Verification](#exercise-3---verification)
    - [Exercise #3a - Running test builds](#exercise-3a---running-test-builds)
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
@@ -43,6 +44,7 @@ The project is implemented in the following directories:
 * Each team-member has GitHub account.
 * Access to AGBG organization and Hackathon repository.
 * Fork this repository to private GitHub area.
+
 ### Google Cloud Platform
 * Configured GCP account / project.
 * Each team-member able to update configuration in settings such as Secrets and Variables to customize it to use by the team.
@@ -59,6 +61,7 @@ The project is implemented in the following directories:
    - Artifact Registry Administrator
    - Cloud Filestore Editor
    - Storage Admin
+
 ### Terraform
 * Access to edit the Terraform environment configuration files.
 * IaC configuration files stored in GitHub repo.
@@ -78,7 +81,14 @@ It is required to perform the checks mentioned in this section as this informati
      <img src="docs/images/GCP_project_id.png" width="500" />
    * It should look like: Name=`prj-s-agbg-gcp-sdv-sbx`, ID=`sdvc-2108202401`
 
-### Exercise #2b - Setting up GCP IAM and Admin for Terraform Workflow
+### Exercise #2b - Create a Bucket in GCP
+In the current GCP project, it is required to create a GCP Bucket to store data related to the infrastructure. Follow the below steps to create a Bucket.
+1. On the GCP Console, navigate to Cloud Storage and click on Buckets.
+2. Click on CREATE/CREATE BUCKET button.
+3. Enter a globally unique name for the bucket. (Example: `prj-sbx-horizon-sdv-tf`)
+4. Click on CREATE with default bucket configurations.
+
+### Exercise #2c - Setting up GCP IAM and Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
 
 Below are the resources which are required to be configured:   
@@ -91,28 +101,38 @@ Lets get started, sign-in to your GCP Console and select the relevant project wh
 #### Creating a Workload Identity Federation pool and provider
 1. Under IAM and Admin, select Workload Identity Federation.
 2. Click on CREATE POOL and provide all the necesarry details
-   - Provide a relevant name to the pool.
+   - Enter Name as "github" and Provider ID as "github-provider".
    - Select OIDC as the provider.
-   - Set the issuer to URL provided by GitHub for GitHub Actions. [Click here for more information](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform#adding-a-google-cloud-workload-identity-provider)
-   - Configure Provider attributes condition acccording to your requirements.
-   - Under attribute conditions, Provide a CEL which grants access to your organisation and GitHub repository like `attribute.repository=='organisation_name/repository_name`
-   - Click and save
-3. Workload Identity Federation Pool and Provider has now been created successfully.
+   - Set the issuer to URL provided by GitHub (`https://token.actions.githubusercontent.com`) for GitHub Actions. [Click here for more information](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform#adding-a-google-cloud-workload-identity-provider)
+   - Configure Provider attributes as below:    
+      * "google.subject" = "assertion.sub" and click on ADD MAPPING
+      * "attribute.actor" = "assertion.actor" and click on ADD MAPPING
+      * "attribute.aud" = "assertion.aud" and click on ADD MAPPING
+      * "attribute.repository_owner" = "assertion.repository_owner" and click on ADD MAPPING
+      * "attribute.repository" = "assertion.repository" and click on ADD MAPPING
+   - Configure Attribute Conditions
+      * Condition CEL = "assertion.repository_owner=='GH_ORGANIZATION_NAME'"
+   - Note down the Audience URL (shown just below Default audience) as below:
+      * example: `"https://iam.googleapis.com/projects/966518152012/locations/global/workloadIdentityPools/github/providers/github-provider"`
+   - Click save.
+3. Workload Identity Federation Pool and Provider has now been created successfully.   
+   <img src="docs/images/workload_identity_pool.png" width="650" />
 
-#### Creating a Service Account and Binding it to the Workload Identity Provider
+#### Creating a Service Account
 1. Under IAM and Admin, navigate to Service Accounts and click on CREATE SERVICE ACCOUNT
-2. Provide a relevant name for the Service Account.
-3. Now, add a few roles which are required for this usecase as mentioned in the above Prerequisites section.
-3. Click on save, your Service Account has now been created successfully.
-4. To bind this Service Account to the Workload Identity Provider, open the Cloud Shell and run the below command by replacing details revelant to your project.   
-     ``` 
-     gcloud iam service-accounts add-iam-policy-binding "my-service-account@${PROJECT_ID}.iam.gserviceaccount.com" \
-     --project="${PROJECT_ID}" \
-     --role="roles/iam.workloadIdentityUser" \
-     --member="principalSet://iam.googleapis.com/projects/1234567890/locations/global/workloadIdentityPools/my-pool/attribute.repository/my-org/my-repo"
-     ```    
-5. You can find the member details in the Workload Identity Federation pool which was created earlier. 
-6. Refresh and confirm if the correct service account has been bound.
+2. Provide `github-sa` as the name for the Service Account.
+3. Now, add Roles which are required for this usecase as mentioned in the above Prerequisites section.
+4. Click on save, your Service Account has now been created successfully.
+
+#### Binding Service Account to the Workload Identity Provider
+1. To bind this Service Account to the Workload Identity Provider, Navigate to the the Workload Identity Pool created earlier.
+2. Click on GRANT ACCESS and select **Grant access using Service Account impersonation**.
+3. Select `github-sa` as the Service Account.
+4. Select principal attribute name as `repository_owner` and attribute value as `ORGANIZATION_NAME` and click on SAVE.
+5. In the next window, select Provider as `github-provider` from the drop-down menu set OIDC ID token path as `https://token.actions.githubusercontent.com`.
+6. Download the config file.
+7. Confirm the Service account has been bound successfully under CONNECTED SERVICE ACCOUNTS tab.   
+   <img src="docs/images/workload_identity_pool_sa_bound.png" width="650" />
 
 #### Creating GitHub Secrets to be used by the Workflow
 1. In the repository settings, navigate to Secrets and variables.
@@ -125,7 +145,7 @@ Refer the following documentation for further details on the setup:
 * [Enabling keyless authentication from GitHub Actions](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions)
 * [Configuring OpenID Connect in Google Cloud Platform](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform)
 
-### Exercise #2c - GitHub Actions workflow   
+### Exercise #2d - GitHub Actions workflow   
 This section outlines the steps to trigger a GitHub Actions workflow. Before proceeding, it is recommended to fork this repository into your private GitHub account.   
 
 The GitHub Actions Workflow has been configured to trigger if changes are either pushed to the `main` branch or any branch starting with `feature/` or `release/`. The workflow also gets trigger when pull requests are targeted toward the `main` branch. Provided, in both cases the changes are within `terraform/` directory.
