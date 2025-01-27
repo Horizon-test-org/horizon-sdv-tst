@@ -33,6 +33,11 @@ The project is implemented in the following directories:
 + **workloads** - Jenkins workflow scripts for the pipeline build jobs.
 
 ## Exercise #1 - Prerequsites
+### General
+* If you not prefer using the Cloud Shell on GCP Console, install GCP CLI tools like `gcloud`, `gsutil` and `bq` locally. (Install instructions [here](https://cloud.google.com/sdk/docs/install)).
+* Admin script to be executed.
+* Pixel Tablet firmware installation is ready.
+
 ### GitHub
 * Each team-member has GitHub account.
 * Access to AGBG organization and Hackathon repository.
@@ -62,8 +67,19 @@ The project is implemented in the following directories:
 This section covers the steps to be followed for successfully provisioning the infrastructure along with other required tools and its configuration.  
 Before getting started, make sure to fork this repository under your GitHub profile.
 
+### Exercise #2a - GCP Project details
+It is required to perform the checks mentioned in this section as this information will be required for the later sections of the setup process.
+1. Default Google Compute Engine (GCE) Service Account:
+   * On the console, click on IAM & Admin then, click on Service Accounts and confirm a Service Account for the GCE service is present.   
+     <img src="docs/images/GCE_SA.png" width="500" />
+2. Project ID:
+   * On the console, click on IAM & Admin, click on Manage Resources and find the project details under the column **Name** and **ID** as below:   
+     <img src="docs/images/GCP_project_id.png" width="500" />
+   * It should look like: Name=`prj-s-agbg-gcp-sdv-sbx`, ID=`sdvc-2108202401`
+
 ### Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
+
 Below are the resources which are required to be configured:   
 1. Workload Identity Federation Pool and Provider
 2. Service Account and binding it to the Workload Identity Federation.
@@ -119,7 +135,7 @@ After forking the repository and configuring the required GCP IAM and Admin reso
 
 #### Creating a new branch
 It is recommend to create a new `feature/` or `release/` branch rather than working directly on the `main` branch. Follow the steps below for creating a new branch.
-1. Clone the repository to your machine locally by clicking on the <img src="docs/github_clone_1.png" width="60" /> button, copy the HTTPS URL.
+1. Clone the repository to your machine locally by clicking on the <img src="docs/images/github_clone_1.png" width="60" /> button, copy the HTTPS URL.
 2. Run the below git command in your preferred directory to clone the repository   
    ``` 
    git clone <HTTPS_URL_OF_THE_REPOSITORY>
@@ -143,7 +159,7 @@ Once a new feature branch has been created, follow the below steps to trigger a 
 
 #### Trigger Terraform apply workflow
 The below steps require either a `feature/` or `release/` branch for creation of a pull request.
-1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/github_pr_1.png" width="85" />
+1. On the GitHub repository page, click on the Pull requests tab and click on <img src="docs/images/github_pr_1.png" width="85" />
 2. Select `main` as the base branch and your `feature/` branch for compare.
 3. Wait for the github workflow to check the pull request, you can check the created plan in the PR comments.
 4. If a problem was found by the pull request checks, fix the issue.
@@ -152,7 +168,10 @@ The below steps require either a `feature/` or `release/` branch for creation of
 
 #### Confirm the workflow run
 If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successful run should be as shown below   
-<img src="docs/github_actions_workflow_1.png" width="500" />
+<img src="docs/images/github_actions_workflow_1.png" width="500" />
+
+### Exercise #2c - Setting up Argo CD
+This section covers creation of Argo CD deployment on the GKE cluster provisioned via Terraform workflow. Follow the below steps once the Terraform workflow has completed running successfully.
 
 ## Exercise #3 - Verification
 ### Exercise #3a - Running test builds
