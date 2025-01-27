@@ -9,8 +9,9 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Project directories and files](#project-directories-and-files)
 - [Exercise #1 - Prerequsites](#exercise-1---prerequsites)
 - [Exercise #2 - Setup and Usage (WIP)](#exercise-2---setup-and-usage-wip)
-   - [Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2a---setting-up-gcp-iam-and-admin-for-terraform-workflow)
-   - [Exercise #2b - GitHub Actions workflow](#exercise-2b---github-actions-workflow)
+   - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
+   - [Exercise #2b - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2b---setting-up-gcp-iam-and-admin-for-terraform-workflow)
+   - [Exercise #2c - GitHub Actions workflow](#exercise-2c---github-actions-workflow)
 - [Exercise #3 - Verification](#exercise-3---verification)
    - [Exercise #3a - Running test builds](#exercise-3a---running-test-builds)
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
@@ -77,7 +78,7 @@ It is required to perform the checks mentioned in this section as this informati
      <img src="docs/images/GCP_project_id.png" width="500" />
    * It should look like: Name=`prj-s-agbg-gcp-sdv-sbx`, ID=`sdvc-2108202401`
 
-### Exercise #2a - Setting up GCP IAM and Admin for Terraform Workflow
+### Exercise #2b - Setting up GCP IAM and Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
 
 Below are the resources which are required to be configured:   
@@ -124,7 +125,7 @@ Refer the following documentation for further details on the setup:
 * [Enabling keyless authentication from GitHub Actions](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions)
 * [Configuring OpenID Connect in Google Cloud Platform](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform)
 
-### Exercise #2b - GitHub Actions workflow   
+### Exercise #2c - GitHub Actions workflow   
 This section outlines the steps to trigger a GitHub Actions workflow. Before proceeding, it is recommended to fork this repository into your private GitHub account.   
 
 The GitHub Actions Workflow has been configured to trigger if changes are either pushed to the `main` branch or any branch starting with `feature/` or `release/`. The workflow also gets trigger when pull requests are targeted toward the `main` branch. Provided, in both cases the changes are within `terraform/` directory.
@@ -169,9 +170,6 @@ The below steps require either a `feature/` or `release/` branch for creation of
 #### Confirm the workflow run
 If the aboves steps have been performed successfully, you can now head to the GitHub repository and check if the GitHub Actions workflow run has been triggered and a successful run should be as shown below   
 <img src="docs/images/github_actions_workflow_1.png" width="500" />
-
-### Exercise #2c - Setting up Argo CD
-This section covers creation of Argo CD deployment on the GKE cluster provisioned via Terraform workflow. Follow the below steps once the Terraform workflow has completed running successfully.
 
 ## Exercise #3 - Verification
 ### Exercise #3a - Running test builds
