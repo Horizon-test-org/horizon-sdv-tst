@@ -53,12 +53,16 @@ def authentication():
     
     return operation_status
 
-def list_roles(service, save_to_file=False):
+def save_data_to_json_file(out_file_name, data):
+    with open(out_file_name, "w") as file:
+        json.dump(data, file, indent=4)
+    print(f"Data is saved in a file  '{out_file_name}'.")
+
+def list_roles(service):
     '''
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
     '''
     request = service.roles().list()
-    out_file_name = "Roles.json"
     roles_ls = []
 
     while True:
@@ -68,11 +72,6 @@ def list_roles(service, save_to_file=False):
         request = service.roles().list_next(previous_request=request, previous_response=response)
         if request is None:
             break
-
-    if save_to_file:
-        with open(out_file_name, "w") as file:
-            json.dump(roles_ls, file, indent=4)
-        print(f"Roles are listed in a file  '{out_file_name}'.")
 
     return roles_ls
 
@@ -85,55 +84,42 @@ def get_role_info(service, role):
     response = request.execute()
     return response
 
-def get_users_by_roles(save_to_file=False):
+def get_users_by_roles():
     '''
     Retrieve all Roles + Users that are assigned to them.
     Returns dictionary: 
         role: [user1, user2]
     '''
     resource = f'projects/{PROJECT_ID}'
-    users_by_roles = {}
-    out_file_name = "Users_by_roles.json"
+    users_by_roles_dict = {}
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
-
     
     for binding in policy.bindings:
         role = binding.role
         members = binding.members
-        users_by_roles[role] = []
+        users_by_roles_dict[role] = []
         for member in members:
-            users_by_roles[role].append(member)
+            users_by_roles_dict[role].append(member)
 
-    if save_to_file:
-        with open(out_file_name, "w") as file:
-            json.dump(users_by_roles, file, indent=4)
-        print(f"Users listed by roles are saved in a file '{out_file_name}'.")
+    return users_by_roles_dict
 
-    return users_by_roles
-
-def get_users_and_assigned_roles(save_to_file=False):
+def get_users_and_assigned_roles():
     '''
     Retrieve all Users and Roles that are assigned to them.
     Returns dictionary: 
         user: [role1, role2]
     '''
     users_by_roles = get_users_by_roles()
-    users_and_roles = {}
-    out_file_name = "Users_with_roles.json"
+    users_and_roles_dict = {}
 
     for role, users in users_by_roles.items():
         for user in users:
-            if user not in users_and_roles:
-                users_and_roles[user] = []
-            users_and_roles[user].append(role)
+            if user not in users_and_roles_dict:
+                users_and_roles_dict[user] = []
+            users_and_roles_dict[user].append(role)
 
-    if save_to_file:
-        with open(out_file_name, "w") as file:
-            json.dump(users_and_roles, file, indent=4)
-        print(f"Listed users and roles they are assigned to are saved in a file '{out_file_name}'.")
-
-    return users_and_roles
+    return users_and_roles_dict
 
 if __name__ == '__main__':
 
@@ -143,8 +129,15 @@ if __name__ == '__main__':
     operation_status = authentication()
 
     # GETTING INO
-    get_users_by_roles(save_to_file=True)
-    get_users_and_assigned_roles(save_to_file=True)
-    list_roles(service=service, save_to_file=True)
-    get_role_info(service=service, role="storage.objectViewer")
+    users_by_roles_dict = get_users_by_roles()
+    save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+
+    users_and_roles_dict = get_users_and_assigned_roles()
+    save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+
+    roles_ls = list_roles(service=service)
+    save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+
+    role_info = get_role_info(service=service, role="storage.objectViewer")
+    save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
 
