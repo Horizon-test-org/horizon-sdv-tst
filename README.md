@@ -121,7 +121,7 @@ Lets get started, sign-in to your GCP Console and select the relevant project wh
 #### Creating a Service Account
 1. Under IAM and Admin, navigate to Service Accounts and click on CREATE SERVICE ACCOUNT
 2. Provide `github-sa` as the name for the Service Account.
-3. Now, add Roles which are required for this usecase as mentioned in the above Prerequisites section.
+3. Now, add Owner Role to the Service Account.
 4. Click on save, your Service Account has now been created successfully.
 
 #### Binding Service Account to the Workload Identity Provider
