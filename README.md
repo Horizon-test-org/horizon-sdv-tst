@@ -13,7 +13,7 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
    - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
    - [Exercise #2c - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2c---setting-up-gcp-iam-and-admin-for-terraform-workflow)
    - [Exercise #2d - Create OAuth2 client and secret](#exercise-2d---create-oauth2-client-and-secret)
-   - [Exercise #2e - GitHub Actions workflow](#exercise-2e---github-actions-workflow)
+   - [Exercise #2e - Create GitHub Organization and Repository](#exercise-2e---create-github-organization-and-repository)
 - [Exercise #3 - Verification](#exercise-3---verification)
    - [Exercise #3a - Running test builds](#exercise-3a---running-test-builds)
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
@@ -161,6 +161,27 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
    <img src="docs/images/oauth_client_details.png" width="350" />
 7. The credential will appear Under OAuth 2.0 Client IDs as below and credential details can be viewed and edited by clicking on the Name of the OAuth 2.0 Client ID.   
    <img src="docs/images/oauth2_list.png" width="490" />
+
+### Exercise #2e - Create GitHub Organization and Repository
+In this section, steps for creating a GitHub organization or repository. Before we get started on creating a GitHub organization, it is required to have a GitHub account. If you do not have a Github account already, sign up [here](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github).
+
+#### Create a GitHub Organization
+1. Log in to GitHub, click on your profile (top-right corner of the page) and select "Your organizations"
+2. Click on "New Organization" under Organizations. (Do not click on the option to turn your account into an organization under **Transform account**, changes may not be reversible)
+3. Click on "Create a free organization".
+4. Enter Organization name of your choice.
+5. Enter your email address as the Contact email.
+6. Set organization belonging to "My personal account".
+7. Accept the terms of service and click on Next.
+8. In the next step, you can add members to the organization or skip and add members later. Click on "Complete setup".
+
+#### Create a GitHub Repository
+1. Go to the Organization, under Repositories tab click on "New repository"
+2. Make sure the Owner field matches the Organization name. If not, select the correct Own from the drop-down list.
+3. Enter the name of the repository as "horizon-sdv".
+4. Select "Public" for the repository visibility.   
+   <img src="docs/images/org_repo_creation.png" width="550" />
+5. Click on Create repository.
 
 #### Creating GitHub Secrets to be used by the Workflow
 1. In the repository settings, navigate to Secrets and variables.
