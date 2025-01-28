@@ -180,7 +180,7 @@ if __name__ == '__main__':
         users_and_roles_dict = get_users_and_assigned_roles()
         save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
 
-        roles_ls = list_roles(service=service)
+        roles_ls = get_roles_list(service=service)
         save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
 
         role_info = get_role_info(service=service, role="storage.objectViewer")
