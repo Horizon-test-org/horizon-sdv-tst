@@ -4,7 +4,9 @@ import subprocess
 from google.cloud import resourcemanager_v3
 import json
 import os
+
 GET_INFO = False
+ADD_ROLE_TO_USER = True
 
 PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
@@ -94,7 +96,6 @@ def authentication():
 
     return operation_status, credentials
 
-
 def save_data_to_json_file(out_file_name, data):
     with open(out_file_name, "w") as file:
         json.dump(data, file, indent=4)
@@ -136,7 +137,7 @@ def get_users_by_roles():
     users_by_roles_dict = {}
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
-    
+
     for binding in policy.bindings:
         role = binding.role
         members = binding.members
@@ -163,6 +164,38 @@ def get_users_and_assigned_roles():
 
     return users_and_roles_dict
 
+def add_role_to_user(user, role):
+    '''
+    Add role for given user.
+    Parameters:
+        - user: provide user email
+        - role: provide role id
+    Returns operation status. If operation is successful return True
+    '''
+    resource = f'projects/{PROJECT_ID}'
+    client = resourcemanager_v3.ProjectsClient()
+    policy = client.get_iam_policy(request={"resource": resource})
+    
+    for binding in policy.bindings:
+        if binding.role == role and f"user:{user}" in binding.members:
+            print(f"User {user} already has the role {role}.")
+            return False
+            
+    binding = policy.bindings.add()
+    binding.role = role 
+    binding.members.append(f"user:{user}")
+
+    client.set_iam_policy(
+        request={
+            "resource": resource,
+            "policy": policy
+            }
+        )
+
+    print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
+    return True
+
+
 if __name__ == '__main__':
 
     operation_status = False
@@ -184,10 +217,19 @@ if __name__ == '__main__':
 
             roles_ls = get_roles_list(service=service)
             save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+
             role_info = get_role_info(service=service, role="storage.objectViewer")
             save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
 
+        # GRANTING A ROLE TO USER
+        if ADD_ROLE_TO_USER:
+            users_by_roles_dict = get_users_by_roles()
+            save_data_to_json_file(out_file_name="Users_by_roles_before.json", data=users_by_roles_dict)
 
+            add_role_to_user("marta.kania@accenture.com", "roles/storage.objectViewer")
+
+            users_by_roles_dict = get_users_by_roles()
+            save_data_to_json_file(out_file_name="Users_by_roles_after.json", data=users_by_roles_dict)
 
     else:
         raise Exception("Authentication fail.")
