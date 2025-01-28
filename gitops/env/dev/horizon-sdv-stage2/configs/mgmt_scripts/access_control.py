@@ -185,4 +185,7 @@ if __name__ == '__main__':
 
         role_info = get_role_info(service=service, role="storage.objectViewer")
         save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+    else:
+        raise Exception("Authentication fail.")
+
 
