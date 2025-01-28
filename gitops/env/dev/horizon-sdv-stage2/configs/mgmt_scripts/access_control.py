@@ -99,7 +99,7 @@ def save_data_to_json_file(out_file_name, data):
         json.dump(data, file, indent=4)
     print(f"Data is saved in a file  '{out_file_name}'.")
 
-def list_roles(service):
+def get_roles_list(service):
     '''
     Lists every predefined Role that IAM supports, or every custom role that is defined for an organization or project.
     '''
