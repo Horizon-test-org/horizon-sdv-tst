@@ -1,10 +1,24 @@
 import google.auth
-import google.auth.credentials
 from googleapiclient import discovery
 import subprocess
-import google.oauth2.credentials
 from google.cloud import resourcemanager_v3
 import json
+import os
+
+PROJECT_ID = "sdva-2108202401"
+CREDENTIALS_FILENAME = "application_default_credentials.json"
+
+
+def check_credentials():
+    '''
+    Checks if credentials were already created.
+    It simplifies authentication by checking common locations for credentials, such as:
+        - The GOOGLE_APPLICATION_CREDENTIALS environment variable (for service account keys).
+        - Credentials obtained from gcloud auth application-default login.
+        - Default credentials provided by the metadata server (if running on a GCP resource like Compute Engine or Cloud Run).
+
+    '''
+    return True
 
 def authentication():
     '''
@@ -12,46 +26,46 @@ def authentication():
 
     It uses Application Default Credentials.
     Automatically finds your credentials (like a service account or ADC credentials) based on the environment.
-    Optionally provides the project ID associated with those credentials (if available).
-    It simplifies authentication by checking common locations for credentials, such as:
-        - The GOOGLE_APPLICATION_CREDENTIALS environment variable (for service account keys).
-        - Credentials obtained from gcloud auth application-default login.
-        - Default credentials provided by the metadata server (if running on a GCP resource like Compute Engine or Cloud Run).
-
     If not already done, runs `gcloud auth application-default login` command which opens browser to authenticate.
-
     If that fails, runs `gcloud auth application-default login --no-browser` command which lets authenticate without access to a web browser. 
     Generates a link which should be run on a machine with a web browser and copy the output back in the command line.
 
     '''
     operation_status = False
-
-    try:
-        creds, proj = google.auth.default()
-    except google.auth.exceptions.DefaultCredentialsError as e:
-        print(f"You are not authenticated yet. \n------\nError: {e}\n------")
+    credentials = None
+    
+    if check_credentials():
+        print(f"Credentials already exist.")
         try:
-            result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
-            result.check_returncode()
-        except Exception as e:
+            credentials, proj_id = google.auth.default()
+            operation_status = True
+        except google.auth.exceptions.DefaultCredentialsError as e:
             print(f"------\nError during authentication: {e}\n------")
-            try:
-                print("Another try to authenticate.")
-                result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-browser"], shell=True)
-                result.check_returncode()
-            except Exception as e:
-                print(f"------\nError during authentication: {e}\nFix it\n------")
-            else:
-                print("------\nYou are authenticated.\n------")
-                operation_status = True
         else:
             print("------\nYou are authenticated.\n------")
-            operation_status = True
     else:
-        print("------\nYou are authenticated.\n------")
-        operation_status = True
-    
-    return operation_status
+        print(f"There are no credentials. You will need to log in.")
+        try:
+            result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
+        except Exception as e:
+            print(f"------\nError during authentication: {e}\n------")
+        else:
+            if check_credentials():
+               credentials, proj_id = google.auth.default() 
+               print("------\nYou are authenticated.\n------")
+            else:
+                print("Another try to authenticate.")
+                try:
+                    result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-browser"], shell=True)
+                    result.check_returncode()
+                except Exception as e:
+                    print(f"------\nError during authentication: {e}\nFix it\n------")
+                else:
+                    credentials, proj_id = google.auth.default() 
+                    print("------\nYou are authenticated.\n------")
+
+    return operation_status, credentials
+
 
 def save_data_to_json_file(out_file_name, data):
     with open(out_file_name, "w") as file:
@@ -126,18 +140,22 @@ if __name__ == '__main__':
     operation_status = False
 
     # AUTHENTICATION #
-    operation_status = authentication()
+    operation_status, credentials = authentication()
 
-    # GETTING INO
-    users_by_roles_dict = get_users_by_roles()
-    save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+    # Retreiving credentials #
+    if operation_status and credentials:
+        service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
 
-    users_and_roles_dict = get_users_and_assigned_roles()
-    save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+        # GETTING INO
+        users_by_roles_dict = get_users_by_roles()
+        save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
 
-    roles_ls = list_roles(service=service)
-    save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+        users_and_roles_dict = get_users_and_assigned_roles()
+        save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
 
-    role_info = get_role_info(service=service, role="storage.objectViewer")
-    save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+        roles_ls = list_roles(service=service)
+        save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+
+        role_info = get_role_info(service=service, role="storage.objectViewer")
+        save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
 
