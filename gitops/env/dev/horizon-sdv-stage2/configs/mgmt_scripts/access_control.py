@@ -15,8 +15,6 @@ def check_credentials():
     It simplifies authentication by checking common locations for credentials, such as:
         - The GOOGLE_APPLICATION_CREDENTIALS environment variable (for service account keys).
         - Credentials obtained from gcloud auth application-default login.
-        - Default credentials provided by the metadata server (if running on a GCP resource like Compute Engine or Cloud Run).
-
     '''
     # Check credentials from the GOOGLE_APPLICATION_CREDENTIALS environment variable.
     env_var = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -54,6 +52,9 @@ def authentication():
     If that fails, runs `gcloud auth application-default login --no-browser` command which lets authenticate without access to a web browser. 
     Generates a link which should be run on a machine with a web browser and copy the output back in the command line.
 
+    Function returns tuple:
+        - operation_status - True if operation succeeded
+        - credentials - variable storing credentials
     '''
     operation_status = False
     credentials = None
@@ -76,16 +77,18 @@ def authentication():
         else:
             if check_credentials():
                credentials, proj_id = google.auth.default() 
+               operation_status = True
                print("------\nYou are authenticated.\n------")
             else:
                 print("Another try to authenticate.")
                 try:
-                    result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-browser"], shell=True)
+                    result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
                     result.check_returncode()
                 except Exception as e:
                     print(f"------\nError during authentication: {e}\nFix it\n------")
                 else:
                     credentials, proj_id = google.auth.default() 
+                    operation_status = True
                     print("------\nYou are authenticated.\n------")
 
     return operation_status, credentials
@@ -167,7 +170,7 @@ if __name__ == '__main__':
     operation_status, credentials = authentication()
 
     # Retreiving credentials #
-    if operation_status and credentials:
+    if operation_status:
         service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
 
         # GETTING INO
