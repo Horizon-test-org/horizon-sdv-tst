@@ -24,9 +24,23 @@ def check_credentials():
         return True
 
     # Check credentials from the Cloud SDK.
-    env_var = os.environ.get("APPDATA")
+    # Check if if the path is explicitly set, return that.
+    env_var = os.environ.get("CLOUDSDK_CONFIG")
     if env_var:
-        credentials_file_path = os.path.join(env_var, "gcloud", CREDENTIALS_FILENAME)
+        credentials_file_path = os.path.join(env_var, CREDENTIALS_FILENAME)
+        if os.path.isfile(credentials_file_path):
+            return True
+    
+    # Check credentials on Windows systems. Config should stored at %APPDATA%/gcloud
+    if os.name == "nt":
+        env_var = os.environ.get("APPDATA")
+        if env_var:
+            credentials_file_path = os.path.join(env_var, "gcloud", CREDENTIALS_FILENAME)
+            if os.path.isfile(credentials_file_path):
+                return True
+    else: 
+        # Check credentials on Non-windows system. They should be stored at ~/.config/gcloud
+        credentials_file_path = os.path.join(os.path.expanduser("~"), ".config", "gcloud", CREDENTIALS_FILENAME)
         if os.path.isfile(credentials_file_path):
             return True
 
