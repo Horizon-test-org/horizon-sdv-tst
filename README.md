@@ -12,7 +12,8 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
    - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
    - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
    - [Exercise #2c - Setting up GCP IAM and Admin for Terraform Workflow](#exercise-2c---setting-up-gcp-iam-and-admin-for-terraform-workflow)
-   - [Exercise #2d - GitHub Actions workflow](#exercise-2d---github-actions-workflow)
+   - [Exercise #2d - Create OAuth2 client and secret](#exercise-2d---create-oauth2-client-and-secret)
+   - [Exercise #2e - GitHub Actions workflow](#exercise-2e---github-actions-workflow)
 - [Exercise #3 - Verification](#exercise-3---verification)
    - [Exercise #3a - Running test builds](#exercise-3a---running-test-builds)
 - [Exercise #4 - Troubleshooting](#exercise-4---troubleshooting)
@@ -26,7 +27,6 @@ Technologies being used to provision the infrastructure along with the required 
 * Argo CD - Used to deploy Kubernetes application to match the desired state as in the GitHub repository configuration files.
 
 ## Project directories and files
-
 The project is implemented in the following directories:
 
 + **.github/workflows** - Consists of GitHub Action workflows directing the operation of the CI build.
@@ -36,7 +36,7 @@ The project is implemented in the following directories:
 
 ## Exercise #1 - Prerequsites
 ### General
-* If you not prefer using the Cloud Shell on GCP Console, install GCP CLI tools like `gcloud`, `gsutil` and `bq` locally. (Install instructions [here](https://cloud.google.com/sdk/docs/install)).
+* If you do not prefer using the Cloud Shell on GCP Console, install GCP CLI tools like `gcloud`, `gsutil` and `bq` locally. (Install instructions [here](https://cloud.google.com/sdk/docs/install)).
 * Admin script to be executed.
 * Pixel Tablet firmware installation is ready.
 
@@ -134,6 +134,34 @@ Lets get started, sign-in to your GCP Console and select the relevant project wh
 7. Confirm the Service account has been bound successfully under CONNECTED SERVICE ACCOUNTS tab.   
    <img src="docs/images/workload_identity_pool_sa_bound.png" width="650" />
 
+### Exercise #2d - Create OAuth2 client and secret
+It is required to setup OAuth consent screen before creating the OAuth client and secret. Navigate to APIs & Services and follow the below mentioned steps
+
+#### Setting up OAuth consent screen
+Once in APIs & Services, click on OAuth consent screen to start the setup process.
+
+1. Select User Type as "External" and click on CREATE.
+2. Enter App name as "Horizon -SDV on GCP"
+3. Provide a User support email.
+4. Under App domain, provide a Application homepage link. For example, `https://sbx.horizon-sdv.scpmtk.com`.
+5. Under Authorized domain, click on ADD DOMAIN and enter a relevant domain. For example, `scpmtk.com`
+6. Provide email addresses under Developer contact information and click on SAVE AND CONTINUE.
+7. On the next page, click on SAVE AND CONTINUE with default configurations.
+8. In the Test users section, click on ADD USERS and add email addresses of users for enabling access and click on SAVE AND CONTINUE.
+9. Review the Summary and click on BACK TO DASHBOARD.   
+   <img src="docs/images/oauth_consent_screen.png" width="450" />   
+
+#### Create OAuth client ID
+1. Under APIs & Services, click on Credentials.
+2. Click on CREATE CREDENTIALS and select "OAuth client ID" from the drop-down list.
+3. Select Application type as "Web application".
+4. Provide Name as "Horizon".
+5. Under Authorized redirect URIs enter the URI which points google endpoint of Keycloak. Example: `https://sbx.horizon-sdv.scpmtk.com/auth/realms/horizon/broker/google/endpoint`.
+6. Clicking on CREATE opens a pop-up window containing client ID and secret which can be copied and saved locally to a file or download the credential detail as a JSON file. (Below credentials are no longer active)   
+   <img src="docs/images/oauth_client_details.png" width="350" />
+7. The credential will appear Under OAuth 2.0 Client IDs as below and credential details can be viewed and edited by clicking on the Name of the OAuth 2.0 Client ID.   
+   <img src="docs/images/oauth2_list.png" width="490" />
+
 #### Creating GitHub Secrets to be used by the Workflow
 1. In the repository settings, navigate to Secrets and variables.
 2. Under Actions, add the required details such as Workload Identity Federation and Service Account.
@@ -145,7 +173,7 @@ Refer the following documentation for further details on the setup:
 * [Enabling keyless authentication from GitHub Actions](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions)
 * [Configuring OpenID Connect in Google Cloud Platform](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform)
 
-### Exercise #2d - GitHub Actions workflow   
+### Exercise #2e - GitHub Actions workflow   
 This section outlines the steps to trigger a GitHub Actions workflow. Before proceeding, it is recommended to fork this repository into your private GitHub account.   
 
 The GitHub Actions Workflow has been configured to trigger if changes are either pushed to the `main` branch or any branch starting with `feature/` or `release/`. The workflow also gets trigger when pull requests are targeted toward the `main` branch. Provided, in both cases the changes are within `terraform/` directory.
