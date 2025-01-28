@@ -18,7 +18,11 @@ def check_credentials():
         - Default credentials provided by the metadata server (if running on a GCP resource like Compute Engine or Cloud Run).
 
     '''
-    return True
+    
+    # Check credentials from the Cloud SDK.
+    credentials_file_path = os.path.join(os.environ["APPDATA"], "gcloud", CREDENTIALS_FILENAME)
+    if os.path.isfile(credentials_file_path):
+        return True
 
 def authentication():
     '''
