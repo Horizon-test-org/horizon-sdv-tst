@@ -4,6 +4,7 @@ import subprocess
 from google.cloud import resourcemanager_v3
 import json
 import os
+GET_INFO = False
 
 PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
@@ -174,17 +175,20 @@ if __name__ == '__main__':
         service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
 
         # GETTING INO
-        users_by_roles_dict = get_users_by_roles()
-        save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+        if GET_INFO:
+            users_by_roles_dict = get_users_by_roles()
+            save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
 
-        users_and_roles_dict = get_users_and_assigned_roles()
-        save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+            users_and_roles_dict = get_users_and_assigned_roles()
+            save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
 
-        roles_ls = get_roles_list(service=service)
-        save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+            roles_ls = get_roles_list(service=service)
+            save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+            role_info = get_role_info(service=service, role="storage.objectViewer")
+            save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
 
-        role_info = get_role_info(service=service, role="storage.objectViewer")
-        save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+
+
     else:
         raise Exception("Authentication fail.")
 
