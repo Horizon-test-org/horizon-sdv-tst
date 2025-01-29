@@ -20,8 +20,7 @@ def check_credentials():
         - Credentials obtained from gcloud auth application-default login.
     '''
     # Check credentials from the GOOGLE_APPLICATION_CREDENTIALS environment variable.
-    env_var = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-    if env_var:
+    if os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
         return True
 
     # Check credentials from the Cloud SDK.
@@ -33,17 +32,19 @@ def check_credentials():
             return True
     
     # Check credentials on Windows systems. Config should stored at %APPDATA%/gcloud
-    if os.name == "nt":
+    if os.name != "nt":
+        # Check credentials on Non-windows system. They should be stored at ~/.config/gcloud
+        credentials_file_path = os.path.join(os.path.expanduser("~"), ".config", "gcloud", CREDENTIALS_FILENAME)
+        if os.path.isfile(credentials_file_path):
+            return True
+    else: 
         env_var = os.environ.get("APPDATA")
         if env_var:
             credentials_file_path = os.path.join(env_var, "gcloud", CREDENTIALS_FILENAME)
             if os.path.isfile(credentials_file_path):
                 return True
-    else: 
-        # Check credentials on Non-windows system. They should be stored at ~/.config/gcloud
-        credentials_file_path = os.path.join(os.path.expanduser("~"), ".config", "gcloud", CREDENTIALS_FILENAME)
-        if os.path.isfile(credentials_file_path):
-            return True
+            
+    return False
 
 def authentication():
     '''
@@ -74,7 +75,7 @@ def authentication():
     else:
         print(f"There are no credentials. You will need to log in.")
         try:
-            result = subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
+            subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
         except Exception as e:
             print(f"------\nError during authentication: {e}\n------")
         else:
@@ -179,7 +180,7 @@ def add_role_to_user(user, role):
     for binding in policy.bindings:
         if binding.role == role and f"user:{user}" in binding.members:
             print(f"User {user} already has the role {role}.")
-            return False
+            return True
             
     binding = policy.bindings.add()
     binding.role = role 
