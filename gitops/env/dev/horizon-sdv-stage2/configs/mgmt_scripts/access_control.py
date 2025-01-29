@@ -6,7 +6,7 @@ import json
 import os
 
 GET_INFO = False
-ADD_ROLE_TO_USER = True
+ADD_ROLE_TO_USER = False
 
 PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
@@ -195,6 +195,8 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
+def retrieve_list_of_users_to_modify():
+    pass
 
 if __name__ == '__main__':
 
