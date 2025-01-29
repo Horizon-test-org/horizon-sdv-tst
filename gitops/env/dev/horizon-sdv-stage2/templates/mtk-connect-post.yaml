@@ -73,3 +73,36 @@ spec:
               value: "mtk-connect"
           image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-post:latest
       restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mtk-connect-api-key-config
+  namespace: mtk-connect
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
+spec:
+  schedule: "0 0 * * *"
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: mtk-connect-writer-sa
+          containers:
+            - name: mtk-connect-api-key-config
+              args: ["--api-domain", "dev.horizon-sdv.scpmtk.com"]
+              env:
+              - name: MTK_KEY_UPD_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: mtk-connect-apikey
+                    key: username
+              - name: MTK_KEY_UPD_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mtk-connect-apikey
+                    key: password
+              image: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv-dev/mtk-connect-api-key-refresh:latest
+              imagePullPolicy: Always
+          restartPolicy: Never
