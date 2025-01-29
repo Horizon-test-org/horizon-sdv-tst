@@ -5,8 +5,10 @@ from google.cloud import resourcemanager_v3
 import json
 import os
 
+### Just for debug purposes
 GET_INFO = False
 ADD_ROLE_TO_USER = False
+###
 
 PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
@@ -57,17 +59,17 @@ def authentication():
     Generates a link which should be run on a machine with a web browser and copy the output back in the command line.
 
     Function returns tuple:
-        - operation_status - True if operation succeeded
+        - return_status - True if operation succeeded
         - credentials - variable storing credentials
     '''
-    operation_status = False
+    return_status = False
     credentials = None
     
     if check_credentials():
         print(f"Credentials already exist.")
         try:
             credentials, proj_id = google.auth.default()
-            operation_status = True
+            return_status = True
         except google.auth.exceptions.DefaultCredentialsError as e:
             print(f"------\nError during authentication: {e}\n------")
         else:
@@ -81,7 +83,7 @@ def authentication():
         else:
             if check_credentials():
                credentials, proj_id = google.auth.default() 
-               operation_status = True
+               return_status = True
                print("------\nYou are authenticated.\n------")
             else:
                 print("Another try to authenticate.")
@@ -92,10 +94,10 @@ def authentication():
                     print(f"------\nError during authentication: {e}\nFix it\n------")
                 else:
                     credentials, proj_id = google.auth.default() 
-                    operation_status = True
+                    return_status = True
                     print("------\nYou are authenticated.\n------")
 
-    return operation_status, credentials
+    return return_status, credentials
 
 def save_data_to_json_file(out_file_name, data):
     with open(out_file_name, "w") as file:
