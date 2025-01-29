@@ -77,8 +77,8 @@ spec:
             [gerrit]
               canonicalWebUrl = "https://dev.horizon-sdv.scpmtk.com/"
             [core]
-              packedGitLimit = 1g
-              packedGitWindowSize = 8k
+              packedGitLimit = 2g
+              packedGitWindowSize = 16k
               packedGitOpenFiles = 1024
               streamFileThreshold = 1g
             [index]
@@ -103,10 +103,10 @@ spec:
               realm = "horizon"
               client-id = "gerrit"
             [pack]
-              threads = 1
+              threads = 2
               windowMemory = 1g
             [receive]
-              timeout = 15m
+              timeout = 30m
             [transfer]
               timeout = 3600
         secretRef: gerrit-secure-config
