@@ -200,7 +200,8 @@ In this section, steps for creating a GitHub organization or repository. Before 
    * Click on "Generate a private key"   
       <img src="docs/images/github_app_private_key_1.png" width="450" />
    * Download and Save the `.pem` file to your machine locally.   
-5. To note down the GitHub App ID, navigate to Organization, Settings, Developer settings, GitHub Apps and click on "horizon-sa" and note down the info as shown below
+5. To note down the GitHub App ID, navigate to Organization, Settings, Developer settings, GitHub Apps and click on "horizon-sa" and note down the info as shown below   
+   <img src="docs/images/github_app_id.png" width="300" />
 6. Installing the GitHub App
    * Go to Organization, Settings, Developer settings, GitHub Apps and click on "horizon-sa".
    * Click on Install App.
@@ -221,7 +222,7 @@ Below steps are for forking the **acn-horizon-sdv** repository to your GitHub or
 In this section we will be setting up the GitHub repository environment with the required environment secrets and variables.
 
 #### Create a GitHub environment
-1. Navigate to the forked repository on your GitHub repository and switch to the Settings tab.
+1. Navigate to the forked repository on your GitHub organization and switch to the Settings tab.
 2. From Settings tab, go to "Environments".   
    <img src="docs/images/github_repo_create_env.png" width="450" />
 3. Click on "New environment" and name it "sbx" and click on "Configure environment".
@@ -229,10 +230,10 @@ In this section we will be setting up the GitHub repository environment with the
 #### Add Environment secrets
 1. Clicking on "Add environment secrets" opens a new window where the secret Name and Value can be provided.   
    <img src="docs/images/github_repo_create_env_secret_1.png" width="400" />
-2. Upon entering the details of the secret, click on "Add secret".   
+2. After entering the details of the secret, click on "Add secret".   
    <img src="docs/images/github_repo_create_env_secret_2.png" width="400" />
 3. Repeat the above steps and add the below **example** secrets (The secrets will be different for your setup)
-   * GH_APP_ID: 1126617
+   * GH_APP_ID: `1126617`
    * GH_APP_KEY:   
       ```
       -----BEGIN RSA PRIVATE KEY-----
@@ -241,10 +242,10 @@ In this section we will be setting up the GitHub repository environment with the
       yPSBViWgE2xQu7VVY0kxUZtS1h7h4yh1aZW9qvNqUy0K68aqDbVdgFg=
       -----END RSA PRIVATE KEY-----
       ```
-   * GH_INSTALLATION_ID: 36369393
+   * GH_INSTALLATION_ID: `36369393`
    * GCP_SA: `github@sdvc-e84bd9c4.iam.gserviceaccount.com`
    * WIF_PROVIDER: projects/428278318385/locations/global/workloadIdentityPools/github/providers/github-provider
-   * ARGOCD_INITIAL_PASSWORD: myargocdpasswd
+   * ARGOCD_INITIAL_PASSWORD: `myargocdpasswd`
    * CUTTLEFISH_VM_SSH_PRIVATE_KEY: (generate a key by using [ssh-keygen](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key))   
       ```
       -----BEGIN OPENSSH PRIVATE KEY-----   
@@ -253,7 +254,7 @@ In this section we will be setting up the GitHub repository environment with the
       AIFvukjAZRbHAAAAB2plbmtpbnMBAgM=   
       -----END OPENSSH PRIVATE KEY-----
       ```
-   * GERRIT_ADMIN_INITIAL_PASSWORD: mygerritpasswd
+   * GERRIT_ADMIN_INITIAL_PASSWORD: `mygerritpasswd`
    * GERRIT_ADMIN_PRIVATE_KEY:   
       ```
       -----BEGIN OPENSSH PRIVATE KEY-----
@@ -262,9 +263,9 @@ In this section we will be setting up the GitHub repository environment with the
       bgECAw==
       -----END OPENSSH PRIVATE KEY-----
       ```
-   * JENKINS_INITIAL_PASSWORD: myjenkinsinitpasswd
-   * KEYCLOAK_HORIZON_ADMIN_PASSWORD: mykeycloadadminpasswd
-   * KEYCLOAK_INITIAL_PASSWORD: mykeycloakpasswd
+   * JENKINS_INITIAL_PASSWORD: `myjenkinsinitpasswd`
+   * KEYCLOAK_HORIZON_ADMIN_PASSWORD: `mykeycloadadminpasswd`
+   * KEYCLOAK_INITIAL_PASSWORD: `mykeycloakpasswd`
 4. Once all required credentials are setup, it should look like below   
    <img src="docs/images/github_repo_create_env_secret_3.png" width="400" />
 
@@ -272,7 +273,7 @@ In this section we will be setting up the GitHub repository environment with the
 1. Open repository settings and click on Environments, scroll down and click on "Add environment variable".   
    <img src="docs/images/github_repo_create_env_variable_1.png" width="400" />
 2. Provide the Environment ID and Value as below (the value may be different for your GCP Project):
-   * GCP_PROJECT_ID: sdvc-e84bd9c4
+   * GCP_PROJECT_ID: `sdvc-e84bd9c4`
 3. Once the Environment variable has been created, it will be visible as shown below   
    <img src="docs/images/github_repo_create_env_secret_2.png" width="400" />
    
