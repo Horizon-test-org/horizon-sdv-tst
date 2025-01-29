@@ -4,6 +4,7 @@ import subprocess
 from google.cloud import resourcemanager_v3
 import json
 import os
+import argparse
 
 ### Just for debug purposes
 GET_INFO = False
@@ -198,12 +199,27 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
-def retrieve_list_of_users_to_modify():
-    pass
+def retrieve_users_list_from_json(users_file_path):
+    '''
+    Handling json file which contains list of users and operaton that shall be performed on them.
+    '''
+    print(f"I will look through the list of users in the provided file: {users_file_path}")
+
+def script_arguments_handler():
+    '''
+    Handle arguments provided to the script.
+    '''
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u", "--users_list", help="Path to json file which contains users list to perform operations on/")
+    args = parser.parse_args()
+
+    if args.users_list:
+        retrieve_users_list_from_json(users_file_path=args.users_list)
+
 
 if __name__ == '__main__':
 
-    operation_status = False
+    script_arguments_handler()
 
     # AUTHENTICATION #
     operation_status, credentials = authentication()
