@@ -172,6 +172,21 @@ def get_users_and_assigned_roles():
 
     return users_and_roles_dict
 
+def get_particular_user_roles(user):
+    '''
+    Retrieve roles assigned to particular user.
+    Returns list of roles.
+    '''
+    users_by_roles = get_users_by_roles()
+    user_roles_info_ls = []
+
+    for role, users in users_by_roles.items():
+        for u in users:
+            if user in u:
+                user_roles_info_ls.append(role)
+
+    return user_roles_info_ls
+
 def add_role_to_user(user, role):
     '''
     Add role for given user.
@@ -245,6 +260,9 @@ if __name__ == '__main__':
 
             role_info = get_role_info(service=service, role="storage.objectViewer")
             save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+
+            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
+            save_data_to_json_file(out_file_name="User_info.json", data=user_roles_info_ls)
 
         # GRANTING A ROLE TO USER
         if ADD_ROLE_TO_USER:
