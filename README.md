@@ -16,8 +16,8 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #3 - Setup GitHub (WIP)](#exercise-3---setup-github-wip)
    - [Exercise #3a - Create GitHub Organization and Repository](#exercise-3a---create-github-organization-and-repository)
    - [Exercise #3b - Create GitHub Application](#exercise-3b---create-github-application)
-   - [Exercise #3c - Fork the repository](#exercise-3c---fork-the-repository)
-   - [Exercise #3d - Set up GitHub Environment](#exercise-3d---set-up-github-environment)
+   - [Exercise #3c - Fork the Repository](#exercise-3c---fork-the-repository)
+   - [Exercise #3d - Setup GitHub Environment](#exercise-3d---set-up-github-environment)
    - [Exercise #3e - Setup GitHub repository](#exercise-3e---setup-github-repository)
    - [Exercise #3f - Setup GitHub Actions](#exercise-3f---setup-github-actions)
 - [Exercise #4 - Verification](#exercise-4---verification)
@@ -171,7 +171,7 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 ## Exercise #3 - Setup GitHub (WIP)
 
 ### Exercise #3a - Create GitHub Organization and Repository
-In this section, steps for creating a GitHub organization or repository. Before we get started on creating a GitHub organization, it is required to have a GitHub account. If you do not have a Github account already, sign up [here](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github).
+In this section, steps for creating a GitHub organization or repository are mentioned. Before we get started on creating a GitHub organization, it is required to have a GitHub account. If you do not have a Github account already, sign up [here](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github).
 
 #### Create a GitHub Organization
 1. Log in to GitHub, click on your profile (top-right corner of the page) and select "Your organizations".
@@ -271,7 +271,7 @@ In this section we will be setting up the GitHub repository environment with the
    * JENKINS_INITIAL_PASSWORD: `myjenkinsinitpasswd`
    * KEYCLOAK_HORIZON_ADMIN_PASSWORD: `mykeycloadadminpasswd`
    * KEYCLOAK_INITIAL_PASSWORD: `mykeycloakpasswd`
-4. Once all required credentials are setup, it should look like below   
+4. Once all of the required environment secrets are setup, it should look like below   
    <img src="docs/images/github_repo_create_env_secret_3.png" width="400" />
 
 #### Add Environment variables
@@ -297,7 +297,7 @@ Creating a GitHub Personal Access Token is required for securely accessing the r
 6. Make sure to copy and save the token as it is displayed only once after token is created.
 
 #### Clone the repository
-Before running the below commands, make sure git is installed and configured on your local machine.
+Before running the below commands, make sure [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) is installed and configured on your local machine.
 
 1. On the repository homepage, click on <img src="docs/images/github_clone_1.png" width="60" /> button and copy the HTTPS URL.   
    <img src="docs/images/github_clone_repo_1.png" width="300" />
@@ -321,7 +321,7 @@ Create a new branch with `main` branch as the base.
    ```
    git switch main
    ```
-3. Once you are on the `main` branch, run the below command to create a new branch and name it as `env/sbx`   
+3. Once you are on the `main` branch, run one of the below command to create a new branch and switch to it. Name it as `env/sbx`   
    ```
    git checkout -b env/sbx
    ```
@@ -330,7 +330,7 @@ Create a new branch with `main` branch as the base.
    git switch -c env/sbx
    ```
 ### Exercise #3f - Setup GitHub Actions
-Before running the Terraform GiHub Actions workflow, it is required to have the repository cloned locally and checked-out to a new branch as mentioned in the previous section.
+Before running the Terraform GiHub Actions workflow, it is required to have the repository cloned locally and checked-out to a new branch as mentioned in the previous section. We will also be configuring a few files required for the GitHub Actions workflow.
 
 #### Setup Terraform Backend
 Setting up the Terraform backend, the state data is mentioned in this section. This section depends on [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp) to be completed.   
