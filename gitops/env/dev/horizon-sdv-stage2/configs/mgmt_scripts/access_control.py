@@ -79,37 +79,38 @@ def authentication():
     return_status = False
     credentials = None
     
+    print("------")
     if check_credentials():
         print("Credentials already exist.")
         try:
             credentials, proj_id = google.auth.default()
             return_status = True
         except google.auth.exceptions.DefaultCredentialsError as e:
-            print(f"------\nError during authentication: {e}\n------")
+            print(f"Error during authentication: {e}")
         else:
-            print("------\nYou are authenticated.\n------")
+            print("You are authenticated.")
     else:
         print(f"There are no credentials. You will need to log in.")
         try:
             subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
         except Exception as e:
-            print(f"------\nError during authentication: {e}\n------")
+            print(f"Error during authentication: {e}")
         else:
             if check_credentials():
                credentials, proj_id = google.auth.default() 
                return_status = True
-               print("------\nYou are authenticated.\n------")
+               print("You are authenticated.")
             else:
                 print("Another try to authenticate.")
                 try:
                     result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
                     result.check_returncode()
                 except Exception as e:
-                    print(f"------\nError during authentication: {e}\nFix it\n------")
+                    print(f"Error during authentication: {e}\nFix it")
                 else:
                     credentials, proj_id = google.auth.default() 
                     return_status = True
-                    print("------\nYou are authenticated.\n------")
+                    print("You are authenticated.")
 
     return return_status, credentials
 
@@ -249,30 +250,26 @@ def operations_handler(operation):
             return_status = True
     else:
         print(f"There is no such operation as {operation}")
-        
-        
+
     return return_status
     
 def retrieve_operations_list_from_json(operations_file_path):
     '''
     Handling json file which contains list of users and operaton that shall be performed on them.
     '''
+    print("------")
     print(f"I will look through the list of operations in the provided file: {operations_file_path}")
     
     with open(operations_file_path, "r") as file:
         operations_list = json.load(file)
-        
-    print(f"Operations list: \n{operations_list}\n")
-    
+            
     success_score = 0
-    
     for op in operations_list:
         if operations_handler(op):
             success_score += 1
         
-    print(f"------\nThere were {len(operations_list) - success_score} incorrect operations.\n------")
+    print(f"\nThere were: {len(operations_list) - success_score} incorrect operations.")
     
-
 def script_arguments_handler():
     '''
     Handle arguments provided to the script.
