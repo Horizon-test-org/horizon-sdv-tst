@@ -1,10 +1,14 @@
-import google.auth
-from googleapiclient import discovery
-import subprocess
-from google.cloud import resourcemanager_v3
+"""@package docstring
+Access control script for a Platform Administrator.
+Author marta.kania@accenture.com
+"""
 import json
 import os
 import argparse
+import subprocess
+import google.auth
+from googleapiclient import discovery
+from google.cloud import resourcemanager_v3
 
 ### Just for debug purposes
 GET_INFO = False
@@ -67,7 +71,7 @@ def authentication():
     credentials = None
     
     if check_credentials():
-        print(f"Credentials already exist.")
+        print("Credentials already exist.")
         try:
             credentials, proj_id = google.auth.default()
             return_status = True
