@@ -1,0 +1,5 @@
+[
+    {"operation": "GET_ALL_USERS"},
+    {"operation": "GET_USER", "user": "marta.kania@accenture.com"},
+    {"operation": "NOT_GOOD"}
+]

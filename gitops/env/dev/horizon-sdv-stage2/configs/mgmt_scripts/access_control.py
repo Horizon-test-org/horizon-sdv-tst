@@ -20,7 +20,9 @@ PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
 
 # CONST VALUES FOR JSON FILE OPERATIONS LIST
-OPERATION = "operation"
+class OperationsKey(Enum):
+    OPERATION = "operation"
+    USER = "user"
 class Operations(Enum):
     GET_ALL_USERS = auto()
     GET_USER = auto()
@@ -233,15 +235,23 @@ def operations_handler(operation):
     '''
     return_status = False
 
-    if operation in Operations.__members__:
+    if operation[OperationsKey.OPERATION.value] in Operations.__members__:
         print(f"Handling operation {operation}")
-        return_status = True
+        
+        if operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_USERS.name:
+            users_and_roles_dict = get_users_and_assigned_roles()
+            save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+            return_status = True
+            
+        elif operation[OperationsKey.OPERATION.value] == Operations.GET_USER.name:
+            user_roles_info_ls = get_particular_user_roles(user=operation[OperationsKey.USER.value])
+            save_data_to_json_file(out_file_name="User_info.json", data=user_roles_info_ls)
+            return_status = True
     else:
         print(f"There is no such operation as {operation}")
         
         
     return return_status
-    
     
 def retrieve_operations_list_from_json(operations_file_path):
     '''
@@ -252,14 +262,15 @@ def retrieve_operations_list_from_json(operations_file_path):
     with open(operations_file_path, "r") as file:
         operations_list = json.load(file)
         
-    print(f"Operations list: \n{operations_list}")
+    print(f"Operations list: \n{operations_list}\n")
     
     success_score = 0
     
     for op in operations_list:
-        success_score += 1 if operations_handler(op[OPERATION]) == True else 0
+        if operations_handler(op):
+            success_score += 1
         
-    print(f"There were {len(operations_list) - success_score} incorrect operations.")
+    print(f"------\nThere were {len(operations_list) - success_score} incorrect operations.\n------")
     
 
 def script_arguments_handler():
