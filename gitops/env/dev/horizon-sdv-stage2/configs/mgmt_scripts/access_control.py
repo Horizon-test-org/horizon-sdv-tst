@@ -6,6 +6,7 @@ import json
 import os
 import argparse
 import subprocess
+from enum import Enum, auto
 import google.auth
 from googleapiclient import discovery
 from google.cloud import resourcemanager_v3
@@ -17,6 +18,12 @@ ADD_ROLE_TO_USER = False
 
 PROJECT_ID = "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
+
+# CONST VALUES FOR JSON FILE OPERATIONS LIST
+OPERATION = "operation"
+class Operations(Enum):
+    GET_ALL_USERS = auto()
+    GET_USER = auto()
 
 
 def check_credentials():
@@ -218,22 +225,53 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
-def retrieve_users_list_from_json(users_file_path):
+def operations_handler(operation):
+    '''
+    Handling operations.
+    Input variable: 
+        operation - type class Operations() 
+    '''
+    return_status = False
+
+    if operation in Operations.__members__:
+        print(f"Handling operation {operation}")
+        return_status = True
+    else:
+        print(f"There is no such operation as {operation}")
+        
+        
+    return return_status
+    
+    
+def retrieve_operations_list_from_json(operations_file_path):
     '''
     Handling json file which contains list of users and operaton that shall be performed on them.
     '''
-    print(f"I will look through the list of users in the provided file: {users_file_path}")
+    print(f"I will look through the list of operations in the provided file: {operations_file_path}")
+    
+    with open(operations_file_path, "r") as file:
+        operations_list = json.load(file)
+        
+    print(f"Operations list: \n{operations_list}")
+    
+    success_score = 0
+    
+    for op in operations_list:
+        success_score += 1 if operations_handler(op[OPERATION]) == True else 0
+        
+    print(f"There were {len(operations_list) - success_score} incorrect operations.")
+    
 
 def script_arguments_handler():
     '''
     Handle arguments provided to the script.
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--users_list", help="Path to json file which contains users list to perform operations on/")
+    parser.add_argument("-op", "--operations_list", help="Path to json file which contains operations list to perform")
     args = parser.parse_args()
 
-    if args.users_list:
-        retrieve_users_list_from_json(users_file_path=args.users_list)
+    if args.operations_list:
+        retrieve_operations_list_from_json(operations_file_path=args.operations_list)
 
 
 if __name__ == '__main__':
