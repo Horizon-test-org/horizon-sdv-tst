@@ -237,6 +237,46 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
+def remove_role_from_user(user_email, role_id, project_id):
+    '''
+    Removes a specific role from a user in a Google Cloud project.
+
+    Args:
+        user_email (str): The email of the user.
+        role_id (str): The role to remove (e.g., "roles/viewer").
+        project_id (str): The Google Cloud Project ID.
+
+    Returns:
+        None
+    '''
+    resource = f"projects/{PROJECT_ID}"
+    client = resourcemanager_v3.ProjectsClient()
+    policy = client.get_iam_policy(request={"resource": resource})
+
+    updated_bindings = []
+    for binding in policy.bindings:
+        if binding.role == role_id:
+            if f"user:{user_email}" in binding.members:
+                binding.members.remove(f"user:{user_email}")
+                print(f"Removed {user_email} from {role_id}")
+            # Only keep bindings that still have members
+            if binding.members:
+                updated_bindings.append(binding)
+        else:
+            updated_bindings.append(binding)
+
+    # Update the policy
+    policy.bindings[:] = updated_bindings
+    client.set_iam_policy(
+        request={
+            "resource": resource,
+            "policy": policy
+        }
+    )
+
+    print(f"Updated IAM policy for project {PROJECT_ID}.")
+
+
 def operations_handler(operation, service):
     '''
     Handling operations.
