@@ -106,7 +106,12 @@ def authentication():
                     result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
                     result.check_returncode()
                 except Exception as e:
-                    print(f"Error during authentication: {e}\nFix it")
+                    print(f"There were three attempts to authenticate: 
+                          1. Automatically check saved credentials.
+                          2. Login with browser.
+                          3. Provide an url to login using browser on machine with connection to internet. 
+                          Error during authentication.\n{e}\nFix it")
+                    raise
                 else:
                     credentials, proj_id = google.auth.default() 
                     return_status = True
@@ -319,8 +324,5 @@ if __name__ == '__main__':
 
             users_by_roles_dict = get_users_by_roles()
             save_data_to_json_file(out_file_name="Users_by_roles_after.json", data=users_by_roles_dict)
-
-    else:
-        raise Exception("Authentication fail.")
 
 
