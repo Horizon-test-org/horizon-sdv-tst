@@ -23,9 +23,13 @@ CREDENTIALS_FILENAME = "application_default_credentials.json"
 class OperationsKey(Enum):
     OPERATION = "operation"
     USER = "user"
+    ROLE = "role"
 class Operations(Enum):
     GET_ALL_USERS = auto()
     GET_USER = auto()
+    GET_ALL_ROLES = auto()
+    GET_ALL_ROLES_WITH_USERS = auto()
+    GET_ROLE_INFO = auto()
 
 
 def check_credentials():
@@ -106,11 +110,11 @@ def authentication():
                     result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
                     result.check_returncode()
                 except Exception as e:
-                    print(f"There were three attempts to authenticate: 
+                    print(f"""There were three attempts to authenticate: 
                           1. Automatically check saved credentials.
                           2. Login with browser.
                           3. Provide an url to login using browser on machine with connection to internet. 
-                          Error during authentication.\n{e}\nFix it")
+                          Error during authentication.\n{e}\nFix it""")
                     raise
                 else:
                     credentials, proj_id = google.auth.default() 
@@ -233,7 +237,7 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
-def operations_handler(operation):
+def operations_handler(operation, service):
     '''
     Handling operations.
     Input variable: 
@@ -253,12 +257,28 @@ def operations_handler(operation):
             user_roles_info_ls = get_particular_user_roles(user=operation[OperationsKey.USER.value])
             save_data_to_json_file(out_file_name="User_info.json", data=user_roles_info_ls)
             return_status = True
+            
+        elif operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_ROLES.name:
+            roles_ls = get_roles_list(service=service)
+            save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
+            return_status = True
+        
+        elif operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_ROLES_WITH_USERS.name:
+            users_by_roles_dict = get_users_by_roles()
+            save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+            return_status = True
+                
+        elif operation[OperationsKey.OPERATION.value] == Operations.GET_ROLE_INFO.name:
+            role_info = get_role_info(service=service, role=operation[OperationsKey.ROLE.value])
+            save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+            return_status = True
+            
     else:
         print(f"There is no such operation as {operation}")
 
     return return_status
     
-def retrieve_operations_list_from_json(operations_file_path):
+def retrieve_operations_list_from_json(operations_file_path, service):
     '''
     Handling json file which contains list of users and operaton that shall be performed on them.
     '''
@@ -270,12 +290,12 @@ def retrieve_operations_list_from_json(operations_file_path):
             
     success_score = 0
     for op in operations_list:
-        if operations_handler(op):
+        if operations_handler(op, service):
             success_score += 1
         
     print(f"\nThere were: {len(operations_list) - success_score} incorrect operations.")
     
-def script_arguments_handler():
+def script_arguments_handler(service):
     '''
     Handle arguments provided to the script.
     '''
@@ -284,20 +304,22 @@ def script_arguments_handler():
     args = parser.parse_args()
 
     if args.operations_list:
-        retrieve_operations_list_from_json(operations_file_path=args.operations_list)
+        retrieve_operations_list_from_json(operations_file_path=args.operations_list, service=service)
 
 
 if __name__ == '__main__':
 
-    script_arguments_handler()
-
     # AUTHENTICATION #
     operation_status, credentials = authentication()
-
+    
+    # HANDLING OPERATIONS FROM JSON #
+    if operation_status: 
+        service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
+        script_arguments_handler(service=service)
+        
     # Retreiving credentials #
     if operation_status:
-        service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
-
+        
         # GETTING INO
         if GET_INFO:
             users_by_roles_dict = get_users_by_roles()

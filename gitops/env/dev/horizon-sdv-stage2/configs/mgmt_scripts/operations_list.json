@@ -1,5 +1,8 @@
 [
     {"operation": "GET_ALL_USERS"},
     {"operation": "GET_USER", "user": "marta.kania@accenture.com"},
-    {"operation": "NOT_GOOD"}
+    {"operation": "NOT_GOOD"},
+    {"operation": "GET_ALL_ROLES"},
+    {"operation": "GET_ALL_ROLES_WITH_USERS"},
+    {"operation": "GET_ROLE_INFO", "role": "storage.objectViewer"}
 ]
