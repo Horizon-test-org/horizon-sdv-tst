@@ -22,16 +22,18 @@
 #  - AAOS_GERRIT_MANIFEST_URL: the URL of the AAOS manifest.
 #  - AAOS_REVISION: the branch or tag/version of the AAOS manifest.
 #  - AAOS_LUNCH_TARGET: the target device.
-#  - OVERRIDE_MAKE_COMMAND: the make command line to use
-#  - ADDITIONAL_INITIALISE_COMMANDS: additional vendor commands for initialisation.
 #
 # Optional variables:
 #  - AAOS_CLEAN: whether to clean before building.
 #  - AAOS_ARTIFACT_STORAGE_SOLUTION: the persistent storage location for
-#         artifacts (GCS_BUCKET default).
+#        artifacts (GCS_BUCKET default).
 #  - REPO_SYNC_JOBS: the number of parallel repo sync jobs to use Default: 2).
 #  - MAX_REPO_SYNC_JOBS: the maximum number of parallel repo sync jobs
-#         supported. (Default: 24).
+#        supported. (Default: 24).
+#  - OVERRIDE_MAKE_COMMAND: the make command line to use
+#  - POST_REPO_INITIALISE_COMMAND: additional vendor commands for repo initialisation.
+#  - POST_REPO_SYNC_COMMAND: additional vendor commands initialisation post
+#        repo sync.
 #
 # For Gerrit review change sets:
 #  - GERRIT_PROJECT: the name of the project to download.
@@ -177,14 +179,24 @@ fi
 # If Jenkins, or local, the artifacts differ so update.
 USER=$(whoami)
 
-# Declare articact array.
-declare -a AAOS_ARTIFACT_LIST
+# Post repo init commands
+declare -a POST_REPO_INITITIALISE_COMMANDS_LIST=(
+    "rm .repo/local_manifests/manifest_brcm_rpi.xml > /dev/null 2>&1"
+    "rm .repo/local_manifests/remove_projects.xml > /dev/null 2>&1"
+)
+# Post repo sync commands
+declare -a POST_REPO_SYNC_COMMANDS_LIST
+
 # Define the make command line for given target
 AAOS_MAKE_CMDLINE=""
 # Post build commands
 declare -a POST_BUILD_COMMANDS
+
+# Declare artifact array.
+declare -a AAOS_ARTIFACT_LIST
 # Post storage commands
 declare -a POST_STORAGE_COMMANDS
+# Post repo sync commands
 
 # This is a dictionary mapping the target names to the command line
 # to build the image.
@@ -198,6 +210,11 @@ case "${AAOS_LUNCH_TARGET}" in
             "${OUT_DIR}/target/product/${AAOS_ARCH}/boot.img"
             "${OUT_DIR}/target/product/${AAOS_ARCH}/system.img"
             "${OUT_DIR}/target/product/${AAOS_ARCH}/vendor.img"
+        )
+        # Download the RPi manifest if we are building for an RPi device.
+        POST_REPO_INITIALISE_COMMANDS_LIST=(
+            "curl -o .repo/local_manifests/manifest_brcm_rpi.xml -L ${AAOS_GERRIT_RPI_MANIFEST_URL}/${AAOS_RPI_REVISION}/manifest_brcm_rpi.xml --create-dirs"
+            "curl -o .repo/local_manifests/remove_projects.xml -L ${AAOS_GERRIT_RPI_MANIFEST_URL}/${AAOS_RPI_REVISION}/remove_projects.xml"
         )
         ;;
     sdk_car*)
@@ -233,14 +250,23 @@ case "${AAOS_LUNCH_TARGET}" in
         # Pixel Tablet binaries for Android ap1a/ap2a/ap3a
         case "${AAOS_LUNCH_TARGET}" in
             *ap2a*)
-                POST_INITIALISE_COMMANDS="curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap2a.240805.005-7e95f619.tgz | tar -xzvf - && tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                POST_REPO_SYNC_COMMANDS_LIST=(
+                    "curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap2a.240805.005-7e95f619.tgz | tar -xzvf - "
+                    "tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                )
                 ;;
             *ap3a*)
-                POST_INITIALISE_COMMANDS="curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap3a.241105.007-2bf56572.tgz | tar -xzvf - && tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                POST_REPO_SYNC_COMMANDS_LIST=(
+                    "curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap3a.241105.007-2bf56572.tgz | tar -xzvf - "
+                    "tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                )
                 ;;
             *)
                 # android-14.0.0_r30: https://developers.google.com/android/drivers#tangorproap1a.240405.002
-                POST_INITIALISE_COMMANDS="curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap1a.240405.002-8d141153.tgz | tar -xzvf - && tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                POST_REPO_SYNC_COMMANDS_LIST=(
+                    "curl --output - https://dl.google.com/dl/android/aosp/google_devices-tangorpro-ap1a.240405.002-8d141153.tgz | tar -xzvf - "
+                    "tail -n +315 extract-google_devices-tangorpro.sh | tar -zxvf -"
+                )
                 ;;
         esac
         POST_BUILD_COMMANDS=(
@@ -280,12 +306,18 @@ case "${AAOS_LUNCH_TARGET}" in
         ;;
 esac
 
+# Additional repo init/sync commands.
+if [ -n "${POST_REPO_INITIALISE_COMMAND}" ]; then
+    POST_REPO_INITITIALISE_COMMANDS_LIST=("${POST_REPO_INITIALISE_COMMAND}")
+fi
+
+if [ -n "${POST_REPO_SYNC_COMMAND}" ]; then
+    POST_REPO_SYNC_COMMANDS_LIST=("${POST_REPO_SYNC_COMMAND}")
+fi
+
 # Additional build commands
 if [ -n "${OVERRIDE_MAKE_COMMAND}" ]; then
     AAOS_MAKE_CMDLINE="${OVERRIDE_MAKE_COMMAND}"
-fi
-if [ -n "${ADDITIONAL_INITIALISE_COMMANDS}" ]; then
-    POST_INITIALISE_COMMANDS="${ADDITIONAL_INITIALISE_COMMANDS}"
 fi
 
 # Gerrit Review environment variables: remove leading and trailing slashes.
@@ -319,7 +351,8 @@ case "$0" in
         AAOS_REVISION=${AAOS_REVISION}
         AAOS_RPI_REVISION=${AAOS_RPI_REVISION}
 
-        POST_INITIALISE_COMMANDS=${POST_INITIALISE_COMMANDS}
+        POST_REPO_INITIALISE_COMMAND=${POST_REPO_INITIALISE_COMMAND}
+        POST_REPO_SYNC_COMMAND=${POST_REPO_INITIALISE_COMMAND}
 
         REPO_SYNC_JOBS_ARG=${REPO_SYNC_JOBS_ARG}
 
@@ -329,7 +362,10 @@ case "$0" in
         "
         ;;
     *build.sh)
-        AAOS_CLEAN=NO_CLEAN
+        # Only allow cleaning the build, ensure override.
+        if [[ "${AAOS_CLEAN}" != "NO_CLEAN" ]]; then
+            AAOS_CLEAN=CLEAN_BUILD
+        fi
         VARIABLES+="
         AAOS_MAKE_CMDLINE=${AAOS_MAKE_CMDLINE}
         "

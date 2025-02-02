@@ -31,7 +31,6 @@
 #
 # Optional variables:
 #  - AAOS_CLEAN: whether to clean before building.
-#  - AAOS_ARTIFACT_STORAGE: the persistent storage location for artifacts
 #  - REPO_SYNC_JOBS: the number of parallel repo sync jobs to use.
 #  - MAX_REPO_SYNC_JOBS: the maximum number of parallel repo sync jobs
 #         supported. (Default: 24).
@@ -51,20 +50,10 @@ for ((i=1; i<="${MAX_RETRIES}"; i++)); do
     # Initialise repo checkout.
     repo init -u "${AAOS_GERRIT_MANIFEST_URL}" -b "${AAOS_REVISION}" --depth=1
 
-    # Add RPi manifests if needed.
-    if [[ "${AAOS_LUNCH_TARGET}" =~ "rpi" ]]; then
-        # Download the RPi manifest if we are building for an RPi device.
-        curl -o .repo/local_manifests/manifest_brcm_rpi.xml \
-            -L "${AAOS_GERRIT_RPI_MANIFEST_URL}/${AAOS_RPI_REVISION}/manifest_brcm_rpi.xml" \
-            --create-dirs || exit 255
-        curl -o .repo/local_manifests/remove_projects.xml \
-            -L "${AAOS_GERRIT_RPI_MANIFEST_URL}/${AAOS_RPI_REVISION}/remove_projects.xml" \
-            || exit 255
-    else
-        # Remove any old RPi manifests
-        rm .repo/local_manifests/manifest_brcm_rpi.xml > /dev/null 2>&1
-        rm .repo/local_manifests/remove_projects.xml > /dev/null 2>&1
-    fi
+    for command in "${POST_REPO_INIT_COMMANDS_LIST[@]}"; do
+        echo "${command}"
+        eval "${command}"
+    done
 
     # This will automatically clean any previous downloaded changes.
     if ! repo sync --no-tags --optimized-fetch --prune --retry-fetches=3 --auto-gc --no-clone-bundle --fail-fast --force-sync "${REPO_SYNC_JOBS_ARG}"
@@ -112,10 +101,11 @@ if [[ -n "${GERRIT_PROJECT}" && -n "${GERRIT_CHANGE_NUMBER}" && -n "${GERRIT_PAT
     eval "${REPO_CMD}"
 fi
 
-# Additional commands to run after repo init.
-if [ -n "${POST_INITIALISE_COMMANDS}" ]; then
-    eval "${POST_INITIALISE_COMMANDS}"
-fi
+# Additional commands to run after repo sync.
+for command in "${POST_REPO_SYNC_COMMANDS_LIST[@]}"; do
+    echo "${command}"
+    eval "${command}"
+done
 
 # Return result
 exit $?

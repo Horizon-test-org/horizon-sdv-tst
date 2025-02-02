@@ -19,18 +19,6 @@
 #
 # This script will build the AAOS image(s) for the given target. The
 # target is determined by the AAOS_LUNCH_TARGET environment variable.
-#
-# The build command line is determined by a case statement based on the
-# value of AAOS_LUNCH_TARGET. If AAOS_LUNCH_TARGET is not one of the
-# supported values, the script will exit with an error message.
-#
-# Supported AAOS_LUNCH_TARGET are:
-#   - aosp_rpi4_car-userdebug
-#   - aosp_rpi5_car-userdebug
-#   - sdk_car_arm64-userdebug
-#   - sdk_car_x86_64-userdebug
-#   - aosp_cf_arm64_auto-userdebug
-#   - aosp_cf_x86_64_auto-userdebug
 
 # Include common functions and variables.
 # shellcheck disable=SC1091
