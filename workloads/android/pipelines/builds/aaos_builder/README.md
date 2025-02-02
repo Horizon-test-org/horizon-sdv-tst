@@ -64,8 +64,8 @@ Examples:
     -   `aosp_tangorpro_car-ap2a-userdebug`
     -   `aosp_tangorpro_car-ap3a-userdebug`
 -   Raspberry Pi:
-    -   `aosp_rpi4_car-ap3a-userdebug`
-    -   `aosp_rpi5_car-ap3a-userdebug`
+    -   `aosp_rpi4_car-ap4a-userdebug`
+    -   `aosp_rpi5_car-ap4a-userdebug`
 
 ## ANDROID_VERSION
 
@@ -165,3 +165,7 @@ These allow the user to fetch a specific Gerrit patchset.
 
 -   If using later releases than `android-14.0.0_r30`, consider tailoring the CTS Execution resources to suit those of
     the version under test. The number of instances, CPUs and Memory defaults are set up as default for `android-14.0.0_r30`.
+
+## Vanilla RPi
+
+- Pay attention to [RPi](https://github.com/raspberry-vanilla/android_local_manifest). We can't support a moving target, we try but RPi is unsupported, work with Google or fork if required!

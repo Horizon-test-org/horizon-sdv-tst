@@ -110,7 +110,7 @@ pipeline {
            </p>''')
 
     string(name: 'AAOS_RPI_REVISION',
-           defaultValue: 'android-15.0.0_r4',
+           defaultValue: 'android-15.0.0_r10',
            description: '''<p>RPi tag/branch name.<br/>
            Reference: <a href="https://github.com/raspberry-vanilla/android_local_manifest" target="_blank">Raspberry Vanilla</a> and only applicable to aosp_rpiX_car targets<br/>
            <i>Pick the correct revision that correlates to the AAOS_REVISION</i></p>''')
