@@ -368,6 +368,7 @@ case "$0" in
         fi
         VARIABLES+="
         AAOS_MAKE_CMDLINE=${AAOS_MAKE_CMDLINE}
+        AAOS_CLEAN=${AAOS_CLEAN}
         "
         ;;
     *avd_sdk.sh)
