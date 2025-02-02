@@ -92,11 +92,15 @@ pipeline {
            description: '''<p>Android Version for AVD image builds.<br/>
            Essential for <b>Android Studio</b> devices <i>sdk_car</i> targets to create the SDK addons and device files</p>''')
 
-    string(name: 'ADDITIONAL_INITIALISE_COMMANDS',
+    string(name: 'POST_REPO_INITIALISE_COMMAND',
            defaultValue: '',
-           description: '''<p>Additional commands post repo init/sync/download and prior to build/make.<br/>
-           <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/>
-           Reference: <a href="https://source.android.com/docs/automotive/start/pixelxl" target="_blank">Pixel Devices</a> and <a href="https://developers.google.com/android/drivers" target="_blank">Pixel Driver Device Binaries.</a><br/></p>''')
+           description: '''<p>Additional commands post repo init and prior to repo sync, build/make.<br/>
+           <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/></p>''')
+
+    string(name: 'POST_REPO_SYNC_COMMAND',
+           defaultValue: '',
+           description: '''<p>Additional commands post repo sync/fetch and prior to build/make.<br/>
+           <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/></p>''')
 
     string(name: 'OVERRIDE_MAKE_COMMAND',
            defaultValue: '',
@@ -199,7 +203,8 @@ pipeline {
                     AAOS_RPI_REVISION="${AAOS_RPI_REVISION}" \
                     AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
                     AAOS_CLEAN="NO_CLEAN" \
-                    ADDITIONAL_INITIALISE_COMMANDS="${ADDITIONAL_INITIALISE_COMMANDS}" \
+                    POST_REPO_INITIALISE_COMMAND="${POST_REPO_INITIALISE_COMMAND}" \
+                    POST_REPO_SYNC_COMMAND="${POST_REPO_SYNC_COMMAND}" \
                     REPO_SYNC_JOBS="${GERRIT_REPO_SYNC_JOBS}" \
                     ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
                   '''
@@ -221,8 +226,6 @@ pipeline {
               catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 sh '''
                   AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
-                  ADDITIONAL_INITIALISE_COMMANDS="${ADDITIONAL_INITIALISE_COMMANDS}" \
-                  AAOS_CLEAN="NO_CLEAN" \
                   ./workloads/android/pipelines/builds/aaos_builder/aaos_build.sh
                 '''
               }
