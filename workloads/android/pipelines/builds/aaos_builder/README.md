@@ -71,9 +71,14 @@ Examples:
 
 This is required for the SDK Car AVD builds so that the correct `devices.xml` and SDK Addon can be generated for use with Android Studio.
 
-## ADDITIONAL_INITIALISE_COMMANDS
+## POST_REPO_INITIALISE_COMMAND
 
-This allows the user to include additional commands tun run after the rep has been initialised.
+This allows the user to include additional commands to run after the repo has been initialised.
+
+
+## POST_REPO_SYNC_COMMAND
+
+This allows the user to include additional commands to run after the repo has been synced.
 
 ## OVERRIDE_MAKE_COMMAND
 
