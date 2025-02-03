@@ -354,7 +354,6 @@ if __name__ == '__main__':
         service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
         script_arguments_handler(service=service)
         
-    # Retreiving credentials #
     if operation_status:
         
         # GETTING INO
@@ -376,11 +375,16 @@ if __name__ == '__main__':
 
         # GRANTING A ROLE TO USER
         if ADD_ROLE_TO_USER:
-            users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles_before.json", data=users_by_roles_dict)
+            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
+            save_data_to_json_file(out_file_name="User_info_adding_role_before.json", data=user_roles_info_ls)
 
             add_role_to_user("marta.kania@accenture.com", "roles/storage.objectViewer")
 
+            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
+            save_data_to_json_file(out_file_name="User_info_adding_role_after.json", data=user_roles_info_ls)
+            
+            
+        
         # REMOVING ROLE FROM A USER
         if REMOVE_ROLE_TO_USER:
             user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
