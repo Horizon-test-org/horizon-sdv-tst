@@ -64,7 +64,6 @@ Examples:
     -   `aosp_tangorpro_car-ap2a-userdebug`
     -   `aosp_tangorpro_car-ap3a-userdebug`
 -   Raspberry Pi:
-    -   `aosp_rpi4_car-ap3a-userdebug`
     -   `aosp_rpi5_car-ap3a-userdebug`
 
 ## ANDROID_VERSION
