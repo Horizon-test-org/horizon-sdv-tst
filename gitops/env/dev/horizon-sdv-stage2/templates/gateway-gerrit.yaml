@@ -41,7 +41,7 @@ metadata:
 spec:
   default:
     checkIntervalSec: 15
-    timeoutSec: 15
+    timeoutSec: 86400
     healthyThreshold: 1
     unhealthyThreshold: 2
     logConfig:
