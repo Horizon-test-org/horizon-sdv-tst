@@ -41,7 +41,7 @@ metadata:
 spec:
   default:
     checkIntervalSec: 15
-    timeoutSec: 86400
+    timeoutSec: 15
     healthyThreshold: 1
     unhealthyThreshold: 2
     logConfig:
@@ -51,6 +51,21 @@ spec:
       httpHealthCheck:
         port: 8080
         requestPath: /config/server/healthcheck~status
+  targetRef:
+    group: ""
+    kind: Service
+    name: gerrit-service
+---
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: gerrit-backendpolicy
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  default:
+    timeoutSec: 86400
   targetRef:
     group: ""
     kind: Service
