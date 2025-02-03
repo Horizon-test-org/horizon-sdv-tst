@@ -31,5 +31,5 @@ jobs:
       gh-cuttlefish-vm-ssh-private-key: ${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}
     with:
       terraform-version: 1.9.6
-      environment: dev
+      environment: sbx
       directory: terraform/env
