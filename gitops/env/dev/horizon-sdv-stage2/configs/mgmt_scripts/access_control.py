@@ -254,7 +254,6 @@ def remove_role_from_user(user_email, role_id):
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
 
-    bindings_to_remove = []
     for binding in policy.bindings:
         if binding.role == role_id:
             if f"user:{user_email}" in binding.members:
@@ -262,11 +261,8 @@ def remove_role_from_user(user_email, role_id):
                 print(f"Removed {user_email} from {role_id}")
             # Only keep bindings that still have members
             if not binding.members:
-                bindings_to_remove.append(binding)
+                policy.bindings.remove(binding)
 
-    for binding in bindings_to_remove:
-        policy.bindings.remove(binding)
-        
     # Update policy bindings
     client.set_iam_policy(
         request={
