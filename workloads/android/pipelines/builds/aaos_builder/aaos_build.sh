@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 # Copyright (c) 2024-2025 Accenture, All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

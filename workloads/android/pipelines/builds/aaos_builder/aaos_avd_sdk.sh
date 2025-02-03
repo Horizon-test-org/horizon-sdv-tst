@@ -29,6 +29,7 @@
 #  4. Creates the SDK Addons file.
 #  5. Adds SDK addons to archives for upload.
 #
+set -x 
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/aaos_environment.sh "$0"

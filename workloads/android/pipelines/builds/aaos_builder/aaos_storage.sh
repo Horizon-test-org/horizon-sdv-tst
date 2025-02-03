@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 
 # Copyright (c) 2024-2025 Accenture, All Rights Reserved.
 #
