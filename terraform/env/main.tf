@@ -1,15 +1,13 @@
 
-# workflow build 177
-
 locals {
-  sdv_default_computer_sa = "268541173342-compute@developer.gserviceaccount.com"
+  sdv_default_computer_sa = "966518152012-compute@developer.gserviceaccount.com"
 }
 
 module "base" {
-  source = "../../modules/base"
+  source = "../modules/base"
 
   # The project is used by provider.tf to define the GCP project
-  sdv_project  = "sdva-2108202401"
+  sdv_project  = "sdvc-2108202401"
   sdv_location = "europe-west1"
   sdv_region   = "europe-west1"
   sdv_zone     = "europe-west1-d"
@@ -36,13 +34,13 @@ module "base" {
   sdv_build_node_pool_machine_type   = "c2d-highcpu-112"
   sdv_build_node_pool_max_node_count = 10
 
-  sdv_bastion_host_name    = "sdv-bastion-host"
-  sdv_bastion_host_sa      = "sdv-bastion-host-sa-iap"
+  sdv_bastion_host_name = "sdv-bastion-host"
+  sdv_bastion_host_sa = "sdv-bastion-host-sa-iap"
   sdv_bastion_host_members = []
 
   sdv_network_egress_router_name = "sdv-egress-internet"
 
-  sdv_artifact_registry_repository_id      = "horizon-sdv-dev"
+  sdv_artifact_registry_repository_id = "horizon-sdv"
   sdv_artifact_registry_repository_members = []
   sdv_artifact_registry_repository_reader_members = [
     "serviceAccount:${local.sdv_default_computer_sa}",
@@ -52,8 +50,8 @@ module "base" {
   sdv_ssl_certificate_domain = "dev.horizon-sdv.scpmtk.com"
 
   # sdv-apis-services
-  sdv_auth_config_display_name = "horizon-sdv-dev-oauth-2"
-  sdv_auth_config_endpoint_uri = "https://horizon-sdv-dev.scpmtk.com/auth/realms/horizon/broker/google/endpoint"
+  sdv_auth_config_display_name = "horizon-sdv-demo-oauth-2"
+  sdv_auth_config_endpoint_uri = "https://sbx.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
 
   #
   # To create a new SA with access from GKE to GC, add a new saN block.
@@ -120,23 +118,6 @@ module "base" {
       ])
     },
     sa4 = {
-      account_id   = "gke-mtk-connect-sa"
-      display_name = "mtk-connect SA"
-      description  = "mtk-connect/mtk-connect-sa in GKE cluster makes use of this account through WI"
-
-      gke_sas = [
-        {
-          gke_ns = "mtk-connect"
-          gke_sa = "mtk-connect-sa"
-        }
-      ]
-
-      roles = toset([
-        "roles/secretmanager.secretAccessor",
-        "roles/iam.serviceAccountTokenCreator",
-      ])
-    }
-    sa5 = {
       account_id   = "gke-gerrit-sa"
       display_name = "gke-gerrit SA"
       description  = "gerrit/gerrit-sa in GKE cluster makes use of this account through WI"
@@ -258,22 +239,9 @@ module "base" {
         }
       ]
     }
-    # GCP secret name: mtkc-regcred
-    # WI to GKE at ns/mtk-connect/sa/mtk-connect-sa.
-    s9 = {
-      secret_id        = "mtkc-regcred"
-      value            = var.sdv_gh_mtkc_regcred
-      use_github_value = true
-      gke_access = [
-        {
-          ns = "mtk-connect"
-          sa = "mtk-connect-sa"
-        }
-      ]
-    }
     # GCP secret name:  gerrit-admin-initial-password
     # WI to GKE at ns/gerrit/sa/gerrit-sa.
-    s10 = {
+    s9 = {
       secret_id        = "gerritAdminInitialPassword"
       value            = var.sdv_gh_gerrit_admin_initial_password
       use_github_value = true
@@ -286,7 +254,7 @@ module "base" {
     }
     # GCP secret name:  gh-gerrit-admin-private-key
     # WI to GKE at ns/gerrit/sa/gerrit-sa.
-    s11 = {
+    s10 = {
       secret_id        = "gerritAdminPrivateKey"
       value            = var.sdv_gh_gerrit_admin_private_key
       use_github_value = true
@@ -299,7 +267,7 @@ module "base" {
     }
     # GCP secret name:  gh-keycloak-horizon-admin-password
     # WI to GKE at ns/jenkins/sa/jenkins-sa.
-    s12 = {
+    s11 = {
       secret_id        = "keycloakHorizonAdminPassword"
       value            = var.sdv_gh_keycloak_horizon_admin_password
       use_github_value = true
@@ -312,7 +280,7 @@ module "base" {
     }
     # GCP secret name:  gh-cuttlefish-vm-ssh-private-key
     # WI to GKE at ns/jenkins/sa/jenkins-sa.
-    s13 = {
+    s12 = {
       secret_id        = "jenkinsCuttlefishVmSshPrivateKey"
       value            = var.sdv_gh_cuttlefish_vm_ssh_private_key
       use_github_value = true
@@ -330,8 +298,8 @@ module "base" {
     export GITHUB_ACCESS_TOKEN=${var.sdv_gh_access_token}
     echo $GITHUB_ACCESS_TOKEN
     cd bash-scripts
-    chmod +x horizon-stage-01.sh
-    ./horizon-stage-01.sh
+    chmod +x stage1.sh
+    ./stage1.sh
     cd -
   EOT
 
