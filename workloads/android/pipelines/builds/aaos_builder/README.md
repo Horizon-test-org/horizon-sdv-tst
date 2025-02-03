@@ -83,10 +83,6 @@ This allows the user to include additional commands to run after the repo has be
 
 This allows the user to override the default target make command.
 
-## AAOS_RPI_REVISION
-
-See  [RPi](https://github.com/raspberry-vanilla/android_local_manifest), define the tag/branch to use. This must align with `AAOS_REVISION`.
-
 ## AAOS_CLEAN
 
 Option to clean the build workspaace, either fully or simply for the `AAOS_LUNCH_TARGET` target defined.
