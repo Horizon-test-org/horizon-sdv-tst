@@ -14,6 +14,7 @@ from google.cloud import resourcemanager_v3
 ### Just for debug purposes
 GET_INFO = True
 ADD_ROLE_TO_USER = True
+REMOVE_ROLE_TO_USER = True
 ###
 
 PROJECT_ID = "sdvc-2108202401"  # "sdva-2108202401"
@@ -237,7 +238,7 @@ def add_role_to_user(user, role):
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
 
-def remove_role_from_user(user_email, role_id, project_id):
+def remove_role_from_user(user_email, role_id):
     '''
     Removes a specific role from a user in a Google Cloud project.
 
@@ -253,20 +254,20 @@ def remove_role_from_user(user_email, role_id, project_id):
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
 
-    updated_bindings = []
+    bindings_to_remove = []
     for binding in policy.bindings:
         if binding.role == role_id:
             if f"user:{user_email}" in binding.members:
                 binding.members.remove(f"user:{user_email}")
                 print(f"Removed {user_email} from {role_id}")
             # Only keep bindings that still have members
-            if binding.members:
-                updated_bindings.append(binding)
-        else:
-            updated_bindings.append(binding)
+            if not binding.members:
+                bindings_to_remove.append(binding)
 
-    # Update the policy
-    policy.bindings[:] = updated_bindings
+    for binding in bindings_to_remove:
+        policy.bindings.remove(binding)
+        
+    # Update policy bindings
     client.set_iam_policy(
         request={
             "resource": resource,
@@ -384,7 +385,17 @@ if __name__ == '__main__':
 
             add_role_to_user("marta.kania@accenture.com", "roles/storage.objectViewer")
 
+        # REMOVING ROLE FROM A USER
+        if REMOVE_ROLE_TO_USER:
+            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
+            save_data_to_json_file(out_file_name="User_info_deleteing_before.json", data=user_roles_info_ls)
+
+            remove_role_from_user("marta.kania@accenture.com", "roles/storage.objectViewer")
+
+            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
+            save_data_to_json_file(out_file_name="User_info_deleteing_after.json", data=user_roles_info_ls)
+            
             users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles_after.json", data=users_by_roles_dict)
+            save_data_to_json_file(out_file_name="Users_by_roles_delete_after.json", data=users_by_roles_dict)
 
 
