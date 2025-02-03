@@ -34,23 +34,23 @@ module "base" {
   sdv_build_node_pool_machine_type   = "c2d-highcpu-112"
   sdv_build_node_pool_max_node_count = 10
 
-  sdv_bastion_host_name = "sdv-bastion-host"
-  sdv_bastion_host_sa = "sdv-bastion-host-sa-iap"
+  sdv_bastion_host_name    = "sdv-bastion-host"
+  sdv_bastion_host_sa      = "sdv-bastion-host-sa-iap"
   sdv_bastion_host_members = []
 
   sdv_network_egress_router_name = "sdv-egress-internet"
 
-  sdv_artifact_registry_repository_id = "horizon-sdv"
+  sdv_artifact_registry_repository_id      = "horizon-sdv"
   sdv_artifact_registry_repository_members = []
   sdv_artifact_registry_repository_reader_members = [
     "serviceAccount:${local.sdv_default_computer_sa}",
   ]
 
   sdv_ssl_certificate_name   = "horizon-sdv"
-  sdv_ssl_certificate_domain = "dev.horizon-sdv.scpmtk.com"
+  sdv_ssl_certificate_domain = "sbx.horizon-sdv.com"
 
   # sdv-apis-services
-  sdv_auth_config_display_name = "horizon-sdv-demo-oauth-2"
+  sdv_auth_config_display_name = "horizon-sdv-sbx-oauth-2"
   sdv_auth_config_endpoint_uri = "https://sbx.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
 
   #

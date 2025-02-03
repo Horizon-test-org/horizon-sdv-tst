@@ -92,8 +92,8 @@ module "sdv_artifact_registry" {
 module "sdv_certificate_manager" {
   source = "../sdv-certificate-manager"
 
-  name   = var.sdv_ssl_certificate_name
-  domain = var.sdv_ssl_certificate_domain
+  name       = var.sdv_ssl_certificate_name
+  domain     = var.sdv_ssl_certificate_domain
   depends_on = [module.sdv_apis]
 }
 
@@ -126,7 +126,8 @@ module "sdv_copy_to_bastion_host" {
 
   depends_on = [
     module.sdv_bastion_host,
-    module.sdv_gcs_scripts
+    module.sdv_gcs_scripts,
+    module.sdv_gke_cluster
   ]
 }
 
@@ -230,8 +231,10 @@ resource "google_compute_firewall" "allow_tcp_22" {
   source_ranges = ["0.0.0.0/0"]
 
   target_service_accounts = [var.sdv_default_computer_sa]
+
+  depends_on = [
+    module.sdv_network
+  ]
+
 }
-
-
-
 
