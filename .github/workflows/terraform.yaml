@@ -134,9 +134,10 @@ jobs:
         shell: bash
         env:
           JSON_SECRETS: ${{ secrets.json-secrets }}
+
         run: |
-          echo "TF_VAR_sdv_gh_app_id=${{ secrets.GH_APP_ID }}" >> $GITHUB_ENV;
-          echo "TF_VAR_sdv_gh_installation_id=${{ secrets.GH_INSTALLATION_ID }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_app_id=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_installation_id=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
           echo "TF_VAR_sdv_gh_app_key<<EOF" >> $GITHUB_ENV
           echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
