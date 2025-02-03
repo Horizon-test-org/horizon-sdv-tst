@@ -349,6 +349,29 @@ sdv_ssl_certificate_domain=sbx.horizon-sdv.com
 Refer [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details) for the values required for `sdv_default_compute_sa` and `sdv_project`.
 
 #### Trigger Terraform GitHub Actions workflow
+A Terraform GitHub Actions Workflow is set to trigger `terraform plan` only run on push to any branch with name `/feature` or `/release` with changes in the `Terraform/` directory. A pull-request to `main` branch triggers a `terraform plan`  and `terraform apply` workflow run. Follow the below steps to trigger the required workflow.
+
+1. Trigger terraform plan workflow
+   * Once the changes have been made, save the files.
+   * Confirm if on feature branch, run the below command.
+      ```
+      git branch
+      ```
+   * If not on feature branch, use `git switch` or `git checkout` command to switch to the feature branch.
+   * To push the changes and trigger the workflow, run the below commands.
+      ```
+      git add .
+      git commit -m "<YOUR_MESSAGE_HERE>"
+      git push origin <feature/YOUR_BRANCH_NAME>
+   * Now, on the GitHub repository, click on Actions tab and confirm workflow trigger.
+
+2. Trigger terraform apply workflow
+   * On the GitHub repository page, click on "Pull requests"
+   * Click on "New pull request" and select `main` branch as base and `feature/` branch as compare and click on "Create pull request".
+   * This will trigger a Workflow run which checks the pull request and creates plan in the pull request comments.
+   * Verify the plan, if the checks are successful, confirm the merge to `main` branch.
+   * Confirm if the workflow has finished successfully. If not, fix the issue and rerun the workflow.
+
 
 ## Exercise #4 - Verification
 ### Exercise #4a - Running test builds
