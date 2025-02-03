@@ -12,11 +12,11 @@ from googleapiclient import discovery
 from google.cloud import resourcemanager_v3
 
 ### Just for debug purposes
-GET_INFO = False
-ADD_ROLE_TO_USER = False
+GET_INFO = True
+ADD_ROLE_TO_USER = True
 ###
 
-PROJECT_ID = "sdva-2108202401"
+PROJECT_ID = "sdvc-2108202401"  # "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
 
 # CONST VALUES FOR JSON FILE OPERATIONS LIST
