@@ -77,9 +77,9 @@ spec:
             [gerrit]
               canonicalWebUrl = "https://dev.horizon-sdv.scpmtk.com/"
             [core]
-              packedGitLimit = 2g
-              packedGitWindowSize = 16k
-              packedGitOpenFiles = 2048
+              packedGitLimit = 1g
+              packedGitWindowSize = 8k
+              packedGitOpenFiles = 1024
               streamFileThreshold = 1g
             [index]
               type = LUCENE
@@ -91,7 +91,7 @@ spec:
             [httpd]
               listenUrl = proxy-https://*:8080/
               requestLog = true
-              maxThreads = 200
+              maxThreads = 25
             [user]
               name = Gerrit Code Review
               email = gerrit@example.com
@@ -103,10 +103,10 @@ spec:
               realm = "horizon"
               client-id = "gerrit"
             [pack]
-              threads = 2
-              windowMemory = 2g
+              threads = 1
+              windowMemory = 1g
             [receive]
-              timeout = 30m
+              timeout = 15m
             [transfer]
               timeout = 3600
         secretRef: gerrit-secure-config
