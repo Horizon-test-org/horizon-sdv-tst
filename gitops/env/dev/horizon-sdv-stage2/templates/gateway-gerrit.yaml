@@ -65,7 +65,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "5"
 spec:
   default:
-    timeoutSec: 86400
+    timeoutSec: 3600
   targetRef:
     group: ""
     kind: Service
