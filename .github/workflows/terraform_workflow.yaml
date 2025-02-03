@@ -1,60 +1,35 @@
-name: Terraform Apply
-# run-name: Running Terraform Workflow on ${{ inputs.deploy_target }} pushed by @${{ github.actor }}
+name: Terraform
 
 on:
   push:
-    branches:
-     - main
-     - feature/**
-     - release/**
     paths:
-      - 'terraform/**'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'terraform/**'
+      - "terraform/*"
+    branches: ["env/prod"]
+  workflow_dispatch:
 
 jobs:
-
-  generate-matrix:
-    name: Generate job matrices
-    runs-on: ubuntu-latest
-    # don't forget to declare outputs here!
-    outputs:
-      matrix-infrastructure: ${{ steps.neo-infrastructure.outputs.matrix }}
-    steps:
-      - name: Generate matrix | Infrastructure
-        id: neo-infrastructure
-        uses: hellofresh/action-changed-files@v3
-        with:
-            pattern: terraform/env/(?P<environment>[^/]+)
-
   terraform:
-    needs: [ generate-matrix ] # don't forget this!
+    uses: ./.github/workflows/terraform.yaml
+    concurrency:
+      group: terraform
     permissions:
-     contents: 'read'
-     id-token: 'write'
-     pull-requests: 'write'
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix-infrastructure) }}
-    if: ${{ fromJson(needs.generate-matrix.outputs.matrix-infrastructure).include[0] }} # skip if the matrix is empty!
-    uses: ./.github/workflows/terraform_dynamic_envs.yaml
+      contents: "read"
+      id-token: "write"
+      pull-requests: "write"
     secrets:
+      gh-app-key: "${{ secrets.GH_APP_KEY }}"
       gcp-sa: "${{ secrets.GCP_SA }}"
       wif-provider: "${{ secrets.WIF_PROVIDER }}"
-      gh-app-key: "${{ secrets.GH_APP_KEY }}"
-      gh-argocd-initial-password: "${{ secrets.ARGOCD_INITIAL_PASSWORD }}"
-      gh-jenkins-initial-password: "${{ secrets.JENKINS_INITIAL_PASSWORD }}"
-      gh-keycloak-initial-password: "${{ secrets.KEYCLOAK_INITIAL_PASSWORD }}"
-      gh-mtkc-regcred: "${{ secrets.MTKC_REGCRED }}"
-      gh-gerrit-admin-initial-password: "${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}"
-      gh-gerrit-admin-private-key: "${{ secrets.GERRIT_ADMIN_PRIVATE_KEY }}"
-      gh-keycloak-horizon-admin-password: "${{ secrets.KEYCLOAK_HORIZON_ADMIN_PASSWORD }}"
-      gh-cuttlefish-vm-ssh-private-key: "${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}"
-
+      gh-app-id: ${{ secrets.GH_APP_ID }}
+      gh-installation-id: ${{ secrets.GH_INSTALLATION_ID }}
+      gh-argocd-initial-password: ${{ secrets.ARGOCD_INITIAL_PASSWORD }}
+      gh-jenkins-initial-password: ${{ secrets.JENKINS_INITIAL_PASSWORD }}
+      gh-keycloak-initial-password: ${{ secrets.KEYCLOAK_INITIAL_PASSWORD }}
+      gh-gerrit-admin-initial-password: ${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}
+      gh-gerrit-admin-private-key: ${{ secrets.GERRIT_ADMIN_PRIVATE_KEY }}
+      gh-keycloak-horizon-admin-password: ${{ secrets.KEYCLOAK_HORIZON_ADMIN_PASSWORD }}
+      gh-cuttlefish-vm-ssh-private-key: ${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}
     with:
-      environment: ${{ matrix.environment }}
-      path: terraform/env/${{ matrix.environment }}
       terraform-version: 1.9.6
+      environment: demo
+      directory: terraform/env

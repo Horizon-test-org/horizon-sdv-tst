@@ -1,20 +1,31 @@
-name: used - terraform
-
+name: terraform
 on:
   workflow_call:
     secrets:
+      fetcher-key:
+        required: false
+        description: "Github App Private Key (Deprecated, use gh-app-key)"
+      gcp-sa-key:
+        required: false
+        description: Google Service Account
       wif-provider:
         required: false
         description: "Workload Identity Federation provider"
       gcp-sa:
         required: false
         description: "GCP Service account to impersonate"
-      sdv-secret:
-        required: true
-        description: "Define the SDV secret value"
+      gh-app-id:
+        required: false
+        description: "Github App ID"
+      gh-installation-id:
+        required: false
+        description: "Github Installation ID"
       gh-app-key:
-        required: true
+        required: false
         description: "Github App Private Key"
+      json-secrets:
+        required: false
+        description: "secrets"
       gh-argocd-initial-password:
         required: false
         description: "Github Secret ARGOCD_INITIAL_PASSWORD"
@@ -24,9 +35,6 @@ on:
       gh-keycloak-initial-password:
         required: false
         description: "Github Secret KEYCLOAK_INITIAL_PASSWORD"
-      gh-mtkc-regcred:
-        required: false
-        description: "Github Secret MTKC-REGCRED"
       gh-gerrit-admin-initial-password:
         required: false
         description: "Github Secret GERRIT_ADMIN_INITIAL_PASSWORD"
@@ -45,6 +53,14 @@ on:
         required: false
         description: "environment to use"
         type: string
+      gh-app-id:
+        required: false
+        description: "Github App ID"
+        type: number
+      gh-installation-id:
+        required: false
+        description: "Github Installation ID"
+        type: number
       directory:
         required: false
         description: "Terraform directory"
@@ -73,217 +89,273 @@ on:
         type: number
 
 jobs:
-
   get-env:
     name: Get environment
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       environment: ${{ steps.get-env.outputs.environment }}
       env_only: ${{ steps.get-env.outputs.env_only }}
     steps:
-    - name: get environment
-      id: get-env
-      shell: bash
-      run: |
-        if [[ "${{ inputs.environment }}" != '' ]]; then
-          echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT;
-          temp=${{ inputs.environment }}
-          env_only=${temp%-plan*}
-          env_only=${env_only%-apply*}
-          echo "env_only=$env_only" >> $GITHUB_OUTPUT;
-        elif [[ "${{ github.ref }}" == 'refs/heads/main' ]]; then
-          echo "environment=main" >> $GITHUB_OUTPUT;
-          echo "env_only=main" >> $GITHUB_OUTPUT;
-        fi
+      - name: get environment
+        id: get-env
+        shell: bash
+        run: |
+          if [[ "${{ inputs.environment }}" != '' ]]; then
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT;
+            temp=${{ inputs.environment }}
+            env_only=${temp%-plan*}
+            env_only=${env_only%-apply*}
+            echo "env_only=$env_only" >> $GITHUB_OUTPUT;
+          elif [[ "${{ github.ref }}" == 'refs/heads/main' ]]; then
+            echo "environment=main" >> $GITHUB_OUTPUT;
+            echo "env_only=main" >> $GITHUB_OUTPUT;
+          fi
 
   terraform:
     name: Terraform
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: get-env
     environment: ${{ needs.get-env.outputs.environment }}
 
     steps:
+      - name: Convert key to PKCS#8 format
+        id: create-pkcs8
+        env:
+          GH_APP_KEY: ${{ secrets.gh-app-key }}
+        run: |
+          echo "$GH_APP_KEY" | openssl pkcs8 -topk8 -nocrypt -outform PEM > key.pem
+          PKCS8_KEY=$(<key.pem)
+          echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> $GITHUB_ENV
+          echo "$PKCS8_KEY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-    - name: Convert key to PKCS#8 format
-      id: create-pkcs8
-      env:
-        GH_APP_KEY: ${{ secrets.gh-app-key }}
-      run: |
-        # Convert the key to PKCS#8 format
-        echo "$GH_APP_KEY" | openssl pkcs8 -topk8 -nocrypt -outform PEM > key.pem
+      - name: set environment variables
+        id: set-vars
+        shell: bash
+        env:
+          JSON_SECRETS: ${{ secrets.json-secrets }}
+        run: |
+          echo "TF_VAR_sdv_gh_app_id=${{ secrets.GH_APP_ID }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_installation_id=${{ secrets.GH_INSTALLATION_ID }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_app_key<<EOF" >> $GITHUB_ENV
+          echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_gerrit_admin_private_key<<EOF">> $GITHUB_ENV
+          echo  "${{ secrets.gh-gerrit-admin-private-key }}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_cuttlefish_vm_ssh_private_key<<EOF">> $GITHUB_ENV
+          echo  "${{ secrets.gh-cuttlefish-vm-ssh-private-key }}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_argocd_initial_password=${{ secrets.gh-argocd-initial-password }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_jenkins_initial_password=${{ secrets.gh-jenkins-initial-password }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_keycloak_initial_password=${{ secrets.gh-keycloak-initial-password }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_gerrit_admin_initial_password=${{ secrets.gh-gerrit-admin-initial-password }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_keycloak_horizon_admin_password=${{ secrets.gh-keycloak-horizon-admin-password }}" >> $GITHUB_ENV
 
-        # Read the converted key and set it as an environment variable
-        PKCS8_KEY=$(<key.pem)
-        echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> $GITHUB_ENV
-        echo "$PKCS8_KEY" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+          if [[ "${{ secrets.gcp-sa }}" != '' && "${{ secrets.wif-provider }}" != '' ]]; then
+            echo "GCP_SA=${{ secrets.gcp-sa }}" >> $GITHUB_ENV;
+            echo "GCP_WIF=${{ secrets.wif-provider }}" >> $GITHUB_ENV;
+          else
+            echo "GCP_SA=${{ inputs.gcp-sa }}" >> $GITHUB_ENV;
+            echo "GCP_WIF=${{ inputs.wif-provider }}" >> $GITHUB_ENV;
+          fi
 
-    - name: set environment variables
-      id: set-vars
-      shell: bash
-      run: |
-        echo "TF_VAR_sdv_gh_app_id=${{ vars.GH_APP_ID }}" >> $GITHUB_ENV;
-        echo "TF_VAR_sdv_gh_installation_id=${{ vars.GH_INSTALLATION_ID }}" >> $GITHUB_ENV;
-        echo "TF_VAR_sdv_gh_app_key<<EOF" >> $GITHUB_ENV
-        echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_gerrit_admin_private_key<<EOF">> $GITHUB_ENV
-        echo  "${{ secrets.gh-gerrit-admin-private-key }}" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_cuttlefish_vm_ssh_private_key<<EOF">> $GITHUB_ENV
-        echo  "${{ secrets.gh-cuttlefish-vm-ssh-private-key }}" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_argocd_initial_password=${{ secrets.gh-argocd-initial-password }}" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_jenkins_initial_password=${{ secrets.gh-jenkins-initial-password }}" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_keycloak_initial_password=${{ secrets.gh-keycloak-initial-password }}" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_mtkc_regcred=${{ secrets.gh-mtkc-regcred }}" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_gerrit_admin_initial_password=${{ secrets.gh-gerrit-admin-initial-password }}" >> $GITHUB_ENV
-        echo "TF_VAR_sdv_gh_keycloak_horizon_admin_password=${{ secrets.gh-keycloak-horizon-admin-password }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> $GITHUB_ENV;
 
+          if [[ "${{ secrets.gh-app-id }}" != '' && "${{ secrets.gh-installation-id }}" != '' ]]; then
+            echo "GITHUB_APP_ID=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
+            echo "GITHUB_APP_INSTALLATION_ID=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
+          elif [[ "${{ inputs.gh-app-id }}" != '0' && "${{ inputs.gh-installation-id }}" != '0' ]]; then
+            echo "GITHUB_APP_ID=${{ inputs.gh-app-id }}" >> $GITHUB_ENV;
+            echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.gh-installation-id }}" >> $GITHUB_ENV;
+          else 
+            echo "Missing Github App id and/or Github Installation ID"
+            exit 1
+          fi
 
-        if [[ "${{ secrets.gcp-sa }}" != '' && "${{ secrets.wif-provider }}" != '' ]]; then
-          echo "GCP_SA=${{ secrets.gcp-sa }}" >> $GITHUB_ENV;
-          echo "GCP_WIF=${{ secrets.wif-provider }}" >> $GITHUB_ENV;
-        else
-          echo "GCP_SA=${{ inputs.gcp-sa }}" >> $GITHUB_ENV;
-          echo "GCP_WIF=${{ inputs.wif-provider }}" >> $GITHUB_ENV;
-        fi
-        echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> $GITHUB_ENV;
-        echo -n "GCP_SA=${{ secrets.gcp-sa }}" | base64
+          if [[ "${{ secrets.gh-app-key }}" != '' ]]; then
+            echo "GITHUB_APP_PEM_FILE<<EOF" >> $GITHUB_ENV
+            echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          elif [[ "${{ secrets.fetcher-key }}" != '' ]]; then
+            echo "GITHUB_APP_PEM_FILE<<EOF" >> $GITHUB_ENV
+            echo  "${{ secrets.fetcher-key }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "Missing Github App Key"
+            exit 1
+          fi
+          if [[ ! -z "$JSON_SECRETS" ]]; then
+            echo "SECRETS=true" >> $GITHUB_ENV;
+          else
+            echo "SECRETS=false" >> $GITHUB_ENV;
+          fi
 
-    - name: Get Terraform fetcher GitHub App token
-      uses: tibdex/github-app-token@v1
-      id: get_github_app_token
-      with:
-        app_id: ${{ vars.GH_APP_ID }}
-        private_key: ${{ secrets.gh-app-key }}
+          if [[ "${{ vars }}" != '' && "${{ vars }}" != null ]]; then
+            echo "VARS=true" >> $GITHUB_ENV;
+          else
+            echo "VARS=false" >> $GITHUB_ENV;
+          fi
 
-    - name: Setup node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Get Terraform fetcher GitHub App token
+        uses: tibdex/github-app-token@v1
+        id: get_github_app_token
+        with:
+          app_id: ${{ env.GITHUB_APP_ID }}
+          installation_id: ${{ env.GITHUB_APP_INSTALLATION_ID}}
+          private_key: ${{ env.GITHUB_APP_PEM_FILE }}
 
-    - name: Checkout source code
-      uses: actions/checkout@v4.1.1
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - id: auth
-      # if: ${{ steps.gcp-secret-check.outputs.secrets != 'true' }}
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: '${{ secrets.gcp-sa-key }}'
-        service_account: ${{ env.GCP_SA }}
-        workload_identity_provider: ${{ env.GCP_WIF }}
+      - name: export TFVARS in Github Secrets
+        uses: oNaiPs/secrets-to-env-action@v1.2
+        if: env.SECRETS == 'true'
+        with:
+          secrets: ${{ secrets.json-secrets }}
+          include: TF_VAR_*
 
-    - name: Setup gcloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-      with:
-        install_components: 'beta'
-        project_id: "${{ env.GCP_PROJECT_ID }}" # consider adjusting to an env var.
+      - name: export TFVARS in Github Variables
+        uses: oNaiPs/secrets-to-env-action@v1.2
+        if: env.VARS == 'true'
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: TF_VAR_*
 
-    - name: 'gcloud Info'
-      run: 'gcloud info'
+      - name: convert TFVARS to lowercase
+        run: |
+          for var_name in $(env | grep -o '^TF_VAR_[^=]*'); do
+            suffix="${var_name#TF_VAR_}"
+            suffix_lowercase=$(echo "$suffix" | tr '[:upper:]' '[:lower:]')
+            new_var_name="TF_VAR_${suffix_lowercase}"
+            {
+              echo "$new_var_name<<EOF"
+              echo "${!var_name}"
+              echo "EOF"
+            } >> $GITHUB_ENV
+            unset $var_name
+          done
 
-    - name: Setup terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: ${{ inputs.terraform-version }}
+      - name: Checkout source code
+        uses: actions/checkout@v4.1.1
 
-    - name: terraform plan
-      working-directory: ${{ inputs.directory }}/
-      id: tfplan
-      env:
-        TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
-      run: |
-        git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
-        terraform init -input=false
-        terraform plan -lock=false -parallelism=${{ inputs.parallelism }} -input=false -no-color -out=tfplan && terraform show -no-color tfplan
-      continue-on-error: true
+      - id: auth
+        if: ${{ steps.gcp-secret-check.outputs.secrets != 'true' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.gcp-sa-key }}"
+          service_account: ${{ env.GCP_SA }}
+          workload_identity_provider: ${{ env.GCP_WIF }}
 
-    - name: Reformat Plan
-      if: github.ref != 'refs/heads/main'
-      env:
-        TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
-        TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
-      run: |
-        if [[ "${{ steps.tfplan.outcome }}" == 'success' ]]; then
-          printf '%s' "$TFPLAN_STDOUT" \
-          | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
-        else
-          printf '%s' "$TFPLAN_STDERR" \
-          | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
-        fi
+      - name: Setup gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: "beta"
+          project_id: "${{ env.GCP_PROJECT_ID }}"
 
-    - name: Put Plan in Env Var
-      if: github.ref != 'refs/heads/main'
-      run: |
-        PLAN=$(cat plan.txt)
-        echo "PLAN<<EOF" >> $GITHUB_ENV
-        echo "$PLAN" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
 
-    - name: Post Plan to GitHub PR
-      uses: mshick/add-pr-comment@v2
-      if: github.ref != 'refs/heads/main'
-      with:
-        allow-repeats: false
-        repo-token: ${{steps.get_github_app_token.outputs.token}}
-        message-id: plan-${{ needs.get-env.outputs.environment }}
-        message: |
-          ## Terraform plan ${{ needs.get-env.outputs.env_only }}
-          ```diff
-          ${{ env.PLAN }}
-          ```
-      continue-on-error: true
+      - name: terraform plan
+        working-directory: ${{ inputs.directory }}/
+        id: tfplan
+        env:
+          TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
+          terraform init -input=false
+          terraform plan -parallelism=${{ inputs.parallelism }} -input=false -no-color -out=tfplan && terraform show -no-color tfplan
+        continue-on-error: true
 
-    - name: Check if Plan failed
-      if: steps.tfplan.outcome == 'failure'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.setFailed('Terraform plan failed.')
+      - name: Reformat Plan
+        if: github.ref != 'refs/heads/main'
+        env:
+          TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
+          TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
+        run: |
+          if [[ "${{ steps.tfplan.outcome }}" == 'success' ]]; then
+            printf '%s' "$TFPLAN_STDOUT" \
+            | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
+          else
+            printf '%s' "$TFPLAN_STDERR" \
+            | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
+          fi
 
-    - name: terraform apply
-      working-directory: ${{ inputs.directory }}/
-      id: tfapply
-      if: github.ref == 'refs/heads/main'
-      env:
-        TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
-      run: |
-        git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
-        terraform apply -parallelism=${{ inputs.parallelism }} -input=false -no-color tfplan
-      continue-on-error: true
+      - name: Put Plan in Env Var
+        if: github.ref != 'refs/heads/main'
+        run: |
+          PLAN=$(cat plan.txt)
+          echo "PLAN<<EOF" >> $GITHUB_ENV
+          echo "$PLAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-    - name: Post Apply Success
-      if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'success'
-      uses: mshick/add-pr-comment@v2
-      with:
-        allow-repeats: false
-        repo-token: ${{steps.get_github_app_token.outputs.token}}
-        message-id: apply-${{ needs.get-env.outputs.environment }}
-        message: |
-          ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Succeeded
-          ```
-          ${{ steps.tfapply.outputs.stdout }}
-          ```
-      continue-on-error: true
+      - name: Post Plan to GitHub PR
+        uses: mshick/add-pr-comment@v2
+        if: github.ref != 'refs/heads/main'
+        with:
+          allow-repeats: false
+          repo-token: ${{steps.get_github_app_token.outputs.token}}
+          message-id: plan-${{ needs.get-env.outputs.environment }}
+          message: |
+            ## Terraform plan ${{ needs.get-env.outputs.env_only }}
+            ```diff
+            ${{ env.PLAN }}
+            ```
+        continue-on-error: true
 
-    - name: Post Apply Failure
-      if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'failure'
-      uses: mshick/add-pr-comment@v2
-      with:
-        allow-repeats: false
-        repo-token: ${{steps.get_github_app_token.outputs.token}}
-        message-id: apply-${{ needs.get-env.outputs.environment }}
-        message: |
-          ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Failed
-          ```
-          ${{ steps.tfapply.outputs.stderr }}
-          ```
-      continue-on-error: true
+      - name: Check if Plan failed
+        if: steps.tfplan.outcome == 'failure'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Terraform plan failed.')
 
-    - name: Fail if apply failed
-      if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'failure'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.setFailed('Terraform apply failed.')
+      - name: terraform apply
+        working-directory: ${{ inputs.directory }}/
+        id: tfapply
+        if: github.ref == 'refs/heads/main'
+        env:
+          TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
+          terraform apply -parallelism=${{ inputs.parallelism }} -input=false -no-color tfplan
+        continue-on-error: true
+
+      - name: Post Apply Success
+        if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'success'
+        uses: mshick/add-pr-comment@v2
+        with:
+          allow-repeats: false
+          repo-token: ${{steps.get_github_app_token.outputs.token}}
+          message-id: apply-${{ needs.get-env.outputs.environment }}
+          message: |
+            ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Succeeded
+            ```
+            ${{ steps.tfapply.outputs.stdout }}
+            ```
+        continue-on-error: true
+
+      - name: Post Apply Failure
+        if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'failure'
+        uses: mshick/add-pr-comment@v2
+        with:
+          allow-repeats: false
+          repo-token: ${{steps.get_github_app_token.outputs.token}}
+          message-id: apply-${{ needs.get-env.outputs.environment }}
+          message: |
+            ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Failed
+            ```
+            ${{ steps.tfapply.outputs.stderr }}
+            ```
+        continue-on-error: true
+
+      - name: Fail if apply failed
+        if: github.ref == 'refs/heads/main' && steps.tfapply.outcome == 'failure'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Terraform apply failed.')

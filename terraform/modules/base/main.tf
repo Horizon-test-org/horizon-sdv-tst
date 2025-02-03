@@ -92,8 +92,8 @@ module "sdv_artifact_registry" {
 module "sdv_certificate_manager" {
   source = "../sdv-certificate-manager"
 
-  name       = var.sdv_ssl_certificate_name
-  domain     = var.sdv_ssl_certificate_domain
+  name   = var.sdv_ssl_certificate_name
+  domain = var.sdv_ssl_certificate_domain
   depends_on = [module.sdv_apis]
 }
 
@@ -116,13 +116,13 @@ module "sdv_copy_to_bastion_host" {
   source = "../sdv-copy-to-bastion-host"
 
   bastion_host            = var.sdv_bastion_host_name
-  local_file_path         = "../../bash-scripts/horizon-stage-01.sh"
+  local_file_path         = "../bash-scripts/stage1.sh"
   destination_directory   = "~/bash-scripts"
-  destination_filename    = "horizon-stage-01.sh"
+  destination_filename    = "stage1.sh"
   zone                    = var.sdv_zone
   location                = var.sdv_location
   bucket_name             = "${data.google_project.project.project_id}-scripts"
-  bucket_destination_path = "bash-scripts/horizon-stage-01.sh"
+  bucket_destination_path = "bash-scripts/stage1.sh"
 
   depends_on = [
     module.sdv_bastion_host,

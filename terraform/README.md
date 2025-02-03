@@ -15,7 +15,7 @@ Directories:
 + Add the ticket implementation to the modules
 + Check the plan if it does what it is expected
 + Push the feature branch
-+ Add a change to the env/dev/main.tf file and push the feature branch
++ Add a change to the env/main.tf file and push the feature branch
 + Check the github workflow plan result, when fail fix the issues found
 + Create a PR for the feature branch to main
 + Wait the github workflow to check the PR
