@@ -29,6 +29,7 @@ spec:
             userkey: jenkins-admin-user
             passwordkey: jenkins-admin-password
           jenkinsUrl: https://{{ .Values.config.domain }}/jenkins
+          numExecutors: "1"
           installPlugins:
             - kubernetes:latest
             - kubernetes-credentials-provider:latest
@@ -183,8 +184,6 @@ spec:
                 groovy:
                   - script: >
                       println("This is groovy !");
-                      def job = Jenkins.instance.getItemByFullName("Android/Builds/Gerrit")
-                      job.scheduleBuild(120)
                 jobs:
                   - script: >
                       folder('Android') {
@@ -310,6 +309,14 @@ spec:
                   - script: >
                       pipelineJob('Android/Builds/Gerrit') {
                         description('<p>Gerrit triggered build and test. Triggered by Gerrit commits.</p>')
+                        triggers {
+                          hudsonStartupTrigger {
+                            nodeParameterName("")
+                            label("")
+                            quietPeriod("0")
+                            runOnChoice("ON_CONNECT")
+                          }
+                        }
                         definition {
                           cpsScm {
                             lightweight()
