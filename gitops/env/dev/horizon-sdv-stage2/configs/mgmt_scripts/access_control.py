@@ -217,21 +217,38 @@ def get_users_and_assigned_roles():
 
     return users_and_roles_dict
 
-
-def get_particular_user_roles(user):
+def get_user_and_assigned_roles(user):
     '''
-    Retrieve roles assigned to particular user.
+    Retrieve roles assigned to given user.
+    Possible user values:
+        1. "*" - Retrieve all users and roles that are assigned to them.
+        2. "user_id" - retrieve only information about given user.
+        3. "[user1_id, user2_id]" - retrieve information about given users. Users shall be provided as a list.
+
     Returns list of roles.
     '''
-    users_by_roles = get_users_by_roles()
-    user_roles_info_ls = []
+    if user == "*":
+        pass
+        # retrieve all users
+    elif isinstance(user, str):
+        pass
+        # retrieve only one user
+    elif isinstance(user, list):
+        pass
+        # retrieve information about given users.
+    else:
+        raise ValueError("Invalid user parameter. Must be '*', a user ID (string), or a list of user IDs.")
 
-    for role, users in users_by_roles.items():
-        for u in users:
-            if user in u:
-                user_roles_info_ls.append(role)
 
-    return user_roles_info_ls
+    # users_by_roles = get_users_by_roles()
+    # user_roles_info_ls = []
+
+    # for role, users in users_by_roles.items():
+    #     for u in users:
+    #         if user in u:
+    #             user_roles_info_ls.append(role)
+
+    # return user_roles_info_ls
 
 
 def add_role_to_user(user, role):
@@ -315,18 +332,15 @@ def operations_handler(operation, service):
     if operation[OperationsKey.OPERATION.value] in Operations.__members__:
         print(f"Handling operation {operation}")
 
-        if operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_USERS.name:
-            users_and_roles_dict = get_users_and_assigned_roles()
-            save_data_to_json_file(
-                out_file_name="Users_with_roles.json", data=users_and_roles_dict)
-            return_status = True
-
-        elif operation[OperationsKey.OPERATION.value] == Operations.GET_USER.name:
-            user_roles_info_ls = get_particular_user_roles(
-                user=operation[OperationsKey.USER.value])
-            save_data_to_json_file(
-                out_file_name="User_info.json", data=user_roles_info_ls)
-            return_status = True
+        if operation[OperationsKey.OPERATION.value] == Operations.GET_USER.name:
+            try:
+                users_and_their_roles_dict  = get_user_and_assigned_roles(user=operation[OperationsKey.USER.value])
+            except ValueError as e:
+                print(f"There is a problem with operation {operation[OperationsKey.OPERATION.value]} \nError: {e}")
+                return_status = False
+            else:
+                save_data_to_json_file(out_file_name="User_and_assigned_roles.json", data=users_and_their_roles_dict)
+                return_status = True
 
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_ROLES.name:
             roles_ls = get_roles_list(service=service)
