@@ -24,7 +24,6 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #4 - Run Android Workloads](#exercise-4---run-android-workloads)
    - [Exercise #4a - Browse CTS test results](#exercise-4a---browse-cts-test-results)
 - [Exercise #5 - Troubleshooting](#exercise-5---troubleshooting)
-setting-up-gcp-iam-and-admin-for-terraform-workflow
 ## Technologies   
 Technologies being used to provision the infrastructure along with the required applications for the GKE cluster.
 * Google Cloud Platform - Cloud service provider for infrastructure provisioning.
