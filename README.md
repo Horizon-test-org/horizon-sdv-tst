@@ -11,8 +11,9 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #2 - Setup Google Cloud Platform (WIP)](#exercise-2---setup-google-cloud-platform-wip)
    - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
    - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
-   - [Exercise #2c - Setting up GCP IAM & Admin for Terraform Workflow](#exercise-2c---setting-up-gcp-iam-and-admin-for-terraform-workflow)
-   - [Exercise #2d - Create OAuth2 client and secret](#exercise-2d---create-oauth2-client-and-secret)
+   - [Exercise #2c - Configure Google Cloud DNS](#exercise-2c---configure-google-cloud-dns)   
+   - [Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow](#exercise-2d---setting-up-gcp-iam--admin-for-terraform-workflow)
+   - [Exercise #2e - Create OAuth2 client and secret](#exercise-2e---create-oauth2-client-and-secret)
 - [Exercise #3 - Setup GitHub (WIP)](#exercise-3---setup-github-wip)
    - [Exercise #3a - Create GitHub Organization and Repository](#exercise-3a---create-github-organization-and-repository)
    - [Exercise #3b - Create GitHub Application](#exercise-3b---create-github-application)
@@ -20,10 +21,10 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
    - [Exercise #3d - Setup GitHub Environment](#exercise-3d---set-up-github-environment)
    - [Exercise #3e - Setup GitHub repository](#exercise-3e---setup-github-repository)
    - [Exercise #3f - Setup GitHub Actions](#exercise-3f---setup-github-actions)
-- [Exercise #4 - Verification](#exercise-4---verification)
-   - [Exercise #4a - Running test builds](#exercise-4a---running-test-builds)
+- [Exercise #4 - Run Android Workloads](#exercise-4---run-android-workloads)
+   - [Exercise #4a - Browse CTS test results](#exercise-4a---browse-cts-test-results)
 - [Exercise #5 - Troubleshooting](#exercise-5---troubleshooting)
-
+setting-up-gcp-iam-and-admin-for-terraform-workflow
 ## Technologies   
 Technologies being used to provision the infrastructure along with the required applications for the GKE cluster.
 * Google Cloud Platform - Cloud service provider for infrastructure provisioning.
@@ -65,7 +66,7 @@ The project is implemented in the following directories:
    - Compute Admin
    - Kubernetes Engine Admin
    - Artifact Registry Administrator
-   - Cloud Filestore Editor
+   - Cloud Filestore Editorsetting-up-gcp-iam-and-admin-for-terraform-workflow
    - Storage Admin
 
 ### Terraform
@@ -93,7 +94,18 @@ In the current GCP project, it is required to create a GCP Bucket to store data 
 3. Enter a globally unique name for the bucket. (Example: `prj-sbx-horizon-sdv-tf`)
 4. Click on CREATE with default bucket configurations.
 
-### Exercise #2c - Setting up GCP IAM & Admin for Terraform Workflow
+### Exercise #2c - Configure Google Cloud DNS
+
+#### Configure the Domain name
+1. Navigate to Network Services and click on "Cloud DNS".
+2. Under Zone tab, Click on the Zone name and click on ADD STANDARD under "RECORD SETS" tab.
+3. Enter the DNS name as `sbx.horizon-sdv.com` as the environment is "sbx".
+4. Set TTL to 300 and update TTL unit to "seconds".
+5. Click on SELECT button for IPv4 Address which opens a list of available IPv4 Addresses.
+6. From the list, select the one associated with the GKE Gateway and Click on CREATE.
+
+
+### Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
 
 Below are the resources which are required to be configured:   
@@ -137,7 +149,7 @@ Below are the resources which are required to be configured:
 7. Confirm the Service account has been bound successfully under CONNECTED SERVICE ACCOUNTS tab.   
    <img src="docs/images/workload_identity_pool_sa_bound.png" width="650" />
 
-### Exercise #2d - Create OAuth2 client and secret
+### Exercise #2e - Create OAuth2 client and secret
 It is required to setup OAuth consent screen before creating the OAuth client and secret. Navigate to APIs & Services and follow the below mentioned steps
 
 #### Setting up OAuth consent screen
@@ -373,10 +385,10 @@ A Terraform GitHub Actions Workflow is set to trigger `terraform plan` only run 
    * Confirm if the workflow has finished successfully. If not, fix the issue and rerun the workflow.
 
 
-## Exercise #4 - Verification
-### Exercise #4a - Running test builds
+## Exercise #4 - Run Android Workloads
+### Exercise #4a - Browse CTS test results
 
-## Exercise #4 - Troubleshooting
+## Exercise #5 - Troubleshooting
 
 
 
