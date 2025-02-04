@@ -1,11 +1,12 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: standard-rwx
+  name: gerrit-rwx
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 provisioner: filestore.csi.storage.gke.io
 allowVolumeExpansion: true
+volumeBindingMode: Immediate
 parameters:
   tier: standard
   network: sdv-network
@@ -23,7 +24,7 @@ spec:
   resources:
     requests:
       storage: 1Ti
-  storageClassName: standard-rwx
+  storageClassName: gerrit-rwx
   volumeMode: Filesystem
 ---
 apiVersion: v1

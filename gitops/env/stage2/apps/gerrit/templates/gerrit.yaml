@@ -11,7 +11,7 @@ spec:
   storage:
     storageClasses:
       readWriteOnce: standard-rwo
-      readWriteMany: standard-rwx
+      readWriteMany: gerrit-rwx
     sharedStorage:
       externalPVC:
         enabled: true
