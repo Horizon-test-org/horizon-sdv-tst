@@ -11,7 +11,7 @@ import google.auth
 from googleapiclient import discovery
 from google.cloud import resourcemanager_v3
 
-### Just for debug purposes
+# Just for debug purposes
 GET_INFO = False
 ADD_ROLE_TO_USER = False
 REMOVE_ROLE_TO_USER = False
@@ -22,10 +22,14 @@ CREDENTIALS_FILENAME = "application_default_credentials.json"
 USER_KEYWORD = "user:"
 
 # CONST VALUES FOR JSON FILE OPERATIONS LIST
+
+
 class OperationsKey(Enum):
     OPERATION = "operation"
     USER = "user"
     ROLE = "role"
+
+
 class Operations(Enum):
     GET_ALL_USERS = auto()
     GET_USER = auto()
@@ -34,6 +38,7 @@ class Operations(Enum):
     GET_ROLE_INFO = auto()
     SET_ROLE_TO_USER = auto()
     DELETE_ROLE_FROM_USER = auto()
+
 
 def check_credentials():
     '''
@@ -58,18 +63,21 @@ def check_credentials():
             # Check manually (not using environment variable) if credentials files exists.
             if os.name != "nt":
                 # Check credentials on Non-windows system. They should be stored at ~/.config/gcloud
-                credentials_file_path = os.path.join(os.path.expanduser("~"), ".config", "gcloud", CREDENTIALS_FILENAME)
+                credentials_file_path = os.path.join(os.path.expanduser(
+                    "~"), ".config", "gcloud", CREDENTIALS_FILENAME)
                 if os.path.isfile(credentials_file_path):
                     return True
-            else: 
+            else:
                 # Check credentials on Windows systems. Config should stored at %APPDATA%/gcloud
                 env_var = os.environ.get("APPDATA")
                 if env_var:
-                    credentials_file_path = os.path.join(env_var, "gcloud", CREDENTIALS_FILENAME)
+                    credentials_file_path = os.path.join(
+                        env_var, "gcloud", CREDENTIALS_FILENAME)
                     if os.path.isfile(credentials_file_path):
                         return True
-                       
+
     return False
+
 
 def authentication():
     '''
@@ -87,7 +95,7 @@ def authentication():
     '''
     return_status = False
     credentials = None
-    
+
     print("------")
     if check_credentials():
         print("Credentials already exist.")
@@ -101,37 +109,41 @@ def authentication():
     else:
         print(f"There are no credentials. You will need to log in.")
         try:
-            subprocess.run(["gcloud", "auth", "application-default", "login"], shell=True)
+            subprocess.run(
+                ["gcloud", "auth", "application-default", "login"], shell=True)
         except Exception as e:
             print(f"Error during authentication: {e}")
         else:
             if check_credentials():
-               credentials, proj_id = google.auth.default() 
-               return_status = True
-               print("You are authenticated.")
+                credentials, proj_id = google.auth.default()
+                return_status = True
+                print("You are authenticated.")
             else:
                 print("Another try to authenticate.")
                 try:
-                    result = subprocess.run(["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
+                    result = subprocess.run(
+                        ["gcloud", "auth", "application-default", "login", "--no-launch-browser"], shell=True)
                     result.check_returncode()
                 except Exception as e:
-                    print(f"""There were three attempts to authenticate: 
+                    print(f"""There were three attempts to authenticate:
                           1. Automatically check saved credentials.
                           2. Login with browser.
-                          3. Provide an url to login using browser on machine with connection to internet. 
+                          3. Provide an url to login using browser on machine with connection to internet.
                           Error during authentication.\n{e}\nFix it""")
                     raise
                 else:
-                    credentials, proj_id = google.auth.default() 
+                    credentials, proj_id = google.auth.default()
                     return_status = True
                     print("You are authenticated.")
 
     return return_status, credentials
 
+
 def save_data_to_json_file(out_file_name, data):
     with open(out_file_name, "w") as file:
         json.dump(data, file, indent=4)
     print(f"Data is saved in a file  '{out_file_name}'.")
+
 
 def get_roles_list(service):
     '''
@@ -144,11 +156,13 @@ def get_roles_list(service):
         response = request.execute()
         for role in response.get('roles', []):
             roles_ls.append(role)
-        request = service.roles().list_next(previous_request=request, previous_response=response)
+        request = service.roles().list_next(
+            previous_request=request, previous_response=response)
         if request is None:
             break
 
     return roles_ls
+
 
 def get_role_info(service, role):
     '''
@@ -159,10 +173,11 @@ def get_role_info(service, role):
     response = request.execute()
     return response
 
+
 def get_users_by_roles():
     '''
     Retrieve all Roles + Users that are assigned to them.
-    Returns dictionary: 
+    Returns dictionary:
         role: [user1, user2]
     '''
     resource = f'projects/{PROJECT_ID}'
@@ -174,7 +189,7 @@ def get_users_by_roles():
         role = binding.role
         members = binding.members
         users_by_roles_dict[role] = []
-        for member in members:            
+        for member in members:
             if member.startswith(USER_KEYWORD):
                 users_by_roles_dict[role].append(member)
         # Only show roles with assigned users
@@ -183,10 +198,11 @@ def get_users_by_roles():
 
     return users_by_roles_dict
 
+
 def get_users_and_assigned_roles():
     '''
     Retrieve all Users and Roles that are assigned to them.
-    Returns dictionary: 
+    Returns dictionary:
         user: [role1, role2]
     '''
     users_by_roles = get_users_by_roles()
@@ -200,6 +216,7 @@ def get_users_and_assigned_roles():
                 users_and_roles_dict[user].append(role)
 
     return users_and_roles_dict
+
 
 def get_particular_user_roles(user):
     '''
@@ -216,6 +233,7 @@ def get_particular_user_roles(user):
 
     return user_roles_info_ls
 
+
 def add_role_to_user(user, role):
     '''
     Add role for given user.
@@ -228,25 +246,26 @@ def add_role_to_user(user, role):
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
     role = f"roles/{role}"
-    
+
     for binding in policy.bindings:
         if binding.role == role and f"{USER_KEYWORD}{user}" in binding.members:
             print(f"User {user} already has the role {role}.")
             return True
-            
+
     binding = policy.bindings.add()
-    binding.role = role 
+    binding.role = role
     binding.members.append(f"{USER_KEYWORD}{user}")
 
     client.set_iam_policy(
         request={
             "resource": resource,
             "policy": policy
-            }
-        )
+        }
+    )
 
     print(f"Added role {role} to user {user} in project {PROJECT_ID}.")
     return True
+
 
 def remove_role_from_user(user_email, role_id):
     '''
@@ -284,139 +303,167 @@ def remove_role_from_user(user_email, role_id):
 
     print(f"Updated IAM policy for project {PROJECT_ID}.")
 
+
 def operations_handler(operation, service):
     '''
     Handling operations.
-    Input variable: 
-        operation - type class Operations() 
+    Input variable:
+        operation - type class Operations()
     '''
     return_status = False
 
     if operation[OperationsKey.OPERATION.value] in Operations.__members__:
         print(f"Handling operation {operation}")
-        
+
         if operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_USERS.name:
             users_and_roles_dict = get_users_and_assigned_roles()
-            save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+            save_data_to_json_file(
+                out_file_name="Users_with_roles.json", data=users_and_roles_dict)
             return_status = True
-            
+
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_USER.name:
-            user_roles_info_ls = get_particular_user_roles(user=operation[OperationsKey.USER.value])
-            save_data_to_json_file(out_file_name="User_info.json", data=user_roles_info_ls)
+            user_roles_info_ls = get_particular_user_roles(
+                user=operation[OperationsKey.USER.value])
+            save_data_to_json_file(
+                out_file_name="User_info.json", data=user_roles_info_ls)
             return_status = True
-            
+
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_ROLES.name:
             roles_ls = get_roles_list(service=service)
             save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
             return_status = True
-        
+
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_ALL_ROLES_WITH_USERS.name:
             users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+            save_data_to_json_file(
+                out_file_name="Users_by_roles.json", data=users_by_roles_dict)
             return_status = True
-                
+
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_ROLE_INFO.name:
-            role_info = get_role_info(service=service, role=operation[OperationsKey.ROLE.value])
-            save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+            role_info = get_role_info(
+                service=service, role=operation[OperationsKey.ROLE.value])
+            save_data_to_json_file(
+                out_file_name="Role_info.json", data=role_info)
             return_status = True
-            
+
         elif operation[OperationsKey.OPERATION.value] == Operations.SET_ROLE_TO_USER.name:
-            add_role_to_user(user=operation[OperationsKey.USER.value], role=operation[OperationsKey.ROLE.value])
+            add_role_to_user(
+                user=operation[OperationsKey.USER.value], role=operation[OperationsKey.ROLE.value])
             return_status = True
-            
+
         elif operation[OperationsKey.OPERATION.value] == Operations.DELETE_ROLE_FROM_USER.name:
-            remove_role_from_user(user_email=operation[OperationsKey.USER.value], role_id=operation[OperationsKey.ROLE.value])
+            remove_role_from_user(
+                user_email=operation[OperationsKey.USER.value], role_id=operation[OperationsKey.ROLE.value])
             return_status = True
-            
+
     else:
         print(f"There is no such operation as {operation}")
 
     return return_status
-    
+
+
 def retrieve_operations_list_from_json(operations_file_path, service):
     '''
     Handling json file which contains list of users and operaton that shall be performed on them.
     '''
     print("------")
     print(f"I will look through the list of operations in the provided file: {operations_file_path}")
-    
+
     with open(operations_file_path, "r") as file:
         operations_list = json.load(file)
-            
+
     success_score = 0
     for op in operations_list:
         if operations_handler(op, service):
             success_score += 1
-        
+
     print(f"\nThere were: {len(operations_list) - success_score} incorrect operations.")
-    
+
+
 def script_arguments_handler(service):
     '''
     Handle arguments provided to the script.
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("-op", "--operations_list", help="Path to json file which contains operations list to perform")
+    parser.add_argument("-op", "--operations_list",
+                        help="Path to json file which contains operations list to perform")
     args = parser.parse_args()
 
     if args.operations_list:
-        retrieve_operations_list_from_json(operations_file_path=args.operations_list, service=service)
+        retrieve_operations_list_from_json(
+            operations_file_path=args.operations_list, service=service)
 
 
 if __name__ == '__main__':
 
     # AUTHENTICATION #
     operation_status, credentials = authentication()
-    
+
     # HANDLING OPERATIONS FROM JSON #
-    if operation_status: 
-        service = discovery.build(serviceName='iam', version='v1', credentials=credentials)
-        script_arguments_handler(service=service)
-        
     if operation_status:
-        
+        service = discovery.build(
+            serviceName='iam', version='v1', credentials=credentials)
+        script_arguments_handler(service=service)
+
+    if operation_status:
+
         # GETTING INO
         if GET_INFO:
             users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles.json", data=users_by_roles_dict)
+            save_data_to_json_file(
+                out_file_name="Users_by_roles.json", data=users_by_roles_dict)
 
             users_and_roles_dict = get_users_and_assigned_roles()
-            save_data_to_json_file(out_file_name="Users_with_roles.json", data=users_and_roles_dict)
+            save_data_to_json_file(
+                out_file_name="Users_with_roles.json", data=users_and_roles_dict)
 
             roles_ls = get_roles_list(service=service)
             save_data_to_json_file(out_file_name="Roles.json", data=roles_ls)
 
-            role_info = get_role_info(service=service, role="storage.objectViewer")
-            save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+            role_info = get_role_info(
+                service=service, role="storage.objectViewer")
+            save_data_to_json_file(
+                out_file_name="Role_info.json", data=role_info)
 
-            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
-            save_data_to_json_file(out_file_name="User_info.json", data=user_roles_info_ls)
+            user_roles_info_ls = get_particular_user_roles(
+                user="marta.kania@accenture.com")
+            save_data_to_json_file(
+                out_file_name="User_info.json", data=user_roles_info_ls)
 
         # GRANTING A ROLE TO USER
         if ADD_ROLE_TO_USER:
-            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
-            save_data_to_json_file(out_file_name="User_info_adding_role_before.json", data=user_roles_info_ls)
+            user_roles_info_ls = get_particular_user_roles(
+                user="marta.kania@accenture.com")
+            save_data_to_json_file(
+                out_file_name="User_info_adding_role_before.json", data=user_roles_info_ls)
 
-            add_role_to_user("marta.kania@accenture.com", "storage.objectViewer")
+            add_role_to_user("marta.kania@accenture.com",
+                             "storage.objectViewer")
 
-            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
-            save_data_to_json_file(out_file_name="User_info_adding_role_after.json", data=user_roles_info_ls)
-            
-            
-        
+            user_roles_info_ls = get_particular_user_roles(
+                user="marta.kania@accenture.com")
+            save_data_to_json_file(
+                out_file_name="User_info_adding_role_after.json", data=user_roles_info_ls)
+
         # REMOVING ROLE FROM A USER
         if REMOVE_ROLE_TO_USER:
-            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
-            save_data_to_json_file(out_file_name="User_info_deleteing_before.json", data=user_roles_info_ls)
-            
+            user_roles_info_ls = get_particular_user_roles(
+                user="marta.kania@accenture.com")
+            save_data_to_json_file(
+                out_file_name="User_info_deleteing_before.json", data=user_roles_info_ls)
+
             users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles_delete_before.json", data=users_by_roles_dict)
+            save_data_to_json_file(
+                out_file_name="Users_by_roles_delete_before.json", data=users_by_roles_dict)
 
-            remove_role_from_user("marta.kania@accenture.com", "storage.objectViewer")
+            remove_role_from_user(
+                "marta.kania@accenture.com", "storage.objectViewer")
 
-            user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
-            save_data_to_json_file(out_file_name="User_info_deleteing_after.json", data=user_roles_info_ls)
-            
+            user_roles_info_ls = get_particular_user_roles(
+                user="marta.kania@accenture.com")
+            save_data_to_json_file(
+                out_file_name="User_info_deleteing_after.json", data=user_roles_info_ls)
+
             users_by_roles_dict = get_users_by_roles()
-            save_data_to_json_file(out_file_name="Users_by_roles_delete_after.json", data=users_by_roles_dict)
-
-
+            save_data_to_json_file(
+                out_file_name="Users_by_roles_delete_after.json", data=users_by_roles_dict)
