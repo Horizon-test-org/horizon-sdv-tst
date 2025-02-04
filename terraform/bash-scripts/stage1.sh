@@ -75,7 +75,13 @@ cd ~/horizon-sdv
 git checkout -t origin/env/sbx
 
 echo ""
+echo "Build config post jobs"
+cd ~/horizon-sdv/gitops/env/stage2/configs
+chmod +x ./build.sh
+./build.sh
+
+echo ""
 echo "Run stage1 deployment"
-cd gitops/env/stage1
+cd ~/horizon-sdv/gitops/env/stage1
 chmod +x ./deploy.sh
 ./deploy.sh
