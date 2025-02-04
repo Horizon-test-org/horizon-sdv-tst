@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gerrit-sa
+  namespace: gerrit
+  annotations:
+    iam.gke.io/gcp-service-account: gke-gerrit-sa@{{ .Values.config.projectID }}.iam.gserviceaccount.com
+    argocd.argoproj.io/sync-wave: "1"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gerrit-ssh-private-key
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jenkins-gerrit-ssh-private-key
+  namespace: jenkins
+  labels:
+    jenkins.io/credentials-type: "basicSSHUserPrivateKey"
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    jenkins.io/credentials-description : "Gerrit SSH Private Key"
+type: Opaque
+stringData:
+  username: "gerrit-admin"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-gerrit-admin
+  namespace: gerrit
+  labels:
+    jenkins.io/credentials-type: "usernamePassword"
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+stringData:
+  username: "gerrit-admin"
+---
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: gerrit-secret-store
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  provider:
+    gcpsm:
+      projectID: {{ .Values.config.projectID }}
+      auth:
+        workloadIdentity:
+          clusterLocation: {{ .Values.config.region }}
+          clusterName: sdv-cluster
+          serviceAccountRef:
+            name: gerrit-sa
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: gerrit-admin-initial-secret
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    kind: SecretStore
+    name: gerrit-secret-store
+  target:
+    name: keycloak-gerrit-admin
+    creationPolicy: Merge
+  data:
+    - secretKey: password
+      remoteRef:
+        key: gerritAdminInitialPassword
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: gerrit-ssh-private-key-secret
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    kind: SecretStore
+    name: gerrit-secret-store
+  target:
+    name: gerrit-ssh-private-key
+    creationPolicy: Merge
+  data:
+    - secretKey: privatekey
+      remoteRef:
+        key: gerritAdminPrivateKey
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: jenkins-gerrit-ssh-private-key-secret
+  namespace: jenkins
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    kind: SecretStore
+    name: jenkins-secret-store
+  target:
+    name: jenkins-gerrit-ssh-private-key
+    creationPolicy: Merge
+  data:
+    - secretKey: privateKey
+      remoteRef:
+        key: gerritAdminPrivateKey

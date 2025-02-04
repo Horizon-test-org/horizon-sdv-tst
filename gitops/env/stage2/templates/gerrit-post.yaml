@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gerrit-writer-sa
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gerrit-writer-role
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs:
+      [
+        "create",
+        "delete",
+        "deletecollection",
+        "get",
+        "list",
+        "patch",
+        "update",
+        "watch",
+      ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gerrit-writer-rolebinding
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+subjects:
+  - kind: ServiceAccount
+    name: gerrit-writer-sa
+roleRef:
+  kind: Role
+  name: gerrit-writer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gerrit-cluster-writer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: gerrit-writer-sa
+    namespace: gerrit
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gerrit-post-job
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+    argocd.argoproj.io/hook: Sync
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      serviceAccountName: gerrit-writer-sa
+      containers:
+        - name: gerrit-post-container
+          env:
+            - name: GERRIT_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-gerrit-admin
+                  key: username
+            - name: GERRIT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-gerrit-admin
+                  key: password
+          image: {{ .Values.config.postjobs.gerrit }}
+          volumeMounts:
+            - mountPath: /mnt/git
+              name: shared
+              subPath: git
+            - mountPath: /root/.ssh
+              name: ssh-keys
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: gerrit-shared-git
+        - name: ssh-keys
+          secret:
+            secretName: gerrit-ssh-private-key
+            defaultMode: 0600

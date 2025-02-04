@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-post-job
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/hook: Sync
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      containers:
+        - name: keycloak-post-sync-job
+          env:
+            - name: PLATFORM_URL
+              value: "http://keycloak-keycloakx-http:8080"
+            - name: KEYCLOAK_USERNAME
+              value: "admin"
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-initial-creds
+                  key: password
+            - name: HORIZON_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-horizon-admin
+                  key: username
+            - name: HORIZON_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-horizon-admin
+                  key: password
+          image: {{ .Values.config.postjobs.keycloak }}
+      restartPolicy: Never

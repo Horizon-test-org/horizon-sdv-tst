@@ -1,0 +1,112 @@
+apiVersion: "gerritoperator.google.com/v1beta13"
+kind: GerritCluster
+metadata:
+  name: gerrit
+  namespace: gerrit
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  eventsBroker:
+    brokerType: NONE
+  storage:
+    storageClasses:
+      readWriteOnce: standard-rwo
+      readWriteMany: standard-rwx
+    sharedStorage:
+      externalPVC:
+        enabled: true
+        claimName: "gerrit-shared-git"
+  refdb:
+    database: ZOOKEEPER
+    zookeeper:
+      connectString: zookeeper.zookeeper.svc.cluster.local:2181
+  ingress:
+    enabled: false
+  serverId: "gerrit-0"
+  fluentBitSidecar:
+    enabled: false
+  gerrits:
+    - metadata:
+        name: gerrit
+        labels:
+          app: gerrit
+      spec:
+        serviceAccount: gerrit
+        replicas: 1
+        resources:
+          requests:
+            cpu: 2
+            memory: 5Gi
+          limits:
+            cpu: 2
+            memory: 6Gi
+        startupProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        service:
+          type: ClusterIP
+          httpPort: 8080
+          sshPort: 29418
+        mode: PRIMARY
+        site:
+          size: 5Gi
+        plugins:
+          - name: download-commands
+          - name: delete-project
+          - name: gitiles
+          - name: gerrit-oauth-provider
+            url: https://github.com/davido/gerrit-oauth-provider/releases/download/v3.5.1/gerrit-oauth-provider.jar
+            sha1: 8e3903ec02900fdec20208242959724cc10f240c
+        configFiles:
+          gerrit.config: |-
+            [gerrit]
+              canonicalWebUrl = https://{{ .Values.config.domain }}/
+            [core]
+              packedGitLimit = 1g
+              packedGitWindowSize = 8k
+              packedGitOpenFiles = 1024
+              streamFileThreshold = 1g
+            [index]
+              type = LUCENE
+            [auth]
+              type = OAUTH
+              gitBasicAuthPolicy = HTTP
+              gitOAuthProvider = gerrit-oauth-provider:keycloak-oauth
+              trustedOpenID=^.*$
+            [httpd]
+              listenUrl = proxy-https://*:8080/
+              requestLog = true
+              maxThreads = 25
+            [user]
+              name = Gerrit Code Review
+              email = gerrit@example.com
+              anonymousCoward = Unnamed User
+            [container]
+              heapLimit = 4g
+            [plugin "gerrit-oauth-provider-keycloak-oauth"]
+              root-url = https://{{ .Values.config.domain }}
+              realm = "horizon"
+              client-id = "gerrit"
+            [pack]
+              threads = 1
+              windowMemory = 1g
+            [receive]
+              timeout = 15m
+            [transfer]
+              timeout = 3600
+        secretRef: gerrit-secure-config

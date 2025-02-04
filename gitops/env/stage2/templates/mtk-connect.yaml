@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mtk-connect
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: horizon-sdv
+  source:
+    repoURL: {{ .Values.spec.source.repoURL }}
+    targetRevision: {{ .Values.spec.source.targetRevision }}
+    path: gitops/env/stage2/apps/mtk-connect
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mtk-connect
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated: {}
