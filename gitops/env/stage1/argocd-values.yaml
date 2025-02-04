@@ -1,3 +1,8 @@
 configs:
+  params:
+    server.insecure: true
+    server.rootpath: /argocd
   secret:
-    argocdServerAdminPassword: "$2a$10$KF0ixwgtzCMyE0rrQLNDmOHVhK5e9/UJoGphL6oxmdx8vbJHcov7K"
+    createSecret: false
+global:
+  domain: sbx.horizon-sdv.com

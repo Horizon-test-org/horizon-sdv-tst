@@ -28,6 +28,10 @@ echo "Helm Version"
 helm version
 
 echo ""
+echo "Install Helm Diff plugin"
+helm plugin install https://github.com/databus23/helm-diff
+
+echo ""
 echo "Kubectl Version"
 kubectl version
 
@@ -69,3 +73,9 @@ echo ""
 echo "List current branch and remote"
 cd ~/horizon-sdv
 git checkout -t origin/env/sbx
+
+echo ""
+echo "Run stage1 deployment"
+cd gitops/env/stage1
+chmod +x ./deploy.sh
+./deploy.sh
