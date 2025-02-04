@@ -199,24 +199,6 @@ def get_users_by_roles():
     return users_by_roles_dict
 
 
-def get_users_and_assigned_roles():
-    '''
-    Retrieve all Users and Roles that are assigned to them.
-    Returns dictionary:
-        user: [role1, role2]
-    '''
-    users_by_roles = get_users_by_roles()
-    users_and_roles_dict = {}
-
-    for role, users in users_by_roles.items():
-        for user in users:
-            if user.startswith(USER_KEYWORD):
-                if user not in users_and_roles_dict:
-                    users_and_roles_dict[user] = []
-                users_and_roles_dict[user].append(role)
-
-    return users_and_roles_dict
-
 def get_user_and_assigned_roles(user):
     '''
     Retrieve roles assigned to given user.
@@ -225,30 +207,40 @@ def get_user_and_assigned_roles(user):
         2. "user_id" - retrieve only information about given user.
         3. "[user1_id, user2_id]" - retrieve information about given users. Users shall be provided as a list.
 
-    Returns list of roles.
+    Returns dictionary:
+        user: [role1, role2]
     '''
+    users_by_roles = get_users_by_roles()
+    users_and_roles_dict = {}
+
     if user == "*":
-        pass
-        # retrieve all users
+        # Retrieve all users
+        for role, users in users_by_roles.items():
+            for user in users:
+                if user.startswith(USER_KEYWORD):
+                    if user not in users_and_roles_dict:
+                        users_and_roles_dict[user] = []
+                    users_and_roles_dict[user].append(role)
     elif isinstance(user, str):
-        pass
-        # retrieve only one user
+        # Retrieve only one user
+        for role, users in users_by_roles.items():
+            for u in users:
+                if user in u:
+                    if user not in users_and_roles_dict:
+                            users_and_roles_dict[user] = []
+                    users_and_roles_dict[user].append(role)
     elif isinstance(user, list):
-        pass
-        # retrieve information about given users.
+        # Retrieve information about given users.
+        for role, users in users_by_roles.items():
+            for u in user:
+                if f"{USER_KEYWORD}{u}" in users:
+                    if u not in users_and_roles_dict:
+                        users_and_roles_dict[u] = []
+                    users_and_roles_dict[u].append(role)
     else:
         raise ValueError("Invalid user parameter. Must be '*', a user ID (string), or a list of user IDs.")
 
-
-    # users_by_roles = get_users_by_roles()
-    # user_roles_info_ls = []
-
-    # for role, users in users_by_roles.items():
-    #     for u in users:
-    #         if user in u:
-    #             user_roles_info_ls.append(role)
-
-    # return user_roles_info_ls
+    return users_and_roles_dict
 
 
 def add_role_to_user(user, role):
