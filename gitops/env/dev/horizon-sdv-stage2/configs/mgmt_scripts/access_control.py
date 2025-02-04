@@ -172,8 +172,12 @@ def get_users_by_roles():
         role = binding.role
         members = binding.members
         users_by_roles_dict[role] = []
-        for member in members:
-            users_by_roles_dict[role].append(member)
+        for member in members:            
+            if member.startswith(USER_KEYWORD):
+                users_by_roles_dict[role].append(member)
+        # Only show roles with assigned users
+        if not users_by_roles_dict[role]:
+            del users_by_roles_dict[role]
 
     return users_by_roles_dict
 
