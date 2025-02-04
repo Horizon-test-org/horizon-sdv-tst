@@ -389,6 +389,9 @@ if __name__ == '__main__':
         if REMOVE_ROLE_TO_USER:
             user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
             save_data_to_json_file(out_file_name="User_info_deleteing_before.json", data=user_roles_info_ls)
+            
+            users_by_roles_dict = get_users_by_roles()
+            save_data_to_json_file(out_file_name="Users_by_roles_delete_before.json", data=users_by_roles_dict)
 
             remove_role_from_user("marta.kania@accenture.com", "roles/storage.objectViewer")
 
