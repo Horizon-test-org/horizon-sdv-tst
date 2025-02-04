@@ -40,4 +40,5 @@ deploy() {
 deploy $ES_NS $ES_NAME $ES_CHART $ES_PATH $ES_VERSION $ES_VALUES
 kubectl apply -f argocd-secrets.yaml
 deploy $ARGOCD_NS $ARGOCD_NAME $ARGOCD_CHART $ARGOCD_PATH $ARGOCD_VERSION $ARGOCD_VALUES
-#kubectl apply -f argocd-config.yaml
+
+kubectl apply -f argocd-config.yaml
