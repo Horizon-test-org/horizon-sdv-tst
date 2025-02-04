@@ -3,7 +3,7 @@ kind: StorageClass
 metadata:
   name: standard-rwx
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "2"
 provisioner: filestore.csi.storage.gke.io
 allowVolumeExpansion: true
 parameters:
@@ -16,7 +16,7 @@ metadata:
   name: gerrit-shared-git
   namespace: gerrit
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   accessModes:
     - ReadWriteMany
