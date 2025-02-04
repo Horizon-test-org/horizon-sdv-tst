@@ -4,5 +4,7 @@
     {"operation": "NOT_GOOD"},
     {"operation": "GET_ALL_ROLES"},
     {"operation": "GET_ALL_ROLES_WITH_USERS"},
-    {"operation": "GET_ROLE_INFO", "role": "storage.objectViewer"}
+    {"operation": "GET_ROLE_INFO", "role": "storage.objectViewer"},
+    {"operation": "SET_ROLE_TO_USER", "user": "marta.kania@accenture.com", "role": "storage.objectViewer"},
+    {"operation": "DELETE_ROLE_FROM_USER", "user": "marta.kania@accenture.com", "role": "storage.objectViewer"}
 ]

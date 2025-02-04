@@ -12,9 +12,9 @@ from googleapiclient import discovery
 from google.cloud import resourcemanager_v3
 
 ### Just for debug purposes
-GET_INFO = True
-ADD_ROLE_TO_USER = True
-REMOVE_ROLE_TO_USER = True
+GET_INFO = False
+ADD_ROLE_TO_USER = False
+REMOVE_ROLE_TO_USER = False
 ###
 
 PROJECT_ID = "sdvc-2108202401"  # "sdva-2108202401"
@@ -31,7 +31,8 @@ class Operations(Enum):
     GET_ALL_ROLES = auto()
     GET_ALL_ROLES_WITH_USERS = auto()
     GET_ROLE_INFO = auto()
-
+    SET_ROLE_TO_USER = auto()
+    DELETE_ROLE_FROM_USER = auto()
 
 def check_credentials():
     '''
@@ -218,6 +219,7 @@ def add_role_to_user(user, role):
     resource = f'projects/{PROJECT_ID}'
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
+    role = f"roles/{role}"
     
     for binding in policy.bindings:
         if binding.role == role and f"user:{user}" in binding.members:
@@ -253,6 +255,7 @@ def remove_role_from_user(user_email, role_id):
     resource = f"projects/{PROJECT_ID}"
     client = resourcemanager_v3.ProjectsClient()
     policy = client.get_iam_policy(request={"resource": resource})
+    role_id = f"roles/{role_id}"
 
     for binding in policy.bindings:
         if binding.role == role_id:
@@ -308,6 +311,14 @@ def operations_handler(operation, service):
         elif operation[OperationsKey.OPERATION.value] == Operations.GET_ROLE_INFO.name:
             role_info = get_role_info(service=service, role=operation[OperationsKey.ROLE.value])
             save_data_to_json_file(out_file_name="Role_info.json", data=role_info)
+            return_status = True
+            
+        elif operation[OperationsKey.OPERATION.value] == Operations.SET_ROLE_TO_USER.name:
+            add_role_to_user(user=operation[OperationsKey.USER.value], role=operation[OperationsKey.ROLE.value])
+            return_status = True
+            
+        elif operation[OperationsKey.OPERATION.value] == Operations.DELETE_ROLE_FROM_USER.name:
+            remove_role_from_user(user_email=operation[OperationsKey.USER.value], role_id=operation[OperationsKey.ROLE.value])
             return_status = True
             
     else:
@@ -378,7 +389,7 @@ if __name__ == '__main__':
             user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
             save_data_to_json_file(out_file_name="User_info_adding_role_before.json", data=user_roles_info_ls)
 
-            add_role_to_user("marta.kania@accenture.com", "roles/storage.objectViewer")
+            add_role_to_user("marta.kania@accenture.com", "storage.objectViewer")
 
             user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
             save_data_to_json_file(out_file_name="User_info_adding_role_after.json", data=user_roles_info_ls)
@@ -393,7 +404,7 @@ if __name__ == '__main__':
             users_by_roles_dict = get_users_by_roles()
             save_data_to_json_file(out_file_name="Users_by_roles_delete_before.json", data=users_by_roles_dict)
 
-            remove_role_from_user("marta.kania@accenture.com", "roles/storage.objectViewer")
+            remove_role_from_user("marta.kania@accenture.com", "storage.objectViewer")
 
             user_roles_info_ls = get_particular_user_roles(user="marta.kania@accenture.com")
             save_data_to_json_file(out_file_name="User_info_deleteing_after.json", data=user_roles_info_ls)
