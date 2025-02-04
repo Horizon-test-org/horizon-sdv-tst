@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM debian:12.9
 ADD configure.sh /root
 ADD secret.json /root
 RUN apt update -y && apt install vim curl skopeo jq -y

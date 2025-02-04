@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM debian:12.9
 ADD configure.sh /root
 ADD get_github_app_token.sh /root
 ADD secret.json /root
