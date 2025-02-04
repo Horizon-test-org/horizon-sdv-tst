@@ -19,6 +19,7 @@ REMOVE_ROLE_TO_USER = False
 
 PROJECT_ID = "sdvc-2108202401"  # "sdva-2108202401"
 CREDENTIALS_FILENAME = "application_default_credentials.json"
+USER_KEYWORD = "user:"
 
 # CONST VALUES FOR JSON FILE OPERATIONS LIST
 class OperationsKey(Enum):
@@ -187,9 +188,10 @@ def get_users_and_assigned_roles():
 
     for role, users in users_by_roles.items():
         for user in users:
-            if user not in users_and_roles_dict:
-                users_and_roles_dict[user] = []
-            users_and_roles_dict[user].append(role)
+            if user.startswith(USER_KEYWORD):
+                if user not in users_and_roles_dict:
+                    users_and_roles_dict[user] = []
+                users_and_roles_dict[user].append(role)
 
     return users_and_roles_dict
 
@@ -222,13 +224,13 @@ def add_role_to_user(user, role):
     role = f"roles/{role}"
     
     for binding in policy.bindings:
-        if binding.role == role and f"user:{user}" in binding.members:
+        if binding.role == role and f"{USER_KEYWORD}{user}" in binding.members:
             print(f"User {user} already has the role {role}.")
             return True
             
     binding = policy.bindings.add()
     binding.role = role 
-    binding.members.append(f"user:{user}")
+    binding.members.append(f"{USER_KEYWORD}{user}")
 
     client.set_iam_policy(
         request={
@@ -259,8 +261,8 @@ def remove_role_from_user(user_email, role_id):
 
     for binding in policy.bindings:
         if binding.role == role_id:
-            if f"user:{user_email}" in binding.members:
-                binding.members.remove(f"user:{user_email}")
+            if f"{USER_KEYWORD}{user_email}" in binding.members:
+                binding.members.remove(f"{USER_KEYWORD}{user_email}")
                 print(f"Removed {user_email} from {role_id}")
             # Only keep bindings that still have members
             if not binding.members:
@@ -275,7 +277,6 @@ def remove_role_from_user(user_email, role_id):
     )
 
     print(f"Updated IAM policy for project {PROJECT_ID}.")
-
 
 def operations_handler(operation, service):
     '''
