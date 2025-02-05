@@ -139,7 +139,7 @@ pipeline {
                   MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
                   MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \
                   MTK_CONNECT_PASSWORD=${MTK_CONNECT_PASSWORD} \
-                  MTK_CONNECTED_DEVICES=${NUM_INSTANCES} \
+                  MTK_CONNECTED_DEVICES="${NUM_INSTANCES}" \
                   MTK_CONNECT_TEST_ARTIFACT="${CUTTLEFISH_DOWNLOAD_URL}" \
                   MTK_CONNECT_TESTBENCH="${JOB_NAME}-${BUILD_NUMBER}" \
                   timeout 15m ./workloads/android/pipelines/tests/cvd_launcher/cvd_mtk_connect.sh --start
