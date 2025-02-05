@@ -113,9 +113,9 @@ pipeline {
               sh '''
                 CUTTLEFISH_DOWNLOAD_URL="${CUTTLEFISH_DOWNLOAD_URL}" \
                 CUTTLEFISH_MAX_BOOT_TIME="${CUTTLEFISH_MAX_BOOT_TIME}" \
-                NUM_INSTANCES=${NUM_INSTANCES} \
-                VM_CPUS=${VM_CPUS} \
-                VM_MEMORY_MB=${VM_MEMORY_MB} \
+                NUM_INSTANCES="${NUM_INSTANCES}" \
+                VM_CPUS="${VM_CPUS}" \
+                VM_MEMORY_MB="${VM_MEMORY_MB}" \
                 ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
               '''
             }
@@ -160,12 +160,12 @@ pipeline {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               sh '''
                 CTS_VERSION=${CTS_VERSION} \
-                CTS_DOWNLOAD_URL=${CTS_DOWNLOAD_URL} \
+                CTS_DOWNLOAD_URL="${CTS_DOWNLOAD_URL}" \
                 ./workloads/android/pipelines/tests/cts_execution/cts_initialise.sh
-                CTS_TESTPLAN=${CTS_TESTPLAN} \
-                CTS_MODULE=${CTS_MODULE} \
-                CTS_TIMEOUT=${CTS_TIMEOUT} \
-                SHARD_COUNT=${NUM_INSTANCES} \
+                CTS_TESTPLAN="${CTS_TESTPLAN}" \
+                CTS_MODULE="${CTS_MODULE}" \
+                CTS_TIMEOUT="${CTS_TIMEOUT}" \
+                SHARD_COUNT="${NUM_INSTANCES}" \
                 ./workloads/android/pipelines/tests/cts_execution/cts_execution.sh
               '''
             }
@@ -183,7 +183,7 @@ pipeline {
                     MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
                     MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \
                     MTK_CONNECT_PASSWORD=${MTK_CONNECT_PASSWORD} \
-                    MTK_CONNECTED_DEVICES=${NUM_INSTANCES} \
+                    MTK_CONNECTED_DEVICES="${NUM_INSTANCES}" \
                     MTK_CONNECT_TESTBENCH="${JOB_NAME}-${BUILD_NUMBER}" \
                     ./workloads/android/pipelines/tests/cvd_launcher/cvd_mtk_connect.sh --stop || true
                   fi
