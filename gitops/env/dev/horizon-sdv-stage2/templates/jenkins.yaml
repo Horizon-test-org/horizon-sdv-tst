@@ -31,26 +31,26 @@ spec:
           jenkinsUrl: "https://dev.horizon-sdv.scpmtk.com/jenkins"
           numExecutors: "1"
           installPlugins:
-            - kubernetes:latest
-            - kubernetes-credentials-provider:latest
-            - configuration-as-code:latest
-            - configuration-as-code-groovy:latest
-            - workflow-aggregator:latest
-            - keycloak:latest
-            - role-strategy:latest
-            - job-dsl:latest
-            - git:latest
-            - github-branch-source:latest
-            - gerrit-trigger:latest
-            - gerrit-code-review:latest
-            - google-compute-engine:latest
-            - docker-workflow:latest
-            - ssh-slaves:latest
-            - google-kubernetes-engine:latest
-            - pipeline-stage-view:latest
-            - throttle-concurrents:latest
-            - build-blocker-plugin:latest
-            - startup-trigger-plugin:latest
+            - kubernetes:4306.vc91e951ea_eb_d
+            - kubernetes-credentials-provider:1.273.v15e69b_55ea_8e
+            - configuration-as-code:1915.vcdd0a_d0d2625
+            - configuration-as-code-groovy:1.1
+            - workflow-aggregator:600.vb_57cdd26fdd7
+            - keycloak:2.3.2
+            - role-strategy:743.v142ea_b_d5f1d3
+            - job-dsl:1.90
+            - git:5.7.0
+            - github-branch-source:1807.v50351eb_7dd13
+            - gerrit-trigger:2.42.0
+            - gerrit-code-review:0.4.9
+            - google-compute-engine:4.589.v8a_eeb_b_d3c45c
+            - docker-workflow:580.vc0c340686b_54
+            - ssh-slaves:2.1010.v64ec48721231
+            - google-kubernetes-engine:0.430.v4cc1fa_1847a_9
+            - pipeline-stage-view:2.34
+            - throttle-concurrents:2.16
+            - build-blocker-plugin:166.vc82fc20b_a_ed6
+            - startup-trigger-plugin:2.9.4
           additionalExistingSecrets:
             - name: jenkins-keycloak
               keyName: keycloakJson
