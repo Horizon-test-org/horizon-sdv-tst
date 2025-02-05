@@ -8,13 +8,13 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Technologies](#technologies)
 - [Project directories and files](#project-directories-and-files)
 - [Exercise #1 - Prerequsites](#exercise-1---prerequsites)
-- [Exercise #2 - Setup Google Cloud Platform (WIP)](#exercise-2---setup-google-cloud-platform-wip)
+- [Exercise #2 - GCP Foundation Setup (WIP)](#exercise-2---gcp-foundation-setup-wip)
    - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
    - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
    - [Exercise #2c - Configure Google Cloud DNS](#exercise-2c---configure-google-cloud-dns)   
    - [Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow](#exercise-2d---setting-up-gcp-iam--admin-for-terraform-workflow)
    - [Exercise #2e - Create OAuth2 client and secret](#exercise-2e---create-oauth2-client-and-secret)
-- [Exercise #3 - Setup GitHub (WIP)](#exercise-3---setup-github-wip)
+- [Exercise #3 - GitHub Foundation Setup (WIP)](#exercise-3---github-foundation-setup-wip)
    - [Exercise #3a - Create GitHub Organization and Repository](#exercise-3a---create-github-organization-and-repository)
    - [Exercise #3b - Create GitHub Application](#exercise-3b---create-github-application)
    - [Exercise #3c - Fork the Repository](#exercise-3c---fork-the-repository)
@@ -24,6 +24,7 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Exercise #4 - Run Android Workloads](#exercise-4---run-android-workloads)
    - [Exercise #4a - Browse CTS test results](#exercise-4a---browse-cts-test-results)
 - [Exercise #5 - Troubleshooting](#exercise-5---troubleshooting)
+
 ## Technologies   
 Technologies being used to provision the infrastructure along with the required applications for the GKE cluster.
 * Google Cloud Platform - Cloud service provider for infrastructure provisioning.
@@ -73,13 +74,13 @@ The project is implemented in the following directories:
 * IaC configuration files stored in GitHub repo.
 * Infrastructure provisioned via CLI or GitHub Actions.
 
-## Exercise #2 - Setup Google Cloud Platform (WIP)
+## Exercise #2 - GCP Foundation Setup (WIP)
 This section covers creation and configuration of required Google Cloud Platform (GCP) services.
 
 ### Exercise #2a - GCP Project details
-It is required to perform the checks mentioned in this section as this information will be required later in the setup process.
+It is required to perform the checks mentioned in this section as this information will be required later in the setup process. The details shown below are only for example and may vary on your environment.
 1. Default Google Compute Engine (GCE) Service Account:
-   * On the console, click on IAM & Admin then, click on Service Accounts and confirm a Service Account for the GCE service is present.   
+   * On the console, click on IAM & Admin then, click on Service Accounts and confirm a Service Account for the GCE service is present.  
      <img src="docs/images/GCE_SA.png" width="500" />
 2. Project ID:
    * On the console, click on IAM & Admin, click on Manage Resources and find the project details under the column **Name** and **ID** as below:   
@@ -94,15 +95,22 @@ In the current GCP project, it is required to create a GCP Bucket to store data 
 4. Click on CREATE with default bucket configurations.
 
 ### Exercise #2c - Configure Google Cloud DNS
+In this section, we will be setting up DNS records and retrieving DNS details required by the organizers for the DNS and DNS Zone setup.
 
 #### Configure the Domain name
 1. Navigate to Network Services and click on "Cloud DNS".
 2. Under Zone tab, Click on the Zone name and click on ADD STANDARD under "RECORD SETS" tab.
-3. Enter the DNS name as `sbx.horizon-sdv.com` as the environment is "sbx".
+3. Enter the DNS name as `sbx` which will become to prefix for `horizon-sdv.com` as the environment is "sbx" and the final domain will be `sbx.horizon-sdv.com`.
 4. Set TTL to 300 and update TTL unit to "seconds".
-5. Click on SELECT button for IPv4 Address which opens a list of available IPv4 Addresses.
-6. From the list, select the one associated with the GKE Gateway and Click on CREATE.
+5. A random IP Address will be assigned to this A record.
 
+#### Retrieve Certificate's DNS Authz resources
+1. On the Cloud console, navigate the Security, then scroll down and click on "Certificate Manager".
+2. Under the CERTIFICATES tab, click on the Certificate's name which in this case is "horizon-sdv".
+3. Now, scroll down to the bottom of the certificate details page which contains the required details about the "Certificate's DNS Authz resources".
+4. From the Certificate's DNS Authz resources details table, copy the values of `DNS Record Name` and `DNS Record Data` as shown in below example.   
+   <img src="docs/images/certificate_dns_authz_resource.png" width="650" />
+5. Share the above Certificate's DNS Authz resources details with the Hackathon organizers which is required for populating the CNAME record in the DNS Zone.
 
 ### Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
@@ -135,7 +143,7 @@ Below are the resources which are required to be configured:
 #### Creating a Service Account
 1. Under IAM & Admin, navigate to Service Accounts and click on CREATE SERVICE ACCOUNT.
 2. Provide `github-sa` as the name for the Service Account.
-3. Now, add Owner and Wordload Identity User Role to the Service Account.
+3. Now, add Owner and Workload Identity User Role to the Service Account.
 4. Click on save, your Service Account has now been created successfully.
 
 #### Binding Service Account to the Workload Identity Provider
@@ -176,7 +184,7 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 7. The credential will appear Under OAuth 2.0 Client IDs as below and credential details can be viewed and edited by clicking on the Name of the OAuth 2.0 Client ID.   
    <img src="docs/images/oauth2_list.png" width="490" />
 
-## Exercise #3 - Setup GitHub (WIP)
+## Exercise #3 - GitHub Foundation Setup (WIP)
 
 ### Exercise #3a - Create GitHub Organization and Repository
 In this section, steps for creating a GitHub organization or repository are mentioned. Before we get started on creating a GitHub organization, it is required to have a GitHub account. If you do not have a Github account already, sign up [here](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github).
@@ -291,7 +299,7 @@ In this section we will be setting up the GitHub repository environment with the
    <img src="docs/images/github_repo_create_env_secret_2.png" width="400" />
 
 ### Exercise #3e - Setup GitHub repository
-This section covers the steps to be follwed for cloning the repository to the local machine and creating required branches.
+This section covers the steps to be followed for cloning the repository to the local machine and creating required branches.
 
 #### Create GitHub Personal Access Token
 Creating a GitHub Personal Access Token is required for securely accessing the repository.
