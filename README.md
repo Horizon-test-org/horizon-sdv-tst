@@ -7,23 +7,25 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
 - [Overview](#overview)
 - [Technologies](#technologies)
 - [Project directories and files](#project-directories-and-files)
-- [Exercise #1 - Prerequsites](#exercise-1---prerequsites)
-- [Exercise #2 - GCP Foundation Setup (WIP)](#exercise-2---gcp-foundation-setup-wip)
-   - [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details)
-   - [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp)
-   - [Exercise #2c - Configure Google Cloud DNS](#exercise-2c---configure-google-cloud-dns)   
-   - [Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow](#exercise-2d---setting-up-gcp-iam--admin-for-terraform-workflow)
-   - [Exercise #2e - Create OAuth2 client and secret](#exercise-2e---create-oauth2-client-and-secret)
-- [Exercise #3 - GitHub Foundation Setup (WIP)](#exercise-3---github-foundation-setup-wip)
-   - [Exercise #3a - Create GitHub Organization and Repository](#exercise-3a---create-github-organization-and-repository)
-   - [Exercise #3b - Create GitHub Application](#exercise-3b---create-github-application)
-   - [Exercise #3c - Fork the Repository](#exercise-3c---fork-the-repository)
-   - [Exercise #3d - Setup GitHub Environment](#exercise-3d---set-up-github-environment)
-   - [Exercise #3e - Setup GitHub repository](#exercise-3e---setup-github-repository)
-   - [Exercise #3f - Setup GitHub Actions](#exercise-3f---setup-github-actions)
-- [Exercise #4 - Run Android Workloads](#exercise-4---run-android-workloads)
-   - [Exercise #4a - Browse CTS test results](#exercise-4a---browse-cts-test-results)
-- [Exercise #5 - Troubleshooting](#exercise-5---troubleshooting)
+- [Section #1 - Prerequsites](#section-1---prerequsites)
+- [Section #2 - GCP Foundation Setup (WIP)](#section-2---gcp-foundation-setup-wip)
+   - [Section #2a - GCP Project details](#section-2a---gcp-project-details)
+   - [Section #2b - Create a Bucket in GCP](#section-2b---create-a-bucket-in-gcp)
+   - [Section #2c - Configure Google Cloud DNS](#section-2c---configure-google-cloud-dns)   
+   - [Section #2d - Setting up GCP IAM & Admin for Terraform Workflow](#section-2d---setting-up-gcp-iam--admin-for-terraform-workflow)
+   - [Section #2e - Create OAuth2 client and secret](#section-2e---create-oauth2-client-and-secret)
+- [Section #3 - GitHub Foundation Setup (WIP)](#section-3---github-foundation-setup-wip)
+   - [Section #3a - Create GitHub Organization and Repository](#section-3a---create-github-organization-and-repository)
+   - [Section #3b - Create GitHub Application](#section-3b---create-github-application)
+   - [Section #3c - Fork the Repository](#section-3c---fork-the-repository)
+   - [Section #3d - Setup GitHub Environment](#section-3d---set-up-github-environment)
+   - [Section #3e - Setup GitHub repository](#section-3e---setup-github-repository)
+   - [Section #3f - Setup GitHub Actions](#section-3f---setup-github-actions)
+- [Section #4 - Run the Cluster Apps](#section-4---run-the-cluster-apps)
+- [Section #5 - Run Android Workloads](#section-5---run-android-workloads)
+   - [Section #5a - Browse CTS test results](#section-5a---browse-cts-test-results)
+- [Section #6 - Troubleshooting](#section-6---troubleshooting)
+- [LICENSE](#license)
 
 ## Technologies   
 Technologies being used to provision the infrastructure along with the required applications for the GKE cluster.
@@ -41,7 +43,7 @@ The project is implemented in the following directories:
 + **terraform** - IaC configuration files to provision the infrastructure required for the GKE cluster.
 + **workloads** - Jenkins workflow scripts for the pipeline build jobs.
 
-## Exercise #1 - Prerequsites
+## Section #1 - Prerequsites
 ### General
 * If you do not prefer using the Cloud Shell on GCP Console, install GCP CLI tools like `gcloud`, `gsutil` and `bq` locally. (Install instructions [here](https://cloud.google.com/sdk/docs/install)).
 * Admin script to be executed.
@@ -74,10 +76,10 @@ The project is implemented in the following directories:
 * IaC configuration files stored in GitHub repo.
 * Infrastructure provisioned via CLI or GitHub Actions.
 
-## Exercise #2 - GCP Foundation Setup (WIP)
+## Section #2 - GCP Foundation Setup (WIP)
 This section covers creation and configuration of required Google Cloud Platform (GCP) services.
 
-### Exercise #2a - GCP Project details
+### Section #2a - GCP Project details
 It is required to perform the checks mentioned in this section as this information will be required later in the setup process. The details shown below are only for example and may vary on your environment.
 1. Default Google Compute Engine (GCE) Service Account:
    * On the console, click on IAM & Admin then, click on Service Accounts and confirm a Service Account for the GCE service is present.  
@@ -85,22 +87,22 @@ It is required to perform the checks mentioned in this section as this informati
 2. Project ID:
    * On the console, click on IAM & Admin, click on Manage Resources and find the project details under the column **Name** and **ID** as below:   
      <img src="docs/images/GCP_project_id.png" width="500" />
-   * It should look like: Name=`prj-s-agbg-gcp-sdv-sbx`, ID=`sdvc-2108202401`
+   * It should look like: Name=`prj-s-agbg-gcp-sdv-team-xx`, ID=`sdvc-2108202401`
 
-### Exercise #2b - Create a Bucket in GCP
+### Section #2b - Create a Bucket in GCP
 In the current GCP project, it is required to create a GCP Bucket to store data related to the infrastructure. Follow the below steps to create a Bucket.
 1. On the GCP Console, navigate to Cloud Storage and click on Buckets.
 2. Click on CREATE/CREATE BUCKET button.
-3. Enter a globally unique name for the bucket. (Example: `prj-sbx-horizon-sdv-tf`)
+3. Enter a globally unique name for the bucket. (Example: `prj-team-xx-horizon-sdv-tf`)
 4. Click on CREATE with default bucket configurations.
 
-### Exercise #2c - Configure Google Cloud DNS
+### Section #2c - Configure Google Cloud DNS
 In this section, we will be setting up DNS records and retrieving DNS details required by the organizers for the DNS and DNS Zone setup.
 
 #### Configure the Domain name
 1. Navigate to Network Services and click on "Cloud DNS".
 2. Under Zone tab, Click on the Zone name and click on ADD STANDARD under "RECORD SETS" tab.
-3. Enter the DNS name as `sbx` which will become to prefix for `horizon-sdv.com` as the environment is "sbx" and the final domain will be `sbx.horizon-sdv.com`.
+3. Enter the DNS name as `team-xx` which will become to prefix for `horizon-sdv.com` as the environment is "team-xx" and the final domain will be `team-xx.horizon-sdv.com`.
 4. Set TTL to 300 and update TTL unit to "seconds".
 5. A random IP Address will be assigned to this A record.
 
@@ -112,7 +114,7 @@ In this section, we will be setting up DNS records and retrieving DNS details re
    <img src="docs/images/certificate_dns_authz_resource.png" width="650" />
 5. Share the above Certificate's DNS Authz resources details with the Hackathon organizers which is required for populating the CNAME record in the DNS Zone.
 
-### Exercise #2d - Setting up GCP IAM & Admin for Terraform Workflow
+### Section #2d - Setting up GCP IAM & Admin for Terraform Workflow
 The first step for successfully running the GitHub Actions workflow is to set the required Identity and Access Management (IAM) resources on GCP for Terraform to be able to provision the infrastructure.   
 
 Below are the resources which are required to be configured:   
@@ -156,7 +158,7 @@ Below are the resources which are required to be configured:
 7. Confirm the Service account has been bound successfully under CONNECTED SERVICE ACCOUNTS tab.   
    <img src="docs/images/workload_identity_pool_sa_bound.png" width="650" />
 
-### Exercise #2e - Create OAuth2 client and secret
+### Section #2e - Create OAuth2 client and secret
 It is required to setup OAuth consent screen before creating the OAuth client and secret. Navigate to APIs & Services and follow the below mentioned steps
 
 #### Setting up OAuth consent screen
@@ -165,7 +167,7 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 1. Select User Type as "External" and click on CREATE.
 2. Enter App name as "Horizon - SDV on GCP"
 3. Provide a User support email.
-4. Under App domain, provide a Application homepage link. For example, `https://sbx.horizon-sdv.scpmtk.com`.
+4. Under App domain, provide a Application homepage link. For example, `https://team-xx.horizon-sdv.scpmtk.com`.
 5. Under Authorized domain, click on ADD DOMAIN and enter a relevant domain. For example, `scpmtk.com`
 6. Provide email addresses under Developer contact information and click on SAVE AND CONTINUE.
 7. On the next page, click on SAVE AND CONTINUE with default configurations.
@@ -178,15 +180,15 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 2. Click on CREATE CREDENTIALS and select "OAuth client ID" from the drop-down list.
 3. Select Application type as "Web application".
 4. Provide Name as "Horizon".
-5. Under Authorized redirect URIs enter the URI which points google endpoint of Keycloak. Example: `https://sbx.horizon-sdv.scpmtk.com/auth/realms/horizon/broker/google/endpoint`.
+5. Under Authorized redirect URIs enter the URI which points google endpoint of Keycloak. Example: `https://team-xx.horizon-sdv.scpmtk.com/auth/realms/horizon/broker/google/endpoint`.
 6. Clicking on CREATE opens a pop-up window containing client ID and secret which can be copied and saved locally to a file or download the credential detail as a JSON file.    
    <img src="docs/images/oauth_client_details.png" width="350" />
 7. The credential will appear Under OAuth 2.0 Client IDs as below and credential details can be viewed and edited by clicking on the Name of the OAuth 2.0 Client ID.   
    <img src="docs/images/oauth2_list.png" width="490" />
 
-## Exercise #3 - GitHub Foundation Setup (WIP)
+## Section #3 - GitHub Foundation Setup (WIP)
 
-### Exercise #3a - Create GitHub Organization and Repository
+### Section #3a - Create GitHub Organization and Repository
 In this section, steps for creating a GitHub organization or repository are mentioned. Before we get started on creating a GitHub organization, it is required to have a GitHub account. If you do not have a Github account already, sign up [here](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github).
 
 #### Create a GitHub Organization
@@ -207,7 +209,7 @@ In this section, steps for creating a GitHub organization or repository are ment
    <img src="docs/images/org_repo_creation.png" width="550" />
 5. Click on Create repository.
 
-### Exercise #3b - Create GitHub Application
+### Section #3b - Create GitHub Application
 1. Go to the GitHub organization settings tab, click on Developer settings and from the list select "GitHub Apps".
 2. Click on "New GitHub App".
    * Enter the GitHub App name as "horizon-sa"
@@ -230,7 +232,7 @@ In this section, steps for creating a GitHub organization or repository are ment
 7. To verify the installation, go to Organization settings and click on GitHub Apps and it should look like below   
    <img src="docs/images/github_app_confirm_install.png" width="550" />
 
-### Exercise #3c - Fork the repository
+### Section #3c - Fork the repository
 Below steps are for forking the **acn-horizon-sdv** repository to your GitHub organization.
 
 1. On the **acn-horizon-sdv** GitHub page, click on fork drop-down list and select "Create a new fork".   
@@ -239,14 +241,14 @@ Below steps are for forking the **acn-horizon-sdv** repository to your GitHub or
    <img src="docs/images/github_fork_repo_2.png" width="450" />
 3. The repository should now be available on your GitHub Organization.
 
-### Exercise #3d - Set up GitHub Environment
+### Section #3d - Set up GitHub Environment
 In this section we will be setting up the GitHub repository environment with the required environment secrets and variables.
 
 #### Create a GitHub environment
 1. Navigate to the forked repository on your GitHub organization and switch to the Settings tab.
 2. From Settings tab, go to "Environments".   
    <img src="docs/images/github_repo_create_env.png" width="450" />
-3. Click on "New environment" and name it "sbx" and click on "Configure environment".
+3. Click on "New environment" and name it "team-xx" and click on "Configure environment".
 
 #### Add Environment secrets
 1. Clicking on "Add environment secrets" opens a new window where the secret Name and Value can be provided.   
@@ -298,7 +300,7 @@ In this section we will be setting up the GitHub repository environment with the
 3. Once the Environment variable has been created, it will be visible as shown below   
    <img src="docs/images/github_repo_create_env_secret_2.png" width="400" />
 
-### Exercise #3e - Setup GitHub repository
+### Section #3e - Setup GitHub repository
 This section covers the steps to be followed for cloning the repository to the local machine and creating required branches.
 
 #### Create GitHub Personal Access Token
@@ -308,9 +310,12 @@ Creating a GitHub Personal Access Token is required for securely accessing the r
 2. Clicking on Personal access tokens opens a drop-down, select "Tokens (classic)".
 3. Click on "Generate new token and select Generate new token (classic)".   
    <img src="docs/images/github_create_pat.png" width="450" />
-4. Enter a short note for the token in the "Note" field and select Expiration of the token based on your requirement. (default set to 30 days)
-5. Under "Select scopes", check all the required checkboxes and click on "Generate token".
-6. Make sure to copy and save the token as it is displayed only once after token is created.
+4. Enter a suitable name for the token in the "Note" field and select Expiration of the token based on your requirement. (default set to 30 days)
+5. Under "Select scopes", check all the checkboxes to enable all privileges and click on "Generate token".
+6. Make sure to copy and save the token as it is displayed only once after token is created. 
+7. Click on configure SSO, which opens a drop-down window and find an organization name between organizations that are "Available to authorize".   
+   <img src="docs/images/github_pat_configure_sso_1.png" width="500" />
+8. Click "Authorize" that corresponds to the GitHub organization name you are working in as shown in the above example.
 
 #### Clone the repository
 Before running the below commands, make sure [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) is installed and configured on your local machine.
@@ -337,24 +342,24 @@ Create a new branch with `main` branch as the base.
    ```
    git switch main
    ```
-3. Once you are on the `main` branch, run one of the below command to create a new branch and switch to it. Name it as `env/sbx`   
+3. Once you are on the `main` branch, run one of the below command to create a new branch and switch to it. Name it as `env/team-xx`   
    ```
-   git checkout -b env/sbx
+   git checkout -b env/team-xx
    ```
    or
    ```
-   git switch -c env/sbx
+   git switch -c env/team-xx
    ```
-### Exercise #3f - Setup GitHub Actions
+### Section #3f - Setup GitHub Actions
 Before running the Terraform GiHub Actions workflow, it is required to have the repository cloned locally and checked-out to a new branch as mentioned in the previous section. We will also be configuring a few files required for the GitHub Actions workflow.
 
 #### Setup Terraform Backend
-Setting up the Terraform backend, the state data is mentioned in this section. This section depends on [Exercise #2b - Create a Bucket in GCP](#exercise-2b---create-a-bucket-in-gcp) to be completed.   
+Setting up the Terraform backend, the state data is mentioned in this section. This section depends on [Section #2b - Create a Bucket in GCP](#section-2b---create-a-bucket-in-gcp) to be completed.   
 
 Edit the below mentioned attributes in the `backend.tf` located in the path `Terraform/env/backend.tf`
    ```
-   bucket = "prj-sbx-horizon-sdv-tf"
-   prefix = "prj-sbx-horizon-sdv-tf-state"
+   bucket = "prj-team-xx-horizon-sdv-tf"
+   prefix = "prj-team-xx-horizon-sdv-tf-state"
    ```
 
 #### Update project details
@@ -363,39 +368,24 @@ It is required to update the below mentioned attributes in the `main.tf` file lo
 ```
 sdv_default_compute_sa = "966518152012-compute@developer.gserviceaccount.com"
 sdv_project = "sdvc-2108202401"
-sdv_ssl_certificate_domain=sbx.horizon-sdv.com
+sdv_ssl_certificate_domain=team-xx.horizon-sdv.com
 ```
-Refer [Exercise #2a - GCP Project details](#exercise-2a---gcp-project-details) for the values required for `sdv_default_compute_sa` and `sdv_project`.
+Refer [Section #2a - GCP Project details](#section-2a---gcp-project-details) for the values required for `sdv_default_compute_sa` and `sdv_project`.
 
 #### Trigger Terraform GitHub Actions workflow
-A Terraform GitHub Actions Workflow is set to trigger `terraform plan` only run on push to any branch with name `/feature` or `/release` with changes in the `Terraform/` directory. A pull-request to `main` branch triggers a `terraform plan`  and `terraform apply` workflow run. Follow the below steps to trigger the required workflow.
+1. Got to the GitHub repository.
+2. Click on the "Actions" tab.
+3. Select the "Terraform" workflow from the list.
+4. Click on "Run workflow", select the branch you want to run and click on "Run workflow"   
+   <img src="docs/images/github_actions_workflow_trigger.png" width="500" />
 
-1. Trigger terraform plan workflow
-   * Once the changes have been made, save the files.
-   * Confirm if on feature branch, run the below command.
-      ```
-      git branch
-      ```
-   * If not on feature branch, use `git switch` or `git checkout` command to switch to the feature branch.
-   * To push the changes and trigger the workflow, run the below commands.
-      ```
-      git add .
-      git commit -m "<YOUR_MESSAGE_HERE>"
-      git push origin <feature/YOUR_BRANCH_NAME>
-   * Now, on the GitHub repository, click on Actions tab and confirm workflow trigger.
+## Section #4 - Run the Cluster Apps
 
-2. Trigger terraform apply workflow
-   * On the GitHub repository page, click on "Pull requests"
-   * Click on "New pull request" and select `main` branch as base and `feature/` branch as compare and click on "Create pull request".
-   * This will trigger a Workflow run which checks the pull request and creates plan in the pull request comments.
-   * Verify the plan, if the checks are successful, confirm the merge to `main` branch.
-   * Confirm if the workflow has finished successfully. If not, fix the issue and rerun the workflow.
+## Section #5 - Run Android Workloads
+### Section #5a - Browse CTS test results
 
+## Section #6 - Troubleshooting
 
-## Exercise #4 - Run Android Workloads
-### Exercise #4a - Browse CTS test results
-
-## Exercise #5 - Troubleshooting
-
+## LICENSE
 
 
