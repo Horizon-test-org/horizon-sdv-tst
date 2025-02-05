@@ -1,0 +1,3 @@
+*.json
+!operations_list.json
+test.py
