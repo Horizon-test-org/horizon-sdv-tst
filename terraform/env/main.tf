@@ -18,14 +18,25 @@ module "base" {
   sdv_default_computer_sa = local.sdv_default_computer_sa
 
   sdv_list_of_apis = toset([
-    "container.googleapis.com",
-    "iap.googleapis.com",
-    "certificatemanager.googleapis.com",
-    "integrations.googleapis.com",
+    "compute.googleapis.com",
+    "dns.googleapis.com",
+    "oslogin.googleapis.com",
+    "monitoring.googleapis.com",
     "secretmanager.googleapis.com",
-    "file.googleapis.com",
+    "iamcredentials.googleapis.com",
+    "container.googleapis.com",
     "cloudresourcemanager.googleapis.com",
-    "serviceusage.googleapis.com"
+    "autoscaling.googleapis.com",
+    "iam.googleapis.com",
+    "certificatemanager.googleapis.com",
+    "file.googleapis.com",
+    "sts.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "iap.googleapis.com",
+    "serviceusage.googleapis.com",
+    "networkconnectivity.googleapis.com",
+    "networkmanagement.googleapis.com",
+    "integrations.googleapis.com"
   ])
 
   sdv_cluster_name                   = "sdv-cluster"
