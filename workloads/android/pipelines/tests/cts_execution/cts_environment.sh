@@ -20,12 +20,17 @@
 # References:
 # https://source.android.com/docs/devices/cuttlefish/cts
 
+CTS_DOWNLOAD_URL=$(echo "${CTS_DOWNLOAD_URL}" | xargs)
 CTS_DOWNLOAD_URL=${CTS_DOWNLOAD_URL:-}
+CTS_PATHNAME=$(echo "${CTS_PATHNAME}" | xargs)
 CTS_PATHNAME=${CTS_PATHNAME:-android-cts}
+CTS_TESTPLAN=$(echo "${CTS_TESTPLAN}" | xargs)
 CTS_TESTPLAN=${CTS_TESTPLAN:-cts-virtual-device-stable}
+CTS_MODULE=$(echo "${CTS_MODULE}" | xargs)
 CTS_MODULE=${CTS_MODULE:-}
-# android.app.RemoteActionTest#testClone}
+CTS_TEST=$(echo "${CTS_TEST}" | xargs)
 CTS_TEST=${CTS_TEST:-}
+CTS_TIMEOUT=$(echo "${CTS_TIMEOUT}" | xargs)
 CTS_TIMEOUT=${CTS_TIMEOUT:-60}
 CTS_VERSION=${CTS_VERSION:-14}
 
@@ -33,6 +38,7 @@ CTS_VERSION=${CTS_VERSION:-14}
 ARCHITECTURE=${ARCHITECTURE:-x86_64}
 
 # Shards should match CVD --num_instances (NUM_INSTANCES).
+SHARD_COUNT=$(echo "${SHARD_COUNT}" | xargs)
 SHARD_COUNT=${SHARD_COUNT:-8}
 
 if [ -z "${WORKSPACE}" ]; then

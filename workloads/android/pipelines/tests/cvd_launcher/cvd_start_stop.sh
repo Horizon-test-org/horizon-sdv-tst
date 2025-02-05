@@ -100,12 +100,15 @@ function cuttlefish_start() {
 # Wait for device to boot (VIRTUAL_DEVICE_BOOT_COMPLETED) or timeout.
 function cuttlefish_wait_for_device_booted() {
     local -r timeout="${SECONDS}"+"${CUTTLEFISH_MAX_BOOT_TIME}"
+    echo "Wait for boot: ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
     while (( "${SECONDS}" < "${timeout}" )); do
-        sleep 4
         BOOTED_INSTANCES=$(grep -c VIRTUAL_DEVICE_BOOT_COMPLETED "${logfile}")
         if (( BOOTED_INSTANCES == NUM_INSTANCES )); then
+            echo "Boot completed."
             break
         fi
+        echo "Waiting on boot, sleep 20s ..."
+        sleep 20
     done
 }
 
