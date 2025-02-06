@@ -32,21 +32,21 @@ spec:
           installPlugins:
             - kubernetes:4306.vc91e951ea_eb_d
             - kubernetes-credentials-provider:1.273.v15e69b_55ea_8e
-            - configuration-as-code:1915.vcdd0a_d0d2625
+            - configuration-as-code:1932.v75cb_b_f1b_698d
             - configuration-as-code-groovy:1.1
             - workflow-aggregator:600.vb_57cdd26fdd7
             - keycloak:2.3.2
-            - role-strategy:743.v142ea_b_d5f1d3
+            - role-strategy:756.v978cb_392eb_d3
             - job-dsl:1.90
             - git:5.7.0
-            - github-branch-source:1807.v50351eb_7dd13
+            - github-branch-source:1810.v913311241fa_9
             - gerrit-trigger:2.42.0
             - gerrit-code-review:0.4.9
-            - google-compute-engine:4.589.v8a_eeb_b_d3c45c
-            - docker-workflow:580.vc0c340686b_54
-            - ssh-slaves:2.1010.v64ec48721231
+            - google-compute-engine:4.681.v9020cf2b_7453
+            - docker-workflow:592.v1001d948426c
+            - ssh-slaves:3.1021.va_cc11b_de26a_e
             - google-kubernetes-engine:0.430.v4cc1fa_1847a_9
-            - pipeline-stage-view:2.34
+            - pipeline-stage-view:2.35
             - throttle-concurrents:2.16
             - build-blocker-plugin:166.vc82fc20b_a_ed6
             - startup-trigger-plugin:2.9.4
