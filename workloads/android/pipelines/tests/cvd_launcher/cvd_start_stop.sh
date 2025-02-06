@@ -112,6 +112,26 @@ function cuttlefish_wait_for_device_booted() {
     done
 }
 
+# Restart adb server
+function cuttlefish_adb_restart() {
+    if (( BOOTED_INSTANCES > 0 )); then
+        echo "Boot successful:"
+        echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
+    else
+        echo "Device(s) not booted within ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
+        echo "    Recheck post adb server restart ..."
+    fi
+    # Allow system time to settle.
+    echo "    Sleep 90 seconds"
+    # Ensure adb devices show devices.
+    sudo adb kill-server || true
+    sleep 30
+    sudo adb start-server || true
+    sleep 60
+    BOOTED_INSTANCES=$(adb devices | grep -c -E '0.+device$')
+    echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
+}
+
 # Wait for timeout, leaving CVD session in place.
 function cuttlefish_keep_alive() {
     local -r alive_time_max="$((CUTTLEFISH_KEEP_ALIVE_TIME * 60))"
@@ -162,35 +182,15 @@ case "${1}" in
         cuttlefish_extract_artifacts
         cuttlefish_start
         cuttlefish_wait_for_device_booted
-        if (( BOOTED_INSTANCES > 0 )); then
-            echo "Boot successful:"
-            echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
-            # Allow system time to settle.
-            echo "    Sleep 90 seconds"
-			# Ensure adb devices show devices.
-            sudo adb kill-server || true
-            sleep 30
-            sudo adb start-server || true
-            sleep 60
-            adb devices
-        else
-            echo "Device(s) not booted within ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
-            echo "    Try to reboot adb server"
-            # Ensure adb devices show devices.
-            sudo adb kill-server || true
-            sleep 30
-            sudo adb start-server || true
-            sleep 60
-            num_instances=$(adb devices | grep -c -E '0.+device$')
-            if (( num_instances == 0 )); then
-                echo "Error: adb reboot failed, devices not booted."
-                # Stop and clean up
-                cuttlefish_archive_logs
-                cuttlefish_stop
-                cuttlefish_cleanup
-                sudo reboot
-                exit 1
-            fi
+        cuuttlefish_adb_restart
+        if (( BOOTED_INSTANCES == 0 )); then
+            echo "Error: adb reboot failed, devices not booted."
+            # Stop and clean up
+            cuttlefish_archive_logs
+            cuttlefish_stop
+            cuttlefish_cleanup
+            sudo reboot
+            exit 1
         fi
         ;;
 esac
