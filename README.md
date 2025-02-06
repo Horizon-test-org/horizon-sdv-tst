@@ -20,11 +20,16 @@ ACN Horizon SDV is designed to simplify the deployment and management of Android
    - [Section #3c - Fork the Repository](#section-3c---fork-the-repository)
    - [Section #3d - Setup GitHub Environment](#section-3d---set-up-github-environment)
    - [Section #3e - Setup GitHub repository](#section-3e---setup-github-repository)
-   - [Section #3f - Setup GitHub Actions](#section-3f---setup-github-actions)
-- [Section #4 - Run the Cluster Apps](#section-4---run-the-cluster-apps)
-- [Section #5 - Run Android Workloads](#section-5---run-android-workloads)
-   - [Section #5a - Browse CTS test results](#section-5a---browse-cts-test-results)
-- [Section #6 - Troubleshooting](#section-6---troubleshooting)
+- [Section #4 - Setup GitHub Actions (WIP)](#section-4---setup-github-actions-wip)
+   - [Section #4a - Setup Terraform Backend](#section-4a---setup-terraform-backend)
+   - [Section #4b - Update Project Details](#section-4b---update-project-details)
+   - [Section #4c - Trigger Terraform GitHub Actions Workflow](#section-4c---trigger-terraform-github-actions-workflow)
+   - [Section #4d - Retrieve Load balancer details](#section-4d---retrieve-load-balancer-details)
+- [Section #5 - Run the Cluster Apps (WIP)](#section-5---run-the-cluster-apps-wip)
+   - [Section #5a - Setup Keycloak](#section-5a---setup-keycloak)
+- [Section #6 - Run Android Workloads](#section-6---run-android-workloads)
+   - [Section #6a - Browse CTS test results](#section-6a---browse-cts-test-results)
+- [Section #7 - Troubleshooting](#section-7---troubleshooting)
 - [LICENSE](#license)
 
 ## Technologies   
@@ -87,24 +92,17 @@ It is required to perform the checks mentioned in this section as this informati
 2. Project ID:
    * On the console, click on IAM & Admin, click on Manage Resources and find the project details under the column **Name** and **ID** as below:   
      <img src="docs/images/GCP_project_id.png" width="500" />
-   * It should look like: Name=`prj-s-agbg-gcp-sdv-team-xx`, ID=`sdvc-2108202401`
+   * It should look like: Name=`prj-s-agbg-gcp-sdv-team`, ID=`sdvc-2108202401`
 
 ### Section #2b - Create a Bucket in GCP
 In the current GCP project, it is required to create a GCP Bucket to store data related to the infrastructure. Follow the below steps to create a Bucket.
 1. On the GCP Console, navigate to Cloud Storage and click on Buckets.
 2. Click on CREATE/CREATE BUCKET button.
-3. Enter a globally unique name for the bucket. (Example: `prj-team-xx-horizon-sdv-tf`)
+3. Enter a globally unique name for the bucket. (Example: `prj-team-horizon-sdv-tf`)
 4. Click on CREATE with default bucket configurations.
 
 ### Section #2c - Configure Google Cloud DNS
-In this section, we will be setting up DNS records and retrieving DNS details required by the organizers for the DNS and DNS Zone setup.
-
-#### Configure the Domain name
-1. Navigate to Network Services and click on "Cloud DNS".
-2. Under Zone tab, Click on the Zone name and click on ADD STANDARD under "RECORD SETS" tab.
-3. Enter the DNS name as `team-xx` which will become to prefix for `horizon-sdv.com` as the environment is "team-xx" and the final domain will be `team-xx.horizon-sdv.com`.
-4. Set TTL to 300 and update TTL unit to "seconds".
-5. A random IP Address will be assigned to this A record.
+In this section, we will be retrieving DNS details required by the organizers for the DNS setup.
 
 #### Retrieve Certificate's DNS Authz resources
 1. On the Cloud console, navigate the Security, then scroll down and click on "Certificate Manager".
@@ -167,7 +165,7 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 1. Select User Type as "External" and click on CREATE.
 2. Enter App name as "Horizon - SDV on GCP"
 3. Provide a User support email.
-4. Under App domain, provide a Application homepage link. For example, `https://team-xx.horizon-sdv.scpmtk.com`.
+4. Under App domain, provide a Application homepage link. For example, `https://team.horizon-sdv.scpmtk.com`.
 5. Under Authorized domain, click on ADD DOMAIN and enter a relevant domain. For example, `scpmtk.com`
 6. Provide email addresses under Developer contact information and click on SAVE AND CONTINUE.
 7. On the next page, click on SAVE AND CONTINUE with default configurations.
@@ -180,7 +178,7 @@ Once in APIs & Services, click on OAuth consent screen to start the setup proces
 2. Click on CREATE CREDENTIALS and select "OAuth client ID" from the drop-down list.
 3. Select Application type as "Web application".
 4. Provide Name as "Horizon".
-5. Under Authorized redirect URIs enter the URI which points google endpoint of Keycloak. Example: `https://team-xx.horizon-sdv.scpmtk.com/auth/realms/horizon/broker/google/endpoint`.
+5. Under Authorized redirect URIs enter the URI which points google endpoint of Keycloak. Example: `https://team.horizon-sdv.scpmtk.com/auth/realms/horizon/broker/google/endpoint`.
 6. Clicking on CREATE opens a pop-up window containing client ID and secret which can be copied and saved locally to a file or download the credential detail as a JSON file.    
    <img src="docs/images/oauth_client_details.png" width="350" />
 7. The credential will appear Under OAuth 2.0 Client IDs as below and credential details can be viewed and edited by clicking on the Name of the OAuth 2.0 Client ID.   
@@ -248,15 +246,15 @@ In this section we will be setting up the GitHub repository environment with the
 1. Navigate to the forked repository on your GitHub organization and switch to the Settings tab.
 2. From Settings tab, go to "Environments".   
    <img src="docs/images/github_repo_create_env.png" width="450" />
-3. Click on "New environment" and name it "team-xx" and click on "Configure environment".
+3. Click on "New environment" and name it "team" and click on "Configure environment".
 
 #### Add Environment secrets
 1. Clicking on "Add environment secrets" opens a new window where the secret Name and Value can be provided.   
    <img src="docs/images/github_repo_create_env_secret_1.png" width="400" />
 2. After entering the details of the secret, click on "Add secret".   
    <img src="docs/images/github_repo_create_env_secret_2.png" width="400" />
-3. Repeat the above steps and add the below **example** secrets (The secrets will be different for your setup)
-   * GH_APP_ID: `1126617`
+3. Repeat the above steps and add the below secrets (Replace `******` with your own password)
+   * GH_APP_ID: `******`
    * GH_APP_KEY:   
       ```
       -----BEGIN RSA PRIVATE KEY-----
@@ -265,10 +263,10 @@ In this section we will be setting up the GitHub repository environment with the
       yPSBViWgE2xQu7VVY0kxUZtS1h7h4yh1aZW9qvNqUy0K68aqDbVdgFg=
       -----END RSA PRIVATE KEY-----
       ```
-   * GH_INSTALLATION_ID: `36369393`
+   * GH_INSTALLATION_ID: `******`
    * GCP_SA: `github@sdvc-2108202401.iam.gserviceaccount.com`
    * WIF_PROVIDER: projects/428278318385/locations/global/workloadIdentityPools/github/providers/github-provider
-   * ARGOCD_INITIAL_PASSWORD: `myargocdpasswd`
+   * ARGOCD_INITIAL_PASSWORD: `******`
    * CUTTLEFISH_VM_SSH_PRIVATE_KEY: (generate a key by using [ssh-keygen](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key))   
       ```
       -----BEGIN OPENSSH PRIVATE KEY-----   
@@ -277,7 +275,7 @@ In this section we will be setting up the GitHub repository environment with the
       AIFvukjAZRbHAAAAB2plbmtpbnMBAgM=   
       -----END OPENSSH PRIVATE KEY-----
       ```
-   * GERRIT_ADMIN_INITIAL_PASSWORD: `mygerritpasswd`
+   * GERRIT_ADMIN_INITIAL_PASSWORD: `******`
    * GERRIT_ADMIN_PRIVATE_KEY:   
       ```
       -----BEGIN OPENSSH PRIVATE KEY-----
@@ -286,9 +284,9 @@ In this section we will be setting up the GitHub repository environment with the
       bgECAw==
       -----END OPENSSH PRIVATE KEY-----
       ```
-   * JENKINS_INITIAL_PASSWORD: `myjenkinsinitpasswd`
-   * KEYCLOAK_HORIZON_ADMIN_PASSWORD: `mykeycloadadminpasswd`
-   * KEYCLOAK_INITIAL_PASSWORD: `mykeycloakpasswd`
+   * JENKINS_INITIAL_PASSWORD: `******`
+   * KEYCLOAK_HORIZON_ADMIN_PASSWORD: `******`
+   * KEYCLOAK_INITIAL_PASSWORD: `******`
 4. Once all of the required environment secrets are setup, it should look like below   
    <img src="docs/images/github_repo_create_env_secret_3.png" width="400" />
 
@@ -342,49 +340,89 @@ Create a new branch with `main` branch as the base.
    ```
    git switch main
    ```
-3. Once you are on the `main` branch, run one of the below command to create a new branch and switch to it. Name it as `env/team-xx`   
+3. Once you are on the `main` branch, run one of the below command to create a new branch and switch to it. Name it as `env/team`   
    ```
-   git checkout -b env/team-xx
+   git checkout -b env/team
    ```
    or
    ```
-   git switch -c env/team-xx
+   git switch -c env/team
    ```
-### Section #3f - Setup GitHub Actions
+## Section #4 - Setup GitHub Actions (WIP)
 Before running the Terraform GiHub Actions workflow, it is required to have the repository cloned locally and checked-out to a new branch as mentioned in the previous section. We will also be configuring a few files required for the GitHub Actions workflow.
 
-#### Setup Terraform Backend
+### Section #4a - Setup Terraform Backend
 Setting up the Terraform backend, the state data is mentioned in this section. This section depends on [Section #2b - Create a Bucket in GCP](#section-2b---create-a-bucket-in-gcp) to be completed.   
 
 Edit the below mentioned attributes in the `backend.tf` located in the path `Terraform/env/backend.tf`
    ```
-   bucket = "prj-team-xx-horizon-sdv-tf"
-   prefix = "prj-team-xx-horizon-sdv-tf-state"
+   bucket = "prj-team-horizon-sdv-tf"
+   prefix = "prj-team-horizon-sdv-tf-state"
    ```
 
-#### Update project details
+### Section #4b - Update Project Details
 It is required to update the below mentioned attributes in the `main.tf` file located in the path `Terraform/env/main.tf`.   
 
 ```
 sdv_default_compute_sa = "966518152012-compute@developer.gserviceaccount.com"
 sdv_project = "sdvc-2108202401"
-sdv_ssl_certificate_domain=team-xx.horizon-sdv.com
+sdv_ssl_certificate_domain=team.horizon-sdv.com
 ```
 Refer [Section #2a - GCP Project details](#section-2a---gcp-project-details) for the values required for `sdv_default_compute_sa` and `sdv_project`.
 
-#### Trigger Terraform GitHub Actions workflow
+### Section #4c - Trigger Terraform GitHub Actions Workflow
 1. Got to the GitHub repository.
 2. Click on the "Actions" tab.
 3. Select the "Terraform" workflow from the list.
 4. Click on "Run workflow", select the branch you want to run and click on "Run workflow"   
-   <img src="docs/images/github_actions_workflow_trigger.png" width="500" />
+   <img src="docs/images/github_actions_workflow_trigger.png" width="550" />
 
-## Section #4 - Run the Cluster Apps
+### Section #4d - Retrieve Load balancer details
+The steps mentioned in this section is to be performed after the Terraform workflow is completed and the resources on GCP have been provisioned successfully.
 
-## Section #5 - Run Android Workloads
-### Section #5a - Browse CTS test results
+1. On the GCP Console, search for "Network Services".
+2. Click on Load balancing and under the LOAD BALANCER TAB, click on the Name of the Load balancer with Protocols set to "HTTPS" as shown in below example   
+   <img src="docs/images/gcp_https_load_balancer_1.png" width="550" />
+3. Under "Frontend", copy the IP Address details in the table as shown below example    
+   <img src="docs/images/gcp_https_load_balancer_2.png" width="400" />
 
-## Section #6 - Troubleshooting
+## Section #5 - Run the Cluster Apps (WIP)
+
+### Section #5a - Setup Keycloak
+Follow the steps mentioned in this section once the cluster is provisioned and is running successfully to configure Keycloak.
+
+#### Configure Identity provider
+1. Keycloak UI can be accessed here: `https://team.horizon-sbx.com/auth/`.
+2. Login to Keycloak as admin with the credentials available in GitHub secrets as configured in section [Add Environment secrets](#add-environment-secrets).
+3. Switch to the realm "Horizon" and click on "Identity providers".
+4. Click "Add provider" and Select "Google" provider.
+5. Redirect URI shall be the same which was set previously in the section [Create OAuth client ID](#create-oauth-client-id).
+6. Enter the values for `Client ID` and `Client Secret` as mentiond in the step 7 of the section [Create OAuth client ID](#create-oauth-client-id).   
+   <img src="docs/images/keycloak_identity_provider.png" width="650" />
+
+#### Configure a new Authentication flow **(optional)**
+1. Keycloak UI can be accessed here: `https://team.horizon-sbx.com/auth/`.
+2. Login to Keycloak as admin with the credentials available in GitHub secrets as configured in section [Add Environment secrets](#add-environment-secrets).
+3. Switch to the realm "Horizon" and select "Authentication" then click "Create flow" and name it as "broker link existing user".
+4. Click "Add execution".
+5. In the search box within the pop-up window, search for "Detect existing broker user" and click on "Add".   
+   <img src="docs/images/keycloak_authentication_flow_1.png" width="400" />
+6. Switch the value of "Requirement" field for the step "Detect existing broker user" to "Required" from the drop-down list as below   
+   <img src="docs/images/keycloak_authentication_flow_2.png" width="400" />
+7. Click on "Add step".
+8. In the search box within the pop-up window, search for "Automatically set existing user" and click on "Add".   
+   <img src="docs/images/keycloak_authentication_flow_3.png" width="400" />
+9. Switch the value of "Requirement" field for the step "Automatically set existing user" to "Required" from the drop-down list as below   
+   <img src="docs/images/keycloak_authentication_flow_4.png" width="400" />
+10. Next, go to "Identity providers" and select "google".
+11. Scroll down and look for "First login flow override". Switch the value of "First login flow override" to "broker link existing user" as shown below   
+   <img src="docs/images/keycloak_authentication_flow_5.png" width="500" />
+12. Finally, click on "Save".
+
+## Section #6 - Run Android Workloads
+### Section #6a - Browse CTS test results
+
+## Section #7 - Troubleshooting
 
 ## LICENSE
 
