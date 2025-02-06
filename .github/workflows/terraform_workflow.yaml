@@ -21,7 +21,6 @@ jobs:
       gcp-sa: "${{ secrets.GCP_SA }}"
       wif-provider: "${{ secrets.WIF_PROVIDER }}"
       gh-app-id: ${{ secrets.GH_APP_ID }}
-      gh-installation-id: ${{ secrets.GH_INSTALLATION_ID }}
       gh-argocd-initial-password: ${{ secrets.ARGOCD_INITIAL_PASSWORD }}
       gh-jenkins-initial-password: ${{ secrets.JENKINS_INITIAL_PASSWORD }}
       gh-keycloak-initial-password: ${{ secrets.KEYCLOAK_INITIAL_PASSWORD }}
