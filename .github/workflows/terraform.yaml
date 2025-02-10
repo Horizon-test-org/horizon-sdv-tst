@@ -17,9 +17,6 @@ on:
       gh-app-id:
         required: false
         description: "Github App ID"
-      gh-installation-id:
-        required: false
-        description: "Github Installation ID"
       gh-app-key:
         required: false
         description: "Github App Private Key"
@@ -56,10 +53,6 @@ on:
       gh-app-id:
         required: false
         description: "Github App ID"
-        type: number
-      gh-installation-id:
-        required: false
-        description: "Github Installation ID"
         type: number
       directory:
         required: false
@@ -137,7 +130,6 @@ jobs:
 
         run: |
           echo "TF_VAR_sdv_gh_app_id=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
-          echo "TF_VAR_sdv_gh_installation_id=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
           echo "TF_VAR_sdv_gh_app_key<<EOF" >> $GITHUB_ENV
           echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -163,14 +155,13 @@ jobs:
 
           echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> $GITHUB_ENV;
 
-          if [[ "${{ secrets.gh-app-id }}" != '' && "${{ secrets.gh-installation-id }}" != '' ]]; then
+          if [[ "${{ secrets.gh-app-id }}" != '' ]]; then
             echo "GITHUB_APP_ID=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
             echo "GITHUB_APP_INSTALLATION_ID=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
-          elif [[ "${{ inputs.gh-app-id }}" != '0' && "${{ inputs.gh-installation-id }}" != '0' ]]; then
+          elif [[ "${{ inputs.gh-app-id }}" != '0' ]]; then
             echo "GITHUB_APP_ID=${{ inputs.gh-app-id }}" >> $GITHUB_ENV;
-            echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.gh-installation-id }}" >> $GITHUB_ENV;
-          else 
-            echo "Missing Github App id and/or Github Installation ID"
+          else
+            echo "Missing Github App id"
             exit 1
           fi
 
