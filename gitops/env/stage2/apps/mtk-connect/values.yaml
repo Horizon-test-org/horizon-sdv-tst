@@ -11,5 +11,5 @@ spec:
   destination:
     server: https://kubernetes.default.svc
   source:
-    repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
+    repoURL: https://github.com/Horizon-test-org/horizon-sdv-tst
     targetRevision: env/sbx

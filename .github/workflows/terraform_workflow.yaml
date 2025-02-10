@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "terraform/*"
-    branches: ["env/sbx"]
+    branches: ["env/tst"]
   workflow_dispatch:
 
 jobs:
@@ -31,5 +31,5 @@ jobs:
       gh-cuttlefish-vm-ssh-private-key: ${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}
     with:
       terraform-version: 1.9.6
-      environment: sbx
+      environment: tst
       directory: terraform/env

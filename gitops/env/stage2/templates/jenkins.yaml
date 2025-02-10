@@ -258,10 +258,10 @@ spec:
                             scm {
                               git {
                                 remote {
-                                  url('https://github.com/AGBG-ASG/acn-horizon-sdv.git')
+                                  url('https://github.com/Horizon-test-org/horizon-sdv-tst.git')
                                   credentials('jenkins-github-creds')
                                 }
-                                branch('*/env/sbx')
+                                branch('*/env/tst')
                               }
                             }
                             scriptPath('workloads/android/pipelines/environment/dev_instance/Jenkinsfile')

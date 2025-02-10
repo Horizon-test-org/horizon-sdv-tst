@@ -97,7 +97,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 type: Opaque
 stringData:
-  appID: "274041"
+  appID: "1137182"
   id: "github-creds"
 ---
 apiVersion: v1

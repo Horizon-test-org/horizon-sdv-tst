@@ -1,7 +1,7 @@
 config:
   name: Horizon SDV
-  domain: sbx.horizon-sdv.com
-  projectID: sdvc-2108202401
+  domain: tst.horizon-sdv.com
+  projectID: sdvd-0502202501
   region: europe-west1
   zone: europe-west1-d
   postjobs:
@@ -13,11 +13,11 @@ config:
     gerrit: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/gerrit-post:1.0.0
   workloads:
     android:
-      url: https://github.com/AGBG-ASG/acn-horizon-sdv
-      branch: env/sbx
+      url: https://github.com/Horizon-test-org/horizon-sdv-tst
+      branch: env/tst
 spec:
   destination:
     server: https://kubernetes.default.svc
   source:
-    repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
-    targetRevision: env/sbx
+    repoURL: https://github.com/Horizon-test-org/horizon-sdv-tst
+    targetRevision: env/tst
