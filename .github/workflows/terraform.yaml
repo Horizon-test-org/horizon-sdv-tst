@@ -128,7 +128,7 @@ jobs:
           echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> $GITHUB_ENV
           echo "$PKCS8_KEY" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          echo "::add-mask::$TF_VAR_sdv_gh_app_key_pkcs8"
+          echo "$TF_VAR_sdv_gh_app_key_pkcs8"
 
       - name: set environment variables
         id: set-vars
