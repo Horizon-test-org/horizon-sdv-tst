@@ -2,7 +2,7 @@
 
 CLOUD_REGION=europe-west1
 CLUSTER_NAME="sdv-cluster"
-REPOSITORY=github.com/AGBG-ASG/acn-horizon-sdv
+REPOSITORY=github.com/Horizon-test-org/horizon-sdv-tst
 
 touch ~/terraform-log.log
 echo $(date) >>~/terraform-log.log
@@ -72,7 +72,7 @@ git clone https://x-access-token:${GITHUB_ACCESS_TOKEN}@${REPOSITORY} ~/horizon-
 echo ""
 echo "List current branch and remote"
 cd ~/horizon-sdv
-git checkout -t origin/env/sbx
+git checkout -t origin/env/tst
 
 echo ""
 echo "Build config post jobs"

@@ -5,4 +5,4 @@ spec:
     server: https://kubernetes.default.svc
   source:
     repoURL: https://github.com/Horizon-test-org/horizon-sdv-tst
-    targetRevision: env/sbx
+    targetRevision: env/tst
