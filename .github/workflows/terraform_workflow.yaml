@@ -3,7 +3,7 @@ name: Terraform
 on:
   push:
     paths:
-      - "terraform/*"
+      - "terraform/**"
     branches: ["env/tst"]
   workflow_dispatch:
 
