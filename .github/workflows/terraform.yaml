@@ -125,7 +125,8 @@ jobs:
         run: |
           echo "$GH_APP_KEY" | openssl pkcs8 -topk8 -nocrypt -outform PEM > key.pem
           PKCS8_KEY=$(<key.pem)
-          echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> ::add-mask::$GITHUB_ENV
+          echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> $GITHUB_ENV
+          echo "::add-mask::$GITHUB_ENV"
           echo "$PKCS8_KEY" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
