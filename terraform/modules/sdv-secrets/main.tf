@@ -59,7 +59,7 @@ resource "google_secret_manager_secret_iam_binding" "sdv_secret_accessor" {
   secret_id = each.value.id
   role      = "roles/secretmanager.secretAccessor"
   members = [
-    for gke_cfg in local.sdv_secrets[each.key].gke_access : "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${data.google_project.project.id}.svc.id.goog/subject/ns/${gke_cfg.ns}/sa/${gke_cfg.sa}"
+    for gke_cfg in local.sdv_secrets[each.key].gke_access : "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/${gke_cfg.ns}/sa/${gke_cfg.sa}"
   ]
 
   depends_on = [
@@ -72,3 +72,5 @@ resource "google_secret_manager_secret_iam_binding" "sdv_secret_accessor" {
 # resource "terraform_data" "project_info" {
 #   input = data.google_project.project
 # }
+#
+

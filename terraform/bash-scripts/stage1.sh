@@ -59,7 +59,7 @@ sudo usermod -aG docker $USER
 echo ""
 echo "Docker configurations"
 gcloud auth configure-docker ${CLOUD_REGION}-docker.pkg.dev --quiet
-cat ~/.docker/config.json
+sudo gcloud auth configure-docker ${CLOUD_REGION}-docker.pkg.dev --quiet
 
 echo ""
 echo "Removing old project"
@@ -78,7 +78,7 @@ echo ""
 echo "Build config post jobs"
 cd ~/horizon-sdv/gitops/env/stage2/configs
 chmod +x ./build.sh
-./build.sh
+sudo ./build.sh
 
 echo ""
 echo "Run stage1 deployment"

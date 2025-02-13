@@ -12,6 +12,7 @@ module "sdv_secrets" {
 
   location        = var.sdv_location
   gcp_secrets_map = var.sdv_gcp_secrets_map
+  project_id      = data.google_project.project.project_id
 
   depends_on = [
     module.sdv_wi
@@ -22,6 +23,7 @@ module "sdv_wi" {
   source = "../sdv-wi"
 
   wi_service_accounts = var.sdv_wi_service_accounts
+  project_id          = data.google_project.project.project_id
 
   depends_on = [
     module.sdv_gke_cluster
@@ -63,6 +65,7 @@ module "sdv_gke_cluster" {
   source = "../sdv-gke-cluster"
   depends_on = [
     module.sdv_apis,
+    module.sdv_network,
     module.sdv_gcs
   ]
 
@@ -132,7 +135,9 @@ module "sdv_copy_to_bastion_host" {
 
   depends_on = [
     module.sdv_bastion_host,
-    module.sdv_gcs_scripts
+    module.sdv_gcs_scripts,
+    module.sdv_gke_cluster,
+    module.sdv_wi
   ]
 }
 
@@ -146,7 +151,9 @@ module "sdv_bash_on_bastion_host" {
   depends_on = [
     module.sdv_bastion_host,
     module.sdv_copy_to_bastion_host,
-    module.sdv_gke_cluster
+    module.sdv_gke_cluster,
+    module.sdv_wi,
+    module.sdv_artifact_registry
   ]
 }
 
@@ -157,6 +164,8 @@ module "sdv_sa_key_secret_gce_creds" {
   service_account_id = var.sdv_default_computer_sa
   secret_id          = "gce-creds"
   location           = var.sdv_location
+  project_id         = data.google_project.project.project_id
+
   gke_access = [
     {
       ns = "jenkins"

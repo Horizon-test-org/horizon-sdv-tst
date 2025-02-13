@@ -44,18 +44,18 @@ locals {
   }
 }
 
-# resource "terraform_data" "debug_flattened_roles_with_sa" {
-#   input = local.flattened_roles_with_sa
-# }
+resource "terraform_data" "debug_flattened_roles_with_sa" {
+  input = local.flattened_roles_with_sa
+}
 
-# resource "terraform_data" "debug_roles_with_sa_map" {
-#   input = local.roles_with_sa_map
-# }
+resource "terraform_data" "debug_roles_with_sa_map" {
+  input = local.roles_with_sa_map
+}
 
 resource "google_project_iam_member" "sdv_wi_sa_iam_2" {
   for_each = local.roles_with_sa_map
 
-  project = data.google_project.project.project_id
+  project = data.google_project.project.id
   role    = each.value.role
   member  = "serviceAccount:${google_service_account.sdv_wi_sa[each.value.sa_id].email}"
 
@@ -67,9 +67,9 @@ resource "google_project_iam_member" "sdv_wi_sa_iam_2" {
 resource "google_project_iam_member" "sdv_wi_sa_wi_users_gke_ns_sa" {
   for_each = local.gke_sas_with_sa_map
 
-  project = data.google_project.project.project_id
+  project = data.google_project.project.id
   role    = "roles/iam.workloadIdentityUser"
-  member  = "serviceAccount:${data.google_project.project.project_id}.svc.id.goog[${each.value.gke_ns}/${each.value.gke_sa}]"
+  member  = "serviceAccount:${var.project_id}.svc.id.goog[${each.value.gke_ns}/${each.value.gke_sa}]"
 
   depends_on = [
     google_service_account.sdv_wi_sa
