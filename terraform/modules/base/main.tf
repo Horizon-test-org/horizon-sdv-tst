@@ -60,8 +60,7 @@ module "sdv_gke_cluster" {
   depends_on = [
     module.sdv_apis,
     module.sdv_bastion_host,
-    module.sdv_gcs,
-    module.sdv_wi,
+    module.sdv_gcs
   ]
 
   project_id      = data.google_project.project.project_id
