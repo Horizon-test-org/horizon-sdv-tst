@@ -29,5 +29,5 @@ resource "google_secret_manager_secret_iam_member" "member" {
   secret_id = google_secret_manager_secret.sa_key_secret.secret_id
   role      = "roles/secretmanager.secretAccessor"
   ## ns/jenkins/jenkins-sa.
-  member = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${data.google_project.project.project_id}.svc.id.goog/subject/ns/${each.value.ns}/sa/${each.value.sa}"
+  member = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${data.google_project.project.project.id}.svc.id.goog/subject/ns/${each.value.ns}/sa/${each.value.sa}"
 }
