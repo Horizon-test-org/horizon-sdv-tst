@@ -22,6 +22,10 @@ module "sdv_wi" {
   source = "../sdv-wi"
 
   wi_service_accounts = var.sdv_wi_service_accounts
+
+  depends_on = [
+    module.sdv_gke_cluster
+  ]
 }
 
 module "sdv_gcs" {
@@ -142,6 +146,7 @@ module "sdv_bash_on_bastion_host" {
   depends_on = [
     module.sdv_bastion_host,
     module.sdv_copy_to_bastion_host,
+    module.sdv_gke_cluster
   ]
 }
 
