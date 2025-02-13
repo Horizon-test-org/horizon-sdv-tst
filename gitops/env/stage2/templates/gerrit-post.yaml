@@ -75,17 +75,6 @@ spec:
       serviceAccountName: gerrit-writer-sa
       containers:
         - name: gerrit-post-container
-          env:
-            - name: GERRIT_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak-gerrit-admin
-                  key: username
-            - name: GERRIT_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak-gerrit-admin
-                  key: password
           image: {{ .Values.config.postjobs.gerrit }}
           volumeMounts:
             - mountPath: /mnt/git
