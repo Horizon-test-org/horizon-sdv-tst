@@ -104,6 +104,11 @@ async function createUserIfRequired()  {
         lastName: config.keycloak.adminUser.lastName,
         email: config.keycloak.adminUser.email
       });
+      await keycloakAdmin.users.resetPassword({
+        id: user.id,
+        realm: config.keycloak.realm.realm,
+        credential: {temporary: true, type: 'password', value: config.keycloak.adminUser.password}
+      });
     } else {
       console.info('creating %s user', config.keycloak.adminUser.username);
 

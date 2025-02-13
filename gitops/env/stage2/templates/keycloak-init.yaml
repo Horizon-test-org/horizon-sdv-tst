@@ -28,6 +28,19 @@ type: Opaque
 stringData:
   username: "horizon-admin"
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-gerrit-admin
+  namespace: keycloak
+  labels:
+    jenkins.io/credentials-type: "usernamePassword"
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+stringData:
+  username: "gerrit-admin"
+---
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
@@ -38,10 +51,10 @@ metadata:
 spec:
   provider:
     gcpsm:
-      projectID: {{ .Values.config.projectID }}
+      projectID: { { .Values.config.projectID } }
       auth:
         workloadIdentity:
-          clusterLocation: {{ .Values.config.region }}
+          clusterLocation: { { .Values.config.region } }
           clusterName: sdv-cluster
           serviceAccountRef:
             name: keycloak-sa
@@ -85,3 +98,23 @@ spec:
     - secretKey: password
       remoteRef:
         key: keycloakHorizonAdminPassword
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: gerrit-admin-initial-secret
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    kind: SecretStore
+    name: keycloak-secret-store
+  target:
+    name: keycloak-gerrit-admin
+    creationPolicy: Merge
+  data:
+    - secretKey: password
+      remoteRef:
+        key: gerritAdminInitialPassword
