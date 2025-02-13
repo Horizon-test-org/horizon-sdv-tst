@@ -40,10 +40,10 @@ metadata:
 spec:
   provider:
     gcpsm:
-      projectID: { { .Values.config.projectID } }
+      projectID: {{ .Values.config.projectID }}
       auth:
         workloadIdentity:
-          clusterLocation: { { .Values.config.region } }
+          clusterLocation: {{ .Values.config.region }}
           clusterName: sdv-cluster
           serviceAccountRef:
             name: gerrit-sa
