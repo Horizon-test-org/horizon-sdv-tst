@@ -143,7 +143,6 @@ module "sdv_bash_on_bastion_host" {
 
   depends_on = [
     module.sdv_bastion_host,
-    module.sdv_gke_cluster,
     module.sdv_copy_to_bastion_host,
   ]
 }
