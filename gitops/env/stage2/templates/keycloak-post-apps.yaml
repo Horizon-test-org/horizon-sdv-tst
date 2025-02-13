@@ -74,7 +74,7 @@ spec:
                 secretKeyRef:
                   name: keycloak-initial-creds
                   key: password
-          image: { { .Values.config.postjobs.keycloakmtkconnect } }
+          image: {{ .Values.config.postjobs.keycloakmtkconnect }}
       restartPolicy: Never
 ---
 apiVersion: batch/v1
@@ -105,7 +105,7 @@ spec:
                 secretKeyRef:
                   name: keycloak-initial-creds
                   key: password
-          image: { { .Values.config.postjobs.keycloakjenkins } }
+          image: {{ .Values.config.postjobs.keycloakjenkins }}
       restartPolicy: Never
 ---
 apiVersion: batch/v1
@@ -146,5 +146,5 @@ spec:
                 secretKeyRef:
                   name: keycloak-gerrit-admin
                   key: password
-          image: { { .Values.config.postjobs.keycloakgerrit } }
+          image: {{ .Values.config.postjobs.keycloakgerrit }}
       restartPolicy: Never
