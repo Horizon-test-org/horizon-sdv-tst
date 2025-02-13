@@ -158,6 +158,10 @@ module "sdv_sa_key_secret_gce_creds" {
       sa = "jenkins-sa"
     }
   ]
+
+  depends_on = [
+    module.sdv_wi
+  ]
 }
 
 # assign role cloud
