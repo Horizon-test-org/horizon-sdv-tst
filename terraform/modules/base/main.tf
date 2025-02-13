@@ -12,6 +12,10 @@ module "sdv_secrets" {
 
   location        = var.sdv_location
   gcp_secrets_map = var.sdv_gcp_secrets_map
+
+  depends_on = [
+    modules.sdv_wi
+  ]
 }
 
 module "sdv_wi" {
