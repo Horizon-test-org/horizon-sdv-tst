@@ -14,7 +14,7 @@ module "sdv_secrets" {
   gcp_secrets_map = var.sdv_gcp_secrets_map
 
   depends_on = [
-    modules.sdv_wi
+    module.sdv_wi
   ]
 }
 
