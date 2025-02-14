@@ -76,6 +76,7 @@ spec:
       containers:
         - name: gerrit-post-container
           image: {{ .Values.config.postjobs.gerrit }}
+          imagePullPolicy: Always
           volumeMounts:
             - mountPath: /mnt/git
               name: shared
