@@ -28,7 +28,7 @@ spec:
   project: horizon-sdv
   source:
     repoURL: https://github.com/Horizon-test-org/horizon-sdv-tst
-    targetRevision: env/tst
+    targetRevision: env/sbx
     path: gitops/env/stage2
   destination:
     server: https://kubernetes.default.svc

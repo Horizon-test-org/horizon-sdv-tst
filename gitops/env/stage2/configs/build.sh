@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CLOUD_REGION=europe-west1
-PROJECT_ID=sdvd-0502202501
+PROJECT_ID=sdvc-2108202401
 VERSION=1.0.0
 
 declare -a configs=("gerrit-post" "mtk-connect-post" "keycloak-post" "keycloak-post-gerrit" "keycloak-post-jenkins" "keycloak-post-mtk-connect")

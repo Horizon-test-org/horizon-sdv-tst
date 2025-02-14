@@ -261,7 +261,7 @@ spec:
                                   url('https://github.com/Horizon-test-org/horizon-sdv-tst.git')
                                   credentials('jenkins-github-creds')
                                 }
-                                branch('*/env/tst')
+                                branch('*/env/sbx')
                               }
                             }
                             scriptPath('workloads/android/pipelines/environment/dev_instance/Jenkinsfile')

@@ -1,13 +1,13 @@
 # Actions workflow trigger 2
 locals {
-  sdv_default_computer_sa = "5752467942-compute@developer.gserviceaccount.com"
+  sdv_default_computer_sa = "966518152012-compute@developer.gserviceaccount.com"
 }
 
 module "base" {
   source = "../modules/base"
 
   # The project is used by provider.tf to define the GCP project
-  sdv_project  = "sdvd-0502202501"
+  sdv_project  = "sdvc-2108202401"
   sdv_location = "europe-west1"
   sdv_region   = "europe-west1"
   sdv_zone     = "europe-west1-d"
@@ -59,11 +59,11 @@ module "base" {
   ]
 
   sdv_ssl_certificate_name   = "horizon-sdv"
-  sdv_ssl_certificate_domain = "tst.horizon-sdv.com"
+  sdv_ssl_certificate_domain = "sbx.horizon-sdv.com"
 
   # sdv-apis-services
-  sdv_auth_config_display_name = "horizon-sdv-tst-oauth-2"
-  sdv_auth_config_endpoint_uri = "https://tst.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
+  sdv_auth_config_display_name = "horizon-sdv-sbx-oauth-2"
+  sdv_auth_config_endpoint_uri = "https://sbx.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
 
   #
   # To create a new SA with access from GKE to GC, add a new saN block.
