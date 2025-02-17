@@ -144,7 +144,7 @@ jobs:
           HASH=$(./argocd account bcrypt --password "${{ secrets.gh-argocd-initial-password }}")
 
           # Encode the hash with base64
-          ENCODED_HASH=$(echo -n "$HASH" | base64)
+          ENCODED_HASH=$(echo -n "$HASH" | base64 -w0)
 
           # Save the encoded hash as an output variable
           echo "argocd_encoded_bcrypt_hash=$ENCODED_HASH" >> $GITHUB_OUTPUT
