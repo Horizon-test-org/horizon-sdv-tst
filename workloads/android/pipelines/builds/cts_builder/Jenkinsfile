@@ -116,11 +116,11 @@ pipeline {
 
     // Fetch patchset from upstream open review change.
     string(name: 'GERRIT_PROJECT', defaultValue: '',
-           description: '<p>Gerrit Project with open review.</p>')
+           description: '<p>Optional, Gerrit Project with open review.</p>')
     string(name: 'GERRIT_CHANGE_NUMBER', defaultValue: '',
-           description: '<p>Gerrit review item change number.</p>')
+           description: '<p>Optional, Gerrit review item change number.</p>')
     string(name: 'GERRIT_PATCHSET_NUMBER', defaultValue: '',
-           description: '<p>Gerrit review item patchset number.</p>')
+           description: '<p>Optional, Gerrit review item patchset number.</p>')
   }
 
   agent none

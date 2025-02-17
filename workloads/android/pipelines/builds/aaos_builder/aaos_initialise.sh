@@ -20,7 +20,7 @@
 # This script does the following:
 #
 #  1. Initialises the repository checkout using the given manifest.
-#  2. Adds the RPi manifest if the target is an RPi device.
+#  2. Supports post initialise and sync commands to setup repo.
 #  3. Downloads the given changeset if the build is from an open review.
 #
 # The following variables must be set before running this script:
@@ -30,15 +30,33 @@
 #  - AAOS_LUNCH_TARGET: the target device.
 #
 # Optional variables:
-#  - AAOS_CLEAN: whether to clean before building.
+#  - AAOS_CLEAN: whether to clean before building. Only CLEAN_BUILD or
+#        NO_CLEAN are applicable.
 #  - REPO_SYNC_JOBS: the number of parallel repo sync jobs to use.
 #  - MAX_REPO_SYNC_JOBS: the maximum number of parallel repo sync jobs
 #         supported. (Default: 24).
+#  - POST_REPO_INITIALISE_COMMAND: additional vendor commands for repo initialisation.
+#  - POST_REPO_SYNC_COMMAND: additional vendor commands initialisation post
+#        repo sync.
 #
 # For Gerrit review change sets:
 #  - GERRIT_PROJECT: the name of the project to download.
 #  - GERRIT_CHANGE_NUMBER: the change number of the changeset to download.
 #  - GERRIT_PATCHSET_NUMBER: the patchset number of the changeset to download.
+#
+# Example usage:
+# AAOS_GERRIT_MANIFEST_URL=https://dev.horizon-sdv.scpmtk.com/android/platform/manifest \
+# AAOS_REVISION=horizon/android-14.0.0_r30 \
+# AAOS_LUNCH_TARGET=aosp_cf_x86_64_auto-ap1a-userdebug \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
+#
+# AAOS_GERRIT_MANIFEST_URL=https://dev.horizon-sdv.scpmtk.com/android/platform/manifest \
+# AAOS_REVISION=horizon/android-14.0.0_r30 \
+# AAOS_LUNCH_TARGET=aosp_tangorpro_car-ap1a-userdebug \
+# GERRIT_CHANGE_NUMBER=82 \
+# GERRIT_PATCHSET_NUMBER=1 \
+# GERRIT_PROJECT=android/platform/packages/services/Car \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
 
 # Include common functions and variables.
 # shellcheck disable=SC1091

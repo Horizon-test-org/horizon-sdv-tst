@@ -3,12 +3,29 @@ name: Terraform
 on:
   push:
     paths:
-      - "terraform/**"
-    branches: ["env/sbx"]
+      - "terraform/*"
+    branches: ["env/*"]
   workflow_dispatch:
 
 jobs:
+  parsing_branch:
+    runs-on: self-hosted
+    outputs:
+      branch: ${{ steps.branch.outputs.parsed_branch }}
+      parsed_branch: ${{ steps.branch.outputs.parsed_branch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set branch name variable
+        id: branch
+        run: |
+          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}
+          PARSED_BRANCH_NAME=${BRANCH_NAME#*/}
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "parsed_branch=$PARSED_BRANCH_NAME" >> $GITHUB_OUTPUT
   terraform:
+    needs: parsing_branch
     uses: ./.github/workflows/terraform.yaml
     concurrency:
       group: terraform
@@ -31,5 +48,5 @@ jobs:
       gh-cuttlefish-vm-ssh-private-key: ${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}
     with:
       terraform-version: 1.9.6
-      environment: sbx
+      environment: ${{ needs.parsing_branch.outputs.parsed_branch }}
       directory: terraform/env

@@ -93,41 +93,28 @@ async function createUserIfRequired()  {
   try {
     let users = await keycloakAdmin.users.find();
     let user = _.find(users, {username: config.keycloak.adminUser.username});
-    
+
     if (user) {
-      console.info('updating %s user', config.keycloak.adminUser.username);
-
-      await keycloakAdmin.users.update({id: user.id}, 
-      {
-        username: config.keycloak.adminUser.username, 
-        firstName: config.keycloak.adminUser.firstName,
-        lastName: config.keycloak.adminUser.lastName,
-        email: config.keycloak.adminUser.email
-      });
-      await keycloakAdmin.users.resetPassword({
-        id: user.id,
-        realm: config.keycloak.realm.realm,
-        credential: {temporary: true, type: 'password', value: config.keycloak.adminUser.password}
-      });
-    } else {
-      console.info('creating %s user', config.keycloak.adminUser.username);
-
-      const user = await keycloakAdmin.users.create({
-        username: config.keycloak.adminUser.username,
-        enabled: true,
-        requiredActions: [],
-        realm: config.keycloak.realm.realm,
-        firstName: config.keycloak.adminUser.firstName,
-        lastName: config.keycloak.adminUser.lastName,
-        email: config.keycloak.adminUser.email
-      });
-
-      await keycloakAdmin.users.resetPassword({
-        id: user.id,
-        realm: config.keycloak.realm.realm,
-        credential: {temporary: true, type: 'password', value: config.keycloak.adminUser.password}
-      });
+      console.info('deleting old instance of %s user', config.keycloak.adminUser.username);
+      await keycloakAdmin.users.del({id: user.id});
     }
+
+    console.info('creating %s user', config.keycloak.adminUser.username);
+    const new_user = await keycloakAdmin.users.create({
+      username: config.keycloak.adminUser.username,
+      enabled: true,
+      requiredActions: [],
+      realm: config.keycloak.realm.realm,
+      firstName: config.keycloak.adminUser.firstName,
+      lastName: config.keycloak.adminUser.lastName,
+      email: config.keycloak.adminUser.email
+    });
+
+    await keycloakAdmin.users.resetPassword({
+      id: new_user.id,
+      realm: config.keycloak.realm.realm,
+      credential: {temporary: false, type: 'password', value: config.keycloak.adminUser.password}
+    });
 
   } catch (err) {
     throw err
