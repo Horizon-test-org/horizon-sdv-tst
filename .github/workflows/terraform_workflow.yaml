@@ -9,7 +9,7 @@ on:
 
 jobs:
   parsing_branch:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     outputs:
       branch: ${{ steps.branch.outputs.parsed_branch }}
       parsed_branch: ${{ steps.branch.outputs.parsed_branch }}
