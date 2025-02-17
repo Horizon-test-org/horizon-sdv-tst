@@ -209,7 +209,7 @@ module "base" {
     }
     s5 = {
       secret_id        = "argocdInitialPassword"
-      value            = var.sdv_gh_argocd_initial_password
+      value            = var.sdv_gh_argocd_initial_password_bcrypt
       use_github_value = true
       gke_access = [
         {
