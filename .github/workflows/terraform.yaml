@@ -347,7 +347,6 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Success
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'success'
         if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'success'
         uses: mshick/add-pr-comment@v2
         with:
