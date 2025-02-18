@@ -141,10 +141,11 @@ jobs:
           chmod +x argocd
 
           # Generate bcrypt hash for argocd password
-          BCRYPT_HASH=$(./argocd account bcrypt --password "${{ secrets.gh-argocd-initial-password }}")
-
-          # Save the hash as an output variable
-          echo "argocd_encoded_bcrypt_hash=$BCRYPT_HASH" >> $GITHUB_OUTPUT
+          HASH=$(./argocd account bcrypt --password "${{ secrets.gh-argocd-initial-password }}")
+          # Encode the hash with base64
+          ENCODED_HASH=$(echo -n "$HASH" | base64)
+          # Save the encoded hash as an output variable
+          echo "argocd_encoded_bcrypt_hash=$ENCODED_HASH" >> $GITHUB_OUTPUT
 
           # Clean up the downloaded binary
           rm argocd
