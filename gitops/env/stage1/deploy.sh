@@ -33,7 +33,7 @@ deploy() {
       helm upgrade $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION
     fi
   else
-    helm install $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION
+    helm install $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION --wait
   fi
 }
 
