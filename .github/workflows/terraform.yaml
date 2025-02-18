@@ -293,7 +293,7 @@ jobs:
         continue-on-error: true
 
       - name: Reformat Plan
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         env:
           TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
           TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
@@ -307,7 +307,7 @@ jobs:
           fi
 
       - name: Put Plan in Env Var
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         run: |
           PLAN=$(cat plan.txt)
           echo "PLAN<<EOF" >> $GITHUB_ENV
@@ -316,7 +316,7 @@ jobs:
 
       - name: Post Plan to GitHub PR
         uses: mshick/add-pr-comment@v2
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         with:
           allow-repeats: false
           repo-token: ${{steps.get_github_app_token.outputs.token}}
@@ -338,7 +338,7 @@ jobs:
       - name: terraform apply
         working-directory: ${{ inputs.directory }}/
         id: tfapply
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
         run: |
@@ -347,7 +347,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Success
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'success'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'success'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -361,7 +361,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Failure
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'failure'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -375,7 +375,7 @@ jobs:
         continue-on-error: true
 
       - name: Fail if apply failed
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'failure'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
         uses: actions/github-script@v6
         with:
           script: |
