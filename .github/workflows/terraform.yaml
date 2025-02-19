@@ -91,7 +91,7 @@ on:
 jobs:
   get-env:
     name: Get environment
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     outputs:
       environment: ${{ steps.get-env.outputs.environment }}
       env_only: ${{ steps.get-env.outputs.env_only }}
@@ -113,7 +113,7 @@ jobs:
 
   terraform:
     name: Terraform
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: get-env
     environment: ${{ needs.get-env.outputs.environment }}
 
