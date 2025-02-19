@@ -47,6 +47,7 @@ spec:
             - pipeline-stage-view:2.37
             - build-blocker-plugin:166.vc82fc20b_a_ed6
             - startup-trigger-plugin:2.9.4
+            - timestamper: 1.28
           additionalExistingSecrets:
             - name: jenkins-keycloak
               keyName: keycloakJson
@@ -502,6 +503,10 @@ spec:
                           gerritHostName: "gerrit-service.gerrit.svc.cluster.local"
                           gerritUserName: "gerrit-admin"
                           useRestApi: false
+                  timestamper:
+                    allPipelines: true
+                    systemTimeFormat:'<b>'yyyy-MM-dd HH:mm:ss.SSS'</b> '
+                    elapsedTimeFormat: '<b>'HH:mm:ss.S'</b> '
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
