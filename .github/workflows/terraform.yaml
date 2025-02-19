@@ -17,15 +17,18 @@ on:
       gh-app-id:
         required: false
         description: "Github App ID"
+      gh-installation-id:
+        required: false
+        description: "Github Installation ID"
       gh-app-key:
         required: false
         description: "Github App Private Key"
       json-secrets:
         required: false
         description: "secrets"
-      gh-argocd-initial-password-bcrypt:
+      gh-argocd-initial-password:
         required: false
-        description: "Github Secret ARGOCD_INITIAL_PASSWORD_BCRYPT"
+        description: "Github Secret ARGOCD_INITIAL_PASSWORD"
       gh-jenkins-initial-password:
         required: false
         description: "Github Secret JENKINS_INITIAL_PASSWORD"
@@ -53,6 +56,10 @@ on:
       gh-app-id:
         required: false
         description: "Github App ID"
+        type: number
+      gh-installation-id:
+        required: false
+        description: "Github Installation ID"
         type: number
       directory:
         required: false
@@ -84,11 +91,14 @@ on:
 jobs:
   get-env:
     name: Get environment
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     outputs:
       environment: ${{ steps.get-env.outputs.environment }}
       env_only: ${{ steps.get-env.outputs.env_only }}
     steps:
+      - name: Print environment name to output
+        run: echo "Parsed environment name is ${{ inputs.environment }}"
+
       - name: get environment
         id: get-env
         shell: bash
@@ -99,14 +109,11 @@ jobs:
             env_only=${temp%-plan*}
             env_only=${env_only%-apply*}
             echo "env_only=$env_only" >> $GITHUB_OUTPUT;
-          elif [[ "${{ github.ref }}" == 'refs/heads/env/sbx' ]]; then
-            echo "environment=sbx" >> $GITHUB_OUTPUT;
-            echo "env_only=sbx" >> $GITHUB_OUTPUT;
           fi
 
   terraform:
     name: Terraform
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: get-env
     environment: ${{ needs.get-env.outputs.environment }}
 
@@ -118,9 +125,30 @@ jobs:
         run: |
           echo "$GH_APP_KEY" | openssl pkcs8 -topk8 -nocrypt -outform PEM > key.pem
           PKCS8_KEY=$(<key.pem)
+          while IFS= read -r each_line; do
+            echo "::add-mask::$each_line"
+          done <<< "$PKCS8_KEY"
           echo "TF_VAR_sdv_gh_app_key_pkcs8<<EOF" >> $GITHUB_ENV
           echo "$PKCS8_KEY" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
+      - name: Generate encoded argocd bcrypt hash
+        id: generate-encoded-argocd-bcrypt-hash
+        shell: bash
+        run: |
+          # Install argocd cli
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+
+          # Generate bcrypt hash for argocd password
+          HASH=$(./argocd account bcrypt --password "${{ secrets.gh-argocd-initial-password }}")
+          # Encode the hash with base64
+          ENCODED_HASH=$(echo -n "$HASH" | base64 -w0)
+          # Save the encoded hash as an output variable
+          echo "argocd_encoded_bcrypt_hash=$ENCODED_HASH" >> $GITHUB_OUTPUT
+
+          # Clean up the downloaded binary
+          rm argocd
 
       - name: set environment variables
         id: set-vars
@@ -130,6 +158,7 @@ jobs:
 
         run: |
           echo "TF_VAR_sdv_gh_app_id=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_installation_id=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
           echo "TF_VAR_sdv_gh_app_key<<EOF" >> $GITHUB_ENV
           echo  "${{ secrets.gh-app-key }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -139,7 +168,7 @@ jobs:
           echo "TF_VAR_sdv_gh_cuttlefish_vm_ssh_private_key<<EOF">> $GITHUB_ENV
           echo  "${{ secrets.gh-cuttlefish-vm-ssh-private-key }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          echo "TF_VAR_sdv_gh_argocd_initial_password_bcrypt=${{ secrets.gh-argocd-initial-password-bcrypt }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gh_argocd_initial_password_bcrypt=${{ steps.generate-encoded-argocd-bcrypt-hash.outputs.argocd_encoded_bcrypt_hash }}" >> $GITHUB_ENV
           echo "TF_VAR_sdv_gh_jenkins_initial_password=${{ secrets.gh-jenkins-initial-password }}" >> $GITHUB_ENV
           echo "TF_VAR_sdv_gh_keycloak_initial_password=${{ secrets.gh-keycloak-initial-password }}" >> $GITHUB_ENV
           echo "TF_VAR_sdv_gh_gerrit_admin_initial_password=${{ secrets.gh-gerrit-admin-initial-password }}" >> $GITHUB_ENV
@@ -155,13 +184,14 @@ jobs:
 
           echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> $GITHUB_ENV;
 
-          if [[ "${{ secrets.gh-app-id }}" != '' ]]; then
+          if [[ "${{ secrets.gh-app-id }}" != '' && "${{ secrets.gh-installation-id }}" != '' ]]; then
             echo "GITHUB_APP_ID=${{ secrets.gh-app-id }}" >> $GITHUB_ENV;
             echo "GITHUB_APP_INSTALLATION_ID=${{ secrets.gh-installation-id }}" >> $GITHUB_ENV;
-          elif [[ "${{ inputs.gh-app-id }}" != '0' ]]; then
+          elif [[ "${{ inputs.gh-app-id }}" != '0' && "${{ inputs.gh-installation-id }}" != '0' ]]; then
             echo "GITHUB_APP_ID=${{ inputs.gh-app-id }}" >> $GITHUB_ENV;
-          else
-            echo "Missing Github App id"
+            echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.gh-installation-id }}" >> $GITHUB_ENV;
+          else 
+            echo "Missing Github App id and/or Github Installation ID"
             exit 1
           fi
 
@@ -264,7 +294,7 @@ jobs:
         continue-on-error: true
 
       - name: Reformat Plan
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         env:
           TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
           TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
@@ -278,7 +308,7 @@ jobs:
           fi
 
       - name: Put Plan in Env Var
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         run: |
           PLAN=$(cat plan.txt)
           echo "PLAN<<EOF" >> $GITHUB_ENV
@@ -287,7 +317,7 @@ jobs:
 
       - name: Post Plan to GitHub PR
         uses: mshick/add-pr-comment@v2
-        if: github.ref != 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         with:
           allow-repeats: false
           repo-token: ${{steps.get_github_app_token.outputs.token}}
@@ -309,7 +339,7 @@ jobs:
       - name: terraform apply
         working-directory: ${{ inputs.directory }}/
         id: tfapply
-        if: github.ref == 'refs/heads/env/sbx'
+        if: ${{ inputs.environment }} != ''
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
         run: |
@@ -318,7 +348,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Success
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'success'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'success'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -332,7 +362,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Failure
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'failure'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -346,7 +376,7 @@ jobs:
         continue-on-error: true
 
       - name: Fail if apply failed
-        if: github.ref == 'refs/heads/env/sbx' && steps.tfapply.outcome == 'failure'
+        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
         uses: actions/github-script@v6
         with:
           script: |

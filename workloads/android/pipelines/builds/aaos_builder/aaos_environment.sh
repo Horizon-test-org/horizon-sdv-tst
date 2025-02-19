@@ -17,7 +17,8 @@
 # Description:
 # Common functions and variables for use with AAOS build scripts.
 #
-# The following variables must be set before running this script:
+# The following variables must be set before this script is referenced by
+# the calling scripts.
 #
 #  - AAOS_GERRIT_MANIFEST_URL: the URL of the AAOS manifest.
 #  - AAOS_REVISION: the branch or tag/version of the AAOS manifest.
@@ -27,6 +28,8 @@
 #  - AAOS_CLEAN: whether to clean before building.
 #  - AAOS_ARTIFACT_STORAGE_SOLUTION: the persistent storage location for
 #        artifacts (GCS_BUCKET default).
+#  - AAOS_ARTIFACT_ROOT_NAME: the name of the bucket to store artifacts.
+#  - ANDROID_VERSION: the Android version (default: 14).
 #  - REPO_SYNC_JOBS: the number of parallel repo sync jobs to use Default: 2).
 #  - MAX_REPO_SYNC_JOBS: the maximum number of parallel repo sync jobs
 #        supported. (Default: 24).
@@ -40,6 +43,14 @@
 #  - GERRIT_CHANGE_NUMBER: the change number of the changeset to download.
 #  - GERRIT_PATCHSET_NUMBER: the patchset number of the changeset to download.
 #
+# If running standalone, only AAOS_CLEAN and AAOS_LUNCH_TARGET apply, eg.
+#
+# AAOS_CLEAN=CLEAN_BUILD \
+# AAOS_LUNCH_TARGET=aosp_cf_x86_64_auto-ap1a-userdebug \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_environment.sh
+#
+# AAOS_CLEAN=CLEAN_ALL \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_environment.sh
 
 # Store BUILD_NUMBER for path in aaos_storage.sh
 # shellcheck disable=SC2034
@@ -83,7 +94,7 @@ REPO_SYNC_JOBS_ARG="-j$(( REPO_SYNC_JOBS < 1 ? 1 : REPO_SYNC_JOBS > MAX_REPO_SYN
 # Check we have a target defined.
 AAOS_LUNCH_TARGET=$(echo "${AAOS_LUNCH_TARGET}" | xargs)
 # Default if not defined (important for initial pipeline build)
-AAOS_LUNCH_TARGET=${AAOS_LUNCH_TARGET:-sdk_car_x86_64-userdebug}
+AAOS_LUNCH_TARGET=${AAOS_LUNCH_TARGET:-sdk_car_x86_64-ap1a-userdebug}
 if [ -z "${AAOS_LUNCH_TARGET}" ]; then
     echo "Error: please define AAOS_LUNCH_TARGET"
     exit 255
@@ -165,8 +176,10 @@ export OUT_DIR="out_sdv-${AAOS_LUNCH_TARGET}"
 
 # Architecture:
 AAOS_ARCH=""
+AAOS_ARCH_ABI=""
 if [[ "${AAOS_LUNCH_TARGET}" =~ "arm64" ]]; then
     AAOS_ARCH="arm64"
+    AAOS_ARCH_ABI="-v8a"
 elif [[ "${AAOS_LUNCH_TARGET}" =~ "x86_64" ]]; then
     AAOS_ARCH="x86_64"
 elif [[ "${AAOS_LUNCH_TARGET}" =~ "rpi" ]]; then
@@ -179,7 +192,7 @@ fi
 USER=$(whoami)
 
 # Post repo init commands
-declare -a POST_REPO_INITITIALISE_COMMANDS_LIST=(
+declare -a POST_REPO_INITIALISE_COMMANDS_LIST=(
     "rm .repo/local_manifests/manifest_brcm_rpi.xml > /dev/null 2>&1"
     "rm .repo/local_manifests/remove_projects.xml > /dev/null 2>&1"
 )
@@ -273,6 +286,7 @@ case "${AAOS_LUNCH_TARGET}" in
                 ${OUT_DIR}/target/product/tangorpro/android-info.txt \
                 ${OUT_DIR}/target/product/tangorpro/fastboot-info.txt \
                 ${OUT_DIR}/target/product/tangorpro/boot.img \
+                ${OUT_DIR}/target/product/tangorpro/bootloader.img \
                 ${OUT_DIR}/target/product/tangorpro/init_boot.img \
                 ${OUT_DIR}/target/product/tangorpro/dtbo.img \
                 ${OUT_DIR}/target/product/tangorpro/vendor_kernel_boot.img \
@@ -288,6 +302,7 @@ case "${AAOS_LUNCH_TARGET}" in
                 ${OUT_DIR}/target/product/tangorpro/vendor.img \
                 ${OUT_DIR}/target/product/tangorpro/vendor_dlkm.img \
                 ${OUT_DIR}/target/product/tangorpro/system_other.img \
+                ${OUT_DIR}/target/product/tangorpro/super_empty.img \
                 ${OUT_DIR}/target/product/tangorpro/vendor"
         )
         POST_STORAGE_COMMANDS=(
@@ -307,7 +322,7 @@ esac
 
 # Additional repo init/sync commands.
 if [ -n "${POST_REPO_INITIALISE_COMMAND}" ]; then
-    POST_REPO_INITITIALISE_COMMANDS_LIST=("${POST_REPO_INITIALISE_COMMAND}")
+    POST_REPO_INITIALISE_COMMANDS_LIST=("${POST_REPO_INITIALISE_COMMAND}")
 fi
 
 if [ -n "${POST_REPO_SYNC_COMMAND}" ]; then
@@ -350,7 +365,7 @@ case "$0" in
         AAOS_REVISION=${AAOS_REVISION}
 
         POST_REPO_INITIALISE_COMMAND=${POST_REPO_INITIALISE_COMMAND}
-        POST_REPO_SYNC_COMMAND=${POST_REPO_INITIALISE_COMMAND}
+        POST_REPO_SYNC_COMMAND=${POST_REPO_SYNC_COMMAND}
 
         REPO_SYNC_JOBS_ARG=${REPO_SYNC_JOBS_ARG}
 

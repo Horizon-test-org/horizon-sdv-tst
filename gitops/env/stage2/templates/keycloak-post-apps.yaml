@@ -75,6 +75,7 @@ spec:
                   name: keycloak-initial-creds
                   key: password
           image: {{ .Values.config.postjobs.keycloakmtkconnect }}
+          imagePullPolicy: Always
       restartPolicy: Never
 ---
 apiVersion: batch/v1
@@ -106,6 +107,7 @@ spec:
                   name: keycloak-initial-creds
                   key: password
           image: {{ .Values.config.postjobs.keycloakjenkins }}
+          imagePullPolicy: Always
       restartPolicy: Never
 ---
 apiVersion: batch/v1
@@ -137,6 +139,15 @@ spec:
                   name: keycloak-initial-creds
                   key: password
             - name: GERRIT_ADMIN_USERNAME
-              value: gerrit-admin
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-gerrit-admin
+                  key: username
+            - name: GERRIT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-gerrit-admin
+                  key: password
           image: {{ .Values.config.postjobs.keycloakgerrit }}
+          imagePullPolicy: Always
       restartPolicy: Never

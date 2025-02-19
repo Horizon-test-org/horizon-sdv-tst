@@ -16,7 +16,7 @@
 #
 # Description:
 # Create the Cuttlefish boilerplate template instance for use with Jenkins
-# GCE plugin and running Cuttlefish standalone or with CTS.
+# GCE plugin.
 #
 # To run, ensure gcloud is set up, authenticated and tunneling is
 # configured, eg. --tunnel-through-iap.
@@ -35,7 +35,7 @@
 #  - CUTTLEFISH_REVISION: the branch/tag version of Android Cuttlefish
 #        to use. Default: main
 #  - BOOT_DISK_SIZE: Disk image size in GB. Default: 200GB
-#  - DEBIAN_OS_VERSION: Default: debian-12-bookworm-v20241210}
+#  - DEBIAN_OS_VERSION: Default: debian-12-bookworm-v20250113}
 #  - JENKINS_NAMESPACE: k8s namespace. Default: jenkins
 #  - JENKINS_PRIVATE_SSH_KEY_NAME: SSH key name to extract public key from
 #        Private key would be created similar to:
@@ -50,6 +50,7 @@
 #        n1-standard-64
 #  - MAX_RUN_DURATION: Limits how long this VM instance can run. Default: 4h
 #  - NETWORK: The name of the VPC network. Default: sdv-network
+#  - NODEJS_VERSION: The version of nodejs to install. Default: 20.9.0
 #  - PROJECT: The GCP project. Default: derived from gcloud config.
 #  - REGION: The GCP region. Default: europe-west1
 #  - SERVICE_ACCOUNT: The GCP service account. Default: derived from gcloud
@@ -92,12 +93,13 @@
 source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
 
 # Environment variables that can be overridden from command line.
-# android-cuttlefish revisions can be of the form v1.0.1, main etc.
+# android-cuttlefish revisions can be of the form v1.1.0, main etc.
 CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION:-main}
 CUTTLEFISH_REVISION=$(echo "${CUTTLEFISH_REVISION}" | xargs)
 BOOT_DISK_SIZE=${BOOT_DISK_SIZE:-200GB}
-BOOT_DISK_SIZE=$(echo "${BOOT_DISK_SIZE}" | xargs)
-DEBIAN_OS_VERSION=${DEBIAN_OS_VERSION:-debian-12-bookworm-v20241210}
+BOOT_DISK_SIZE=$(echo "${BOOT_DISK_SIZE}" | awk '{print toupper($0)}' | xargs)
+DEBIAN_OS_VERSION=${DEBIAN_OS_VERSION:-debian-12-bookworm-v20250113}
+DEBIAN_OS_VERSION=$(echo "${DEBIAN_OS_VERSION}" | xargs)
 JENKINS_NAMESPACE=${JENKINS_NAMESPACE:-jenkins}
 JENKINS_PRIVATE_SSH_KEY_NAME=${JENKINS_PRIVATE_SSH_KEY_NAME:-jenkins-cuttlefish-vm-ssh-private-key}
 JENKINS_SSH_PUB_KEY_FILE=${JENKINS_SSH_PUB_KEY_FILE:-jenkins_rsa.pub}
@@ -105,12 +107,14 @@ MACHINE_TYPE=${MACHINE_TYPE:-n1-standard-64}
 MACHINE_TYPE=$(echo "${MACHINE_TYPE}" | xargs)
 MAX_RUN_DURATION=${MAX_RUN_DURATION:-4h}
 NETWORK=${NETWORK:-sdv-network}
+NODEJS_VERSION=${NODEJS_VERSION:-20.9.0}
+NODEJS_VERSION=$(echo "${NODEJS_VERSION}" | xargs)
 PROJECT=${PROJECT:-$(gcloud config list --format 'value(core.project)'|head -n 1)}
 REGION=${REGION:-europe-west1}
 SERVICE_ACCOUNT=${SERVICE_ACCOUNT:-$(gcloud projects describe "${PROJECT}" --format='get(projectNumber)')-compute@developer.gserviceaccount.com}
 SUBNET=${SUBNET:-sdv-subnet}
 UNIQUE_NAME=${UNIQUE_NAME:-cuttlefish-vm}
-UNIQUE_NAME=$(echo "${UNIQUE_NAME}" | xargs)
+UNIQUE_NAME=$(echo "${UNIQUE_NAME}" | awk '{print tolower($0)}' | xargs)
 VM_INSTANCE_CREATE=${VM_INSTANCE_CREATE:-true}
 ZONE=${ZONE:-europe-west1-d}
 
@@ -272,7 +276,7 @@ function create_vm_instance() {
 }
 
 # Install host tools on the base VM instance.
-# Host will reboot when installed (see cvd_initialise.sh)
+# Host will reboot when installed (see cvd_host_initialise.sh)
 function install_host_tools() {
     echo_formatted "3. Populate Cuttlefish Host tools/packages on VM instance"
 
@@ -292,7 +296,7 @@ function install_host_tools() {
 
     # Keep debug so we can see what's happening.
     gcloud compute ssh --zone "${ZONE}" "${vm_base_instance}" --tunnel-through-iap --project "${PROJECT}" \
-        --command="CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION} ./cvd/cvd_initialise.sh" &
+        --command="CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION} NODEJS_VERSION=${NODEJS_VERSION} ./cvd/cvd_host_initialise.sh" &
     progress_spinner "$!"
 
     gcloud compute ssh --zone "${ZONE}" "${vm_base_instance}" --tunnel-through-iap --project "${PROJECT}" \
@@ -411,9 +415,17 @@ function create_cuttlefish_boilerplate_template() {
         --network-interface network="${NETWORK}",subnet="${SUBNET}",stack-type=IPV4_ONLY,no-address &
     progress_spinner "$!"
 
-    echo -e "${ORANGE}Sleep for 1 minute while instance template creation completes${NC}"
-    sleep 60
-    echo -e "${ORANGE}Instance Template ${vm_cuttlefish_instance_template} created${NC}"
+    echo -e "${ORANGE}Sleep for 4 minute while instance template creation completes${NC}"
+    sleep 240
+
+    # Check the instance template was created.
+    template_exists=$(gcloud compute instance-templates list --filter="name=${vm_cuttlefish_instance_template}" --format='get(name)')
+     if [ "${template_exists}" != "${vm_cuttlefish_instance_template}" ]; then
+       echo -r "${RED}ERROR: Failed to create template: ${vm_cuttlefish_instance_template}, review logs.${NC}"
+       return 1
+    else
+       echo -e "${ORANGE}Instance Template ${vm_cuttlefish_instance_template} created${NC}"
+    fi
 
     # Delete and Recreate a VM instance for local tests.
     yes Y | gcloud compute instances delete "${vm_cuttlefish_instance}" \
@@ -446,6 +458,7 @@ function create_cuttlefish_boilerplate_template() {
 
 # Delete all VM instances and artifacts
 function delete_instances() {
+    echo_formatted "6. Delete VM instances and artifacts"
 
     yes Y | gcloud compute instance-templates delete "${vm_base_instance_template}" >/dev/null 2>&1 || true &
     progress_spinner "$!"
@@ -477,27 +490,33 @@ function main() {
         1)  create_base_template_instance ;;
         2)  create_vm_instance ;;
         3)  install_host_tools ;;
-        4)
-            if ! create_ssh_key; then
+        4)  if ! create_ssh_key; then
                 delete_instances # Clean up on SSH error
                 exit 1
             fi
             ;;
-        5)  create_cuttlefish_boilerplate_template ;;
+        5)  if ! create_cuttlefish_boilerplate_template; then
+                delete_instances # Clean up on error
+                exit 1
+            fi
+            ;;
         6)  delete_instances ;;
         *h*)
             print_usage
             exit 0
             ;;
-        *)
-            create_base_template_instance
+        *)  create_base_template_instance
             create_vm_instance
             install_host_tools
             if ! create_ssh_key; then
                 delete_instances # Clean up on SSH error
                 exit 1
             fi
-            create_cuttlefish_boilerplate_template
+
+            if ! create_cuttlefish_boilerplate_template; then
+                delete_instances # Clean up on error
+                exit 1
+            fi
             echo_formatted "Done. Please check the output above and enjoy Cuttlefish!"
             ;;
     esac

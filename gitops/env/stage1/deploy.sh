@@ -30,10 +30,12 @@ deploy() {
   if [ "$D_STATUS" == "$D_NAME $D_NS deployed $D_CHART-$D_VERSION" ]; then
     D_DIFF=$(helm diff upgrade $D_NAME $D_PATH/$D_CHART --namespace $D_NS --version $D_VERSION)
     if [ "$D_DIFF" != "" ]; then
-      helm upgrade $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION
+      helm upgrade $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION --wait
+      sleep 10
     fi
   else
-    helm install $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION
+    helm install $D_NAME $D_PATH/$D_CHART -n $D_NS --create-namespace --values $D_VALUES --version $D_VERSION --wait
+    sleep 10
   fi
 }
 

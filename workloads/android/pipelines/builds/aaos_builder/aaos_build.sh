@@ -19,6 +19,16 @@
 #
 # This script will build the AAOS image(s) for the given target. The
 # target is determined by the AAOS_LUNCH_TARGET environment variable.
+#
+# The following variables must be set before running this script:
+#  - AAOS_LUNCH_TARGET: the target device.
+#
+# Optional variables:
+#  - OVERRIDE_MAKE_COMMAND: the make command line to use
+#
+# Example usage:
+# AAOS_LUNCH_TARGET=sdk_car_x86_64-ap1a-userdebug \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_build.sh
 
 # Include common functions and variables.
 # shellcheck disable=SC1091

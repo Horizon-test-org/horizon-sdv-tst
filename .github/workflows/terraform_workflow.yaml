@@ -4,11 +4,28 @@ on:
   push:
     paths:
       - "terraform/*"
-    branches: ["env/sbx"]
+    branches: ["env/*"]
   workflow_dispatch:
 
 jobs:
+  parsing_branch:
+    runs-on: ubuntu-22.04
+    outputs:
+      branch: ${{ steps.branch.outputs.parsed_branch }}
+      parsed_branch: ${{ steps.branch.outputs.parsed_branch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set branch name variable
+        id: branch
+        run: |
+          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}
+          PARSED_BRANCH_NAME=${BRANCH_NAME#*/}
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "parsed_branch=$PARSED_BRANCH_NAME" >> $GITHUB_OUTPUT
   terraform:
+    needs: parsing_branch
     uses: ./.github/workflows/terraform.yaml
     concurrency:
       group: terraform
@@ -21,7 +38,8 @@ jobs:
       gcp-sa: "${{ secrets.GCP_SA }}"
       wif-provider: "${{ secrets.WIF_PROVIDER }}"
       gh-app-id: ${{ secrets.GH_APP_ID }}
-      gh-argocd-initial-password-bcrypt: ${{ secrets.ARGOCD_INITIAL_PASSWORD_BCRYPT }}
+      gh-installation-id: ${{ secrets.GH_INSTALLATION_ID }}
+      gh-argocd-initial-password: ${{ secrets.ARGOCD_INITIAL_PASSWORD }}
       gh-jenkins-initial-password: ${{ secrets.JENKINS_INITIAL_PASSWORD }}
       gh-keycloak-initial-password: ${{ secrets.KEYCLOAK_INITIAL_PASSWORD }}
       gh-gerrit-admin-initial-password: ${{ secrets.GERRIT_ADMIN_INITIAL_PASSWORD }}
@@ -30,5 +48,5 @@ jobs:
       gh-cuttlefish-vm-ssh-private-key: ${{ secrets.CUTTLEFISH_VM_SSH_PRIVATE_KEY }}
     with:
       terraform-version: 1.9.6
-      environment: sbx
+      environment: ${{ needs.parsing_branch.outputs.parsed_branch }}
       directory: terraform/env

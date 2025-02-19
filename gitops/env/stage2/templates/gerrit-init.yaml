@@ -25,20 +25,7 @@ metadata:
     jenkins.io/credentials-type: "basicSSHUserPrivateKey"
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-    jenkins.io/credentials-description : "Gerrit SSH Private Key"
-type: Opaque
-stringData:
-  username: "gerrit-admin"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: keycloak-gerrit-admin
-  namespace: gerrit
-  labels:
-    jenkins.io/credentials-type: "usernamePassword"
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    jenkins.io/credentials-description: "Gerrit SSH Private Key"
 type: Opaque
 stringData:
   username: "gerrit-admin"
@@ -60,26 +47,6 @@ spec:
           clusterName: sdv-cluster
           serviceAccountRef:
             name: gerrit-sa
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: gerrit-admin-initial-secret
-  namespace: gerrit
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
-spec:
-  refreshInterval: 10s
-  secretStoreRef:
-    kind: SecretStore
-    name: gerrit-secret-store
-  target:
-    name: keycloak-gerrit-admin
-    creationPolicy: Merge
-  data:
-    - secretKey: password
-      remoteRef:
-        key: gerritAdminInitialPassword
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret

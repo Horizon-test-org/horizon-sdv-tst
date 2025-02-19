@@ -1,4 +1,9 @@
 
+variable "project_id" {
+  description = "Define the project id"
+  type        = string
+}
+
 variable "location" {
   description = "Define the secret replication location"
   type        = string

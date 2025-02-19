@@ -53,7 +53,7 @@ pipeline {
            description: '''<p>The branch/tag version of Android Cuttlefish to use, e.g..</p>
            <ul>
              <li>main</li>
-             <li>v1.0.1</li>
+             <li>v1.1.0</li>
            </ul>
            <p>Reference: <a href="https://github.com/google/android-cuttlefish.git" target="_blank">android-cuttlefish.git</a></p>''')
 
@@ -84,22 +84,27 @@ pipeline {
            Reference: <a href="https://cloud.google.com/sdk/gcloud/reference/compute/instances/create" target="_blank">gcloud compute instances create</a>, i.e. <i>--max-run-duration=MAX_RUN_DURATION</i></p>''')
 
     string(name: 'DEBIAN_OS_VERSION',
-           defaultValue: 'debian-12-bookworm-v20241210',
+           defaultValue: 'debian-12-bookworm-v20250113',
            description: '''<p>Disk image OS version.<br/>
            Reference: <a href="https://cloud.google.com/sdk/gcloud/reference/compute/instance-templates/create" target="_blank">gcloud compute instance-templates create</a>, i.e. <i>--create-disk</i></p>''')
 
+    string(name: 'NODEJS_VERSION:',
+           defaultValue: '20.9.0',
+           description: '''<p>NodeJS version.<br/>
+           This is installed using <i>nvm</i> on the instance template to be compatible with other tooling.</p>''')
+
     string(name: 'UNIQUE_NAME',
            defaultValue: '',
-           description: '''<p>Define the unique name used for the instance template.<br/>
+           description: '''<p>Optional parameter to define the unique name used for the instance template.<br/>
            Default: leave empty, the name will be automatically derived from ANDROID_CUTTLEFISH_REVISION.<br/><br/>
            This option is simply provided for flexibility to allow users create their own instance templates, should they wish to, e.g.<br/></p>
            <ul>
-             <li>cuttlefish-vm-n1-standard-8-v101</li>
-             <li>cuttlefish-vm-bob-v101</li>
+             <li>cuttlefish-vm-n1-standard-8-v110</li>
+             <li>cuttlefish-vm-bob-v110</li>
            </ul>
            <p>If you define a unique instance:</p>
            <ul>
-             <li>The name must start with cuttlefish-vm.</li>
+             <li>The name must start with cuttlefish-vm and must be <b>lower case</b>.</li>
              <li>Update Jenkins CasC to include a new compute engine entry that references the instance template this pipeline created.</li>
              <li><b>Pipeline Dependencies:</b> <i>CVD Launcher</b></i> and <i>CTS Execution</i></li>
              <li>JENKINS_GCE_CLOUD_LABEL parameter references the label of the new compute engine entry.</li>
@@ -110,7 +115,8 @@ pipeline {
     booleanParam(name: 'DELETE', defaultValue: false,
                  description: '''<p>Delete existing templates, skip creation steps.<br/>
                  Useful for removing old instances to reduce costs.<br/>
-                 <b>Note:</b> Define the UNIQUE_NAME if non-standard instance is to be deleted, else simply define the ANDROID_CUTTLEFISH_REVISION.</p>''')
+                 <b>Note:</b> Define the UNIQUE_NAME if non-standard instance is to be deleted, else simply define the
+version in ANDROID_CUTTLEFISH_REVISION field.</p>''')
   }
 
 
@@ -127,13 +133,12 @@ pipeline {
       steps {
         container(name: 'builder') {
           sh '''
-            BOOT_DISK_SIZE=${BOOT_DISK_SIZE} \
-            CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
-            DEBIAN_OS_VERSION=${DEBIAN_OS_VERSION} \
-            MACHINE_TYPE=${MACHINE_TYPE} \
+            BOOT_DISK_SIZE="${BOOT_DISK_SIZE}" \
+            CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
+            MACHINE_TYPE="${MACHINE_TYPE}" \
             PROJECT=${CLOUD_PROJECT} \
             REGION=${CLOUD_REGION} \
-            UNIQUE_NAME=${UNIQUE_NAME} \
+            UNIQUE_NAME="${UNIQUE_NAME}" \
             ZONE=${CLOUD_ZONE} \
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_create_instance_template.sh 1
           '''
@@ -153,8 +158,8 @@ pipeline {
       steps {
         container(name: 'builder') {
           sh '''
-            CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
-            MAX_RUN_DURATION=${MAX_RUN_DURATION} \
+            CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
+            MAX_RUN_DURATION="${MAX_RUN_DURATION}" \
             PROJECT=${CLOUD_PROJECT} \
             REGION=${CLOUD_REGION} \
             ZONE=${CLOUD_ZONE} \
@@ -176,10 +181,11 @@ pipeline {
       steps {
         container(name: 'builder') {
           sh '''
-            CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
+            CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
             PROJECT=${CLOUD_PROJECT} \
             REGION=${CLOUD_REGION} \
             ZONE=${CLOUD_ZONE} \
+            NODEJS_VERSION="${NODEJS_VERSION}" \
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_create_instance_template.sh 3
           '''
         }
@@ -211,7 +217,7 @@ pipeline {
                 fi
               fi
 
-              CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
+              CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
               JENKINS_SSH_PUB_KEY_FILE="${WORKSPACE}"/jenkins_rsa.pub \
               PROJECT=${CLOUD_PROJECT} \
               REGION=${CLOUD_REGION} \
@@ -235,11 +241,11 @@ pipeline {
       steps {
         container(name: 'builder') {
           sh '''
-            CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
-            MACHINE_TYPE=${MACHINE_TYPE} \
+            CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
+            MACHINE_TYPE="${MACHINE_TYPE}" \
             PROJECT=${CLOUD_PROJECT} \
             REGION=${CLOUD_REGION} \
-            UNIQUE_NAME=${UNIQUE_NAME} \
+            UNIQUE_NAME="${UNIQUE_NAME}" \
             VM_INSTANCE_CREATE=false \
             ZONE=${CLOUD_ZONE} \
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_create_instance_template.sh 5
@@ -260,10 +266,10 @@ pipeline {
       steps {
         container(name: 'builder') {
           sh '''
-            CUTTLEFISH_REVISION=${ANDROID_CUTTLEFISH_REVISION} \
+            CUTTLEFISH_REVISION="${ANDROID_CUTTLEFISH_REVISION}" \
             PROJECT=${CLOUD_PROJECT} \
             REGION=${CLOUD_REGION} \
-            UNIQUE_NAME=${UNIQUE_NAME} \
+            UNIQUE_NAME="${UNIQUE_NAME}" \
             ZONE=${CLOUD_ZONE} \
             ./workloads/android/pipelines/tests/cvd_launcher/cvd_create_instance_template.sh 6
           '''

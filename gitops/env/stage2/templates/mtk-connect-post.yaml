@@ -75,4 +75,5 @@ spec:
               value: "harbor.scpmtk.com/mtk-connect"
 
           image: {{ .Values.config.postjobs.mtkconnect }}
+          imagePullPolicy: Always
       restartPolicy: Never

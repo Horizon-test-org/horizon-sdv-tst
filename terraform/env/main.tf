@@ -1,4 +1,4 @@
-
+# Actions workflow trigger 2
 locals {
   sdv_default_computer_sa = "966518152012-compute@developer.gserviceaccount.com"
 }
@@ -167,6 +167,21 @@ module "base" {
       ]
     }
     s2 = {
+      secret_id        = "githubAppInstallationID"
+      value            = var.sdv_gh_installation_id
+      use_github_value = true
+      gke_access = [
+        {
+          ns = "argocd"
+          sa = "argocd-sa"
+        },
+        {
+          ns = "jenkins"
+          sa = "jenkins-sa"
+        }
+      ]
+    }
+    s3 = {
       secret_id        = "githubAppPrivateKey"
       value            = var.sdv_gh_app_key
       use_github_value = true
@@ -181,7 +196,7 @@ module "base" {
         }
       ]
     }
-    s3 = {
+    s4 = {
       secret_id        = "keycloakIdpCredentials"
       value            = "dummy"
       use_github_value = false
@@ -192,8 +207,8 @@ module "base" {
         }
       ]
     }
-    s4 = {
-      secret_id        = "argocdInitialPasswordBcrypt"
+    s5 = {
+      secret_id        = "argocdInitialPassword"
       value            = var.sdv_gh_argocd_initial_password_bcrypt
       use_github_value = true
       gke_access = [
@@ -203,7 +218,7 @@ module "base" {
         },
       ]
     }
-    s5 = {
+    s6 = {
       secret_id        = "jenkinsInitialPassword"
       value            = var.sdv_gh_jenkins_initial_password
       use_github_value = true
@@ -214,7 +229,7 @@ module "base" {
         },
       ]
     }
-    s6 = {
+    s7 = {
       secret_id        = "keycloakInitialPassword"
       value            = var.sdv_gh_keycloak_initial_password
       use_github_value = true
@@ -225,7 +240,7 @@ module "base" {
         },
       ]
     }
-    s7 = {
+    s8 = {
       secret_id        = "githubAppPrivateKeyPKCS8"
       value            = var.sdv_gh_app_key_pkcs8
       use_github_value = true
@@ -238,7 +253,7 @@ module "base" {
     }
     # GCP secret name:  gerrit-admin-initial-password
     # WI to GKE at ns/gerrit/sa/gerrit-sa.
-    s8 = {
+    s9 = {
       secret_id        = "gerritAdminInitialPassword"
       value            = var.sdv_gh_gerrit_admin_initial_password
       use_github_value = true
@@ -251,7 +266,7 @@ module "base" {
     }
     # GCP secret name:  gh-gerrit-admin-private-key
     # WI to GKE at ns/gerrit/sa/gerrit-sa.
-    s9 = {
+    s10 = {
       secret_id        = "gerritAdminPrivateKey"
       value            = var.sdv_gh_gerrit_admin_private_key
       use_github_value = true
@@ -264,7 +279,7 @@ module "base" {
     }
     # GCP secret name:  gh-keycloak-horizon-admin-password
     # WI to GKE at ns/jenkins/sa/jenkins-sa.
-    s10 = {
+    s11 = {
       secret_id        = "keycloakHorizonAdminPassword"
       value            = var.sdv_gh_keycloak_horizon_admin_password
       use_github_value = true
@@ -277,7 +292,7 @@ module "base" {
     }
     # GCP secret name:  gh-cuttlefish-vm-ssh-private-key
     # WI to GKE at ns/jenkins/sa/jenkins-sa.
-    s11 = {
+    s12 = {
       secret_id        = "jenkinsCuttlefishVmSshPrivateKey"
       value            = var.sdv_gh_cuttlefish_vm_ssh_private_key
       use_github_value = true

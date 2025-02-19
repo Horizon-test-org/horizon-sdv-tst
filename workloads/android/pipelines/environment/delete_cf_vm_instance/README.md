@@ -1,4 +1,4 @@
-# Docker Image Template
+# Delete Cuttlefish VM Instance
 
 ## Table of contents
 - [Introduction](#introduction)
@@ -7,24 +7,15 @@
 
 ## Introduction <a name="introduction"></a>
 
-This pipeline builds the container image used on Kubernetes for building Android targets and miscellaneous environment pipelines.
+During developing the Android workload and test workflow/pipelines, sometimes it may be necessary to delete VM instances created for Cuttlefish related test jobs that may have been left in place.
 
-This need only be run once, or when Dockerfile is updated. There is an option not to push the resulting image to the
-registry, so that devs can test their changes before committing the image.
-
-### References
-- [Kaniko](https://github.com/GoogleContainerTools/kaniko)
+This is not intended for everyday usage, simply a tool when developing tests to ensure that resources can be removed if errors occur during development.
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### IMAGE_TAG
+### VM_INSTANCE_NAME
 
-This is the tag that will be applied when the container image is pushed to the registry. For the current release we
-simply use `latest` because all pipelines that depend on this container image are using `latest`.
-
-### NO_PUSH
-
-Build the container image but don't push to the registry.
+The name of the VM instance to terminate and delete, but it is restricted to those prefixed with `cuttlefish-vm` to avoid accidental termination and removal of other unrelated VMs.
 
 ## SYSTEM VARIABLES <a name="system-variables"></a>
 
@@ -42,6 +33,9 @@ These are as follows:
 
 -   `CLOUD_REGION`
     - The GCP project region. Important for bucket, registry paths used in pipelines.
+
+-   `CLOUD_ZONE`
+    - The GCP project zone. Important for bucket, registry paths used in pipelines.
 
 -   `JENKINS_SERVICE_ACCOUNT`
     - Service account to use for pipelines. Required to ensure correct roles and permissions for GCP resources.
