@@ -10,6 +10,7 @@ config:
     keycloakjenkins: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post-jenkins:1.0.0
     keycloakgerrit: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post-gerrit:1.0.0
     mtkconnect: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/mtk-connect-post:1.0.0
+    mtkconnectkey: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/mtk-connect-key:1.0.0
     gerrit: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/gerrit-post:1.0.0
   workloads:
     android:
