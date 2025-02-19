@@ -5,4 +5,4 @@ configs:
   secret:
     createSecret: false
 global:
-  domain: sbx.horizon-sdv.com
+  domain: tst.horizon-sdv.com

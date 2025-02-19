@@ -72,7 +72,7 @@ git clone https://x-access-token:${GITHUB_ACCESS_TOKEN}@${REPOSITORY} ~/horizon-
 echo ""
 echo "List current branch and remote"
 cd ~/horizon-sdv
-git checkout -t origin/env/sbx
+git checkout -t origin/env/tst
 
 echo ""
 echo "Build config post jobs"
