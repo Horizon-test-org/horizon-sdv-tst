@@ -14,7 +14,7 @@ jobs:
       branch: ${{ steps.branch.outputs.parsed_branch }}
       parsed_branch: ${{ steps.branch.outputs.parsed_branch }}
     env:
-      ALLOWED_BRANCHES_FOR_TFAPPLY: 'env/sbx,env/dev,env/tst,main'
+      ALLOWED_BRANCHES_FOR_TFAPPLY: 'env/sbx,env/dev,env/tst,main,env/sbx_feature_luk_taa_543_tf_apply_error'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
