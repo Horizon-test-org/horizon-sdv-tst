@@ -1,6 +1,6 @@
 # Actions workflow trigger 2
 locals {
-  sdv_default_computer_sa = "966518152012-compute@developer.gserviceaccount.com"
+  sdv_default_computer_sa = "268541173342-compute@developer.gserviceaccount.com"
 }
 
 module "base" {
