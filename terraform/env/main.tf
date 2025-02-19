@@ -59,11 +59,11 @@ module "base" {
   ]
 
   sdv_ssl_certificate_name   = "horizon-sdv"
-  sdv_ssl_certificate_domain = "sbx.horizon-sdv.com"
+  sdv_ssl_certificate_domain = "dev.horizon-sdv.com"
 
   # sdv-apis-services
-  sdv_auth_config_display_name = "horizon-sdv-sbx-oauth-2"
-  sdv_auth_config_endpoint_uri = "https://sbx.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
+  sdv_auth_config_display_name = "horizon-sdv-dev-oauth-2"
+  sdv_auth_config_endpoint_uri = "https://dev.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
 
   #
   # To create a new SA with access from GKE to GC, add a new saN block.

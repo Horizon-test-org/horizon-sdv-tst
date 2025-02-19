@@ -1,6 +1,6 @@
 config:
   name: Horizon SDV
-  domain: sbx.horizon-sdv.com
+  domain: dev.horizon-sdv.com
   projectID: sdvc-2108202401
   region: europe-west1
   zone: europe-west1-d
@@ -15,10 +15,10 @@ config:
   workloads:
     android:
       url: https://github.com/AGBG-ASG/acn-horizon-sdv
-      branch: env/sbx
+      branch: env/dev
 spec:
   destination:
     server: https://kubernetes.default.svc
   source:
     repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
-    targetRevision: env/sbx
+    targetRevision: env/dev

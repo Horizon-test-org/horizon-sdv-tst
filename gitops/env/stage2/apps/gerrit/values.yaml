@@ -1,8 +1,8 @@
 config:
-  domain: sbx.horizon-sdv.com
+  domain: dev.horizon-sdv.com
 spec:
   destination:
     server: https://kubernetes.default.svc
   source:
     repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
-    targetRevision: env/sbx
+    targetRevision: env/dev
