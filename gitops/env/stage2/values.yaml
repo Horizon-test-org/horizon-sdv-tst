@@ -1,17 +1,17 @@
 config:
   name: Horizon SDV
   domain: dev.horizon-sdv.com
-  projectID: sdvc-2108202401
+  projectID: sdva-2108202401
   region: europe-west1
   zone: europe-west1-d
   postjobs:
-    keycloak: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post:1.0.0
-    keycloakmtkconnect: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post-mtk-connect:1.0.0
-    keycloakjenkins: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post-jenkins:1.0.0
-    keycloakgerrit: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/keycloak-post-gerrit:1.0.0
-    mtkconnect: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/mtk-connect-post:1.0.0
-    mtkconnectkey: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/mtk-connect-post-key:1.0.0
-    gerrit: europe-west1-docker.pkg.dev/sdvc-2108202401/horizon-sdv/gerrit-post:1.0.0
+    keycloak: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/keycloak-post:1.0.0
+    keycloakmtkconnect: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/keycloak-post-mtk-connect:1.0.0
+    keycloakjenkins: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/keycloak-post-jenkins:1.0.0
+    keycloakgerrit: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/keycloak-post-gerrit:1.0.0
+    mtkconnect: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/mtk-connect-post:1.0.0
+    mtkconnectkey: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/mtk-connect-post-key:1.0.0
+    gerrit: europe-west1-docker.pkg.dev/sdva-2108202401/horizon-sdv/gerrit-post:1.0.0
   workloads:
     android:
       url: https://github.com/AGBG-ASG/acn-horizon-sdv

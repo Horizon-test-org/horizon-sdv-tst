@@ -7,7 +7,7 @@ module "base" {
   source = "../modules/base"
 
   # The project is used by provider.tf to define the GCP project
-  sdv_project  = "sdvc-2108202401"
+  sdv_project  = "sdva-2108202401"
   sdv_location = "europe-west1"
   sdv_region   = "europe-west1"
   sdv_zone     = "europe-west1-d"
