@@ -1,3 +1,4 @@
+
 // Copyright (c) 2024-2025 Accenture, All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,15 +48,15 @@ pipeline {
            description: '''<p>The Jenkins GCE Clouds label for the Cuttlefish instance template, e.g.<br/></p>
            <ul>
              <li>cuttlefish-vm-main</li>
-             <li>cuttlefish-vm-v101</li>
+             <li>cuttlefish-vm-v110</li>
            </ul>''')
 
     string(name: 'CUTTLEFISH_DOWNLOAD_URL',
            defaultValue: '',
-           description: "<p>Storage URL pointing to the location of the Cuttlefish Virtual Device images and host packages, e.g.<br/>gs://${env.CLOUD_PROJECT}-aaos/Android/Builds/AAOS_Builder/&lt;BUILD_NUMBER&gt;</p>")
+           description: "<p>Storage URL pointing to the location of the Cuttlefish Virtual Device images and host packages, e.g.<br/>gs://${env.ANDROID_BUILD_BUCKET_ROOT_NAME}/Android/Builds/AAOS_Builder/&lt;BUILD_NUMBER&gt;</p>")
 
     string(name: 'CUTTLEFISH_MAX_BOOT_TIME',
-           defaultValue: '180',
+           defaultValue: '240',
            description: '''<p>Android Cuttlefish max boot time in seconds.<br/>
            Wait on VIRTUAL_DEVICE_BOOT_COMPLETED across devices.</p>''')
 
@@ -91,9 +92,9 @@ pipeline {
               sh '''
                 CUTTLEFISH_DOWNLOAD_URL="${CUTTLEFISH_DOWNLOAD_URL}" \
                 CUTTLEFISH_MAX_BOOT_TIME="${CUTTLEFISH_MAX_BOOT_TIME}" \
-                NUM_INSTANCES=${NUM_INSTANCES} \
-                VM_CPUS=${VM_CPUS} \
-                VM_MEMORY_MB=${VM_MEMORY_MB} \
+                NUM_INSTANCES="${NUM_INSTANCES}" \
+                VM_CPUS="${VM_CPUS}" \
+                VM_MEMORY_MB="${VM_MEMORY_MB}" \
                 ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --start
               '''
             }
@@ -116,7 +117,7 @@ pipeline {
                   MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
                   MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \
                   MTK_CONNECT_PASSWORD=${MTK_CONNECT_PASSWORD} \
-                  MTK_CONNECTED_DEVICES=${NUM_INSTANCES} \
+                  MTK_CONNECTED_DEVICES="${NUM_INSTANCES}" \
                   MTK_CONNECT_TEST_ARTIFACT="${CUTTLEFISH_DOWNLOAD_URL}" \
                   MTK_CONNECT_TESTBENCH="${JOB_NAME}-${BUILD_NUMBER}" \
                   timeout 15m ./workloads/android/pipelines/tests/cvd_launcher/cvd_mtk_connect.sh --start
@@ -135,35 +136,36 @@ pipeline {
           }
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-              sh '''
-                CUTTLEFISH_KEEP_ALIVE_TIME="${CUTTLEFISH_KEEP_ALIVE_TIME}" \
-                ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --keep-alive
-              '''
+              script {
+                sleep(time: "${CUTTLEFISH_KEEP_ALIVE_TIME}", unit: 'MINUTES')
+              }
             }
           }
         }
-      }
-      post {
-        always {
-          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-            withCredentials([usernamePassword(credentialsId: 'jenkins-mtk-connect-apikey', passwordVariable: 'MTK_CONNECT_PASSWORD', usernameVariable: 'MTK_CONNECT_USERNAME')]) {
-              sh '''
-                if test -n "$CUTTLEFISH_DOWNLOAD_URL"; then
-                  sudo \
-                  MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
-                  MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \
-                  MTK_CONNECT_PASSWORD=${MTK_CONNECT_PASSWORD} \
-                  MTK_CONNECTED_DEVICES=${NUM_INSTANCES} \
-                  MTK_CONNECT_TESTBENCH="${JOB_NAME}-${BUILD_NUMBER}" \
-                  ./workloads/android/pipelines/tests/cvd_launcher/cvd_mtk_connect.sh --stop || true
-                  ./workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --stop || true
-                else
-                  echo "Post stage skipped due to conditional"
-                fi
-              '''
+
+        stage ('Stop Virtual Devices') {
+          when { expression { env.CUTTLEFISH_DOWNLOAD_URL } }
+          steps {
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              withCredentials([usernamePassword(credentialsId: 'jenkins-mtk-connect-apikey', passwordVariable: 'MTK_CONNECT_PASSWORD', usernameVariable: 'MTK_CONNECT_USERNAME')]) {
+                script {
+                  sh 'echo "Stopping  MTK Connect"'
+                  sh '''
+                    sudo \
+                    MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \
+                    MTK_CONNECT_USERNAME=${MTK_CONNECT_USERNAME} \
+                    MTK_CONNECT_PASSWORD=${MTK_CONNECT_PASSWORD} \
+                    MTK_CONNECTED_DEVICES="${NUM_INSTANCES}" \
+                    MTK_CONNECT_TESTBENCH="${JOB_NAME}-${BUILD_NUMBER}" \
+                    timeout 10m ./workloads/android/pipelines/tests/cvd_launcher/cvd_mtk_connect.sh --stop || true
+                  '''
+                  sh 'echo "Stopping Cuttlefish"'
+                  sh './workloads/android/pipelines/tests/cvd_launcher/cvd_start_stop.sh --stop || true'
+                }
+                archiveArtifacts artifacts: 'cvd*.log', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+                archiveArtifacts artifacts: 'cuttlefish*.tgz', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+              }
             }
-            archiveArtifacts artifacts: 'cvd*.log', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
-            archiveArtifacts artifacts: 'cuttlefish*.tgz', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
           }
         }
       }

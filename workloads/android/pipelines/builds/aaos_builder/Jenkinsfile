@@ -94,20 +94,18 @@ pipeline {
 
     string(name: 'POST_REPO_INITIALISE_COMMAND',
            defaultValue: '',
-           description: '''<p>Additional commands post repo init and prior to repo sync, build/make.<br/>
+           description: '''<p>Optional additional commands post repo init and prior to repo sync, build/make.<br/>
            <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/></p>''')
 
     string(name: 'POST_REPO_SYNC_COMMAND',
            defaultValue: '',
-           description: '''<p>Additional commands post repo sync/fetch and prior to build/make.<br/>
+           description: '''<p>Optional additional commands post repo sync/fetch and prior to build/make.<br/>
            <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/></p>''')
 
     string(name: 'OVERRIDE_MAKE_COMMAND',
            defaultValue: '',
-           description: '''<p>Override default make command.<br/>
-           <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.<br/><br/>
-           Reference: <a href="https://source.android.com/docs/automotive/start/pixelxl" target="_blank">Pixel Devices</a>
-           </p>''')
+           description: '''<p>Optional override default make command.<br/>
+           <b>Note: </b>Single command line only, use logical operators to execute subsequent commands.</p>''')
 
     choice(name: 'AAOS_CLEAN',
            choices: ['NO_CLEAN', 'CLEAN_BUILD', 'CLEAN_ALL'],
@@ -137,11 +135,11 @@ pipeline {
 
     // Fetch patchset from upstream open review change.
     string(name: 'GERRIT_PROJECT', defaultValue: '',
-           description: '<p>Gerrit Project with open review.</p>')
+           description: '<p>Optional, define Gerrit Project with open review.</p>')
     string(name: 'GERRIT_CHANGE_NUMBER', defaultValue: '',
-           description: '<p>Gerrit review item change number.</p>')
+           description: '<p>Optional, define Gerrit review item change number.</p>')
     string(name: 'GERRIT_PATCHSET_NUMBER', defaultValue: '',
-           description: '<p>Gerrit review item patchset number.</p>')
+           description: '<p>Optional, define Gerrit review item patchset number.</p>')
   }
 
   agent none
@@ -240,13 +238,11 @@ pipeline {
                 sh '''
                   AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
                   AAOS_REVISION="${AAOS_REVISION}" \
-                  AAOS_CLEAN="NO_CLEAN" \
                   ./workloads/android/pipelines/builds/aaos_builder/aaos_avd_sdk.sh || true
 
                   AAOS_LUNCH_TARGET="${AAOS_LUNCH_TARGET}" \
                   AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}" \
                   AAOS_ARTIFACT_STORAGE_SOLUTION="${AAOS_ARTIFACT_STORAGE_SOLUTION}" \
-                  AAOS_CLEAN="NO_CLEAN" \
                   ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
                 '''
                 archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true

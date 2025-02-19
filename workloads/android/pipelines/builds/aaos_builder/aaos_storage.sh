@@ -20,30 +20,23 @@
 # This script will store the specified AAOS target to the artifact area.
 # The target is determined by the AAOS_LUNCH_TARGET environment variable.
 #
-# Supported AAOS_LUNCH_TARGET are:
-#   - aosp_rpi4_car-userdebug
-#   - aosp_rpi5_car-userdebug
-#   - sdk_car_arm64-userdebug
-#   - sdk_car_x86_64-userdebug
-#   - aosp_cf_arm64_auto-userdebug
-#   - aosp_cf_x86_64_auto-userdebug
+# The following variables must be set before running this script:
 #
+#  - AAOS_LUNCH_TARGET: the target device.
+#
+# Optional variables:
+#  - AAOS_ARTIFACT_STORAGE_SOLUTION: the persistent storage location for
+#        artifacts (GCS_BUCKET default).
+#  - AAOS_ARTIFACT_ROOT_NAME: the name of the bucket to store artifacts.
+#
+# Example usage:
+# AAOS_LUNCH_TARGET=sdk_car_x86_64-ap1a-userdebug \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
 
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/aaos_environment.sh "$0"
 
-#
-# Store artifacts to GCS Bucket storage.
-#
-# This function stores the artifacts to GCS Bucket storage.
-# It takes no arguments and prints a message to indicate that the
-# artifacts are being stored to the bucket.
-#
-# The artifacts are copied to the bucket using the gsutil command.
-# The destination is determined by the AAOS_ARTIFACT_ROOT_NAME and
-# the job name and build number.
-#
 # If the bucket does not exist, it is created.
 # shellcheck disable=SC2317
 function gcs_bucket() {

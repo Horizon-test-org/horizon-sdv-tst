@@ -40,7 +40,7 @@ function cts_initialise() {
         echo "Installed Android CTS from ${CTS_DOWNLOAD_URL}."
     else
         # Create symlink
-        ln -sf android-cts_r"${CTS_VERSION}"/android-cts "${CTS_PATHNAME}"
+        ln -sf android-cts_"${ANDROID_VERSION}"/android-cts "${CTS_PATHNAME}"
     fi
     # Setup JDK path
     echo "export PATH=${PATH}:${HOME}/android-cts/jdk/bin" >> "${HOME}/.bashrc"

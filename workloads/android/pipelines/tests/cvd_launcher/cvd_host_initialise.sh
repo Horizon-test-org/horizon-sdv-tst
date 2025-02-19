@@ -17,17 +17,15 @@
 # Description:
 # Initialise Cuttlefish Virtual Device (CVD) host.
 #
-# See https://github.com/google/android-cuttlefish
-
-# Script can be run locally, eg.
-# CUTTLEFISH_REVISION=v0.9.29 \
-#   CUTTLEFISH_UPDATE=true cvd_initialise.sh
+# Script is only intended for use by cvd_create_instance_template.sh
+# for installing host tools on the base VM instance which is used to
+# create the CF instance template.
 
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
 
-declare -r jenkins_user="jenkins"
+declare -r JENKINS_USER="jenkins"
 
 # Check virtualization enabled.
 function cuttlefish_virtualization() {
@@ -39,7 +37,7 @@ function cuttlefish_virtualization() {
 
 # Install additional packages.
 function cuttlefish_install_additional_packages() {
-    local -a package_list=("default-jdk" "adb" "git" "nodejs" "npm" "aapt")
+    local -a package_list=("default-jdk" "adb" "git" "npm" "aapt")
 
     # Ensure update to latest package list.
     sudo apt update -y
@@ -51,22 +49,33 @@ function cuttlefish_install_additional_packages() {
             echo "${package} already installed"
         fi
     done
+
     # Show Java version and path.
     which java
     java -version
+
+    # Install Node version manager and nodejs.
+    npm cache clean -f
+    sudo npm install -g n
+    sudo n "${NODEJS_VERSION}"
+    sudo ln -sf /usr/local/bin/node  /usr/local/bin/nodejs || true
+
+    # Show node version and path.
+    which node
+    node -v
 }
 
 # Install CTS test harness on instance to avoid lengthy CTS runs.
 function cuttlefish_install_cts() {
-    su -l "${jenkins_user}" -c "mkdir -p android-cts_r15"
-    su -l "${jenkins_user}" -c "wget -nv ${CTS_ANDROID_15_URL} -O android-cts_r15.zip"
-    su -l "${jenkins_user}" -c "unzip android-cts_r15.zip -d android-cts_r15"
-    su -l "${jenkins_user}" -c "rm -f android-cts_r15.zip"
+    su -l "${JENKINS_USER}" -c "mkdir -p android-cts_15"
+    su -l "${JENKINS_USER}" -c "wget -nv ${CTS_ANDROID_15_URL} -O android-cts_15.zip"
+    su -l "${JENKINS_USER}" -c "unzip android-cts_15.zip -d android-cts_15"
+    su -l "${JENKINS_USER}" -c "rm -f android-cts_15.zip"
 
-    su -l "${jenkins_user}" -c "mkdir -p android-cts_r14"
-    su -l "${jenkins_user}" -c "wget -nv ${CTS_ANDROID_14_URL} -O android-cts_r14.zip"
-    su -l "${jenkins_user}" -c "unzip android-cts_r14.zip -d android-cts_r14"
-    su -l "${jenkins_user}" -c "rm -f android-cts_r14.zip"
+    su -l "${JENKINS_USER}" -c "mkdir -p android-cts_14"
+    su -l "${JENKINS_USER}" -c "wget -nv ${CTS_ANDROID_14_URL} -O android-cts_14.zip"
+    su -l "${JENKINS_USER}" -c "unzip android-cts_14.zip -d android-cts_14"
+    su -l "${JENKINS_USER}" -c "rm -f android-cts_14.zip"
     # Force sync to ensure disk is updated.
     sync
 }
@@ -86,10 +95,10 @@ function cuttlefish_user_groups() {
 }
 
 function cuttlefish_jenkins_user() {
-    sudo useradd -u 1000 -ms /bin/bash ${jenkins_user} > /dev/null 2>&1
-    sudo passwd -d ${jenkins_user} > /dev/null 2>&1
-    sudo usermod -aG google-sudoers ${jenkins_user} > /dev/null 2>&1
-    cuttlefish_user_groups ${jenkins_user}
+    sudo useradd -u 1000 -ms /bin/bash ${JENKINS_USER} > /dev/null 2>&1
+    sudo passwd -d ${JENKINS_USER} > /dev/null 2>&1
+    sudo usermod -aG google-sudoers ${JENKINS_USER} > /dev/null 2>&1
+    cuttlefish_user_groups ${JENKINS_USER}
 }
 
 function cuttlefish_cleanup() {

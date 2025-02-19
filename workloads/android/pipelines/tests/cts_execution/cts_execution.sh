@@ -26,6 +26,8 @@
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/cts_environment.sh "$0"
 
+declare CTS_RESULT=255
+
 function cts_cleanup() {
     killall cts-tradefed > /dev/null 2>&1
 }
@@ -40,10 +42,13 @@ function cts_info() {
 function cts_wait_for_completion() {
     local -r time_max="$((CTS_TIMEOUT * 60))"
     local -r timeout="${SECONDS}"+"${time_max}"
-    echo "Sleep for ${time_max} seconds and wait on PID ${1}"
+    local -r pid="$1"
+    echo "Sleep for ${time_max} seconds and wait on PID ${pid}"
     while (( "${SECONDS}" < "${timeout}" )); do
         sleep 60
-        if ! ps -p "$1" > /dev/null; then
+        if ! ps -p "${pid}" > /dev/null; then
+            wait "${pid}"
+            CTS_RESULT="$?"
             echo "Tests completed."
             break
         fi
@@ -106,7 +111,7 @@ function cts_store_results() {
 cd "${HOME}"/android-cts/tools || exit
 cts_info
 cts_run
-RESULT="$?"
+RESULT="${CTS_RESULT}"
 cts_store_results
 cts_cleanup
 

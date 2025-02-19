@@ -28,9 +28,6 @@
 # at port 6520 and increment. The cuttlefish-base debian package, preallocates
 # resources for 10 instances.
 #
-# Script be run locally, eg.
-#   cvd_start_stop.sh
-#
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
@@ -100,26 +97,36 @@ function cuttlefish_start() {
 # Wait for device to boot (VIRTUAL_DEVICE_BOOT_COMPLETED) or timeout.
 function cuttlefish_wait_for_device_booted() {
     local -r timeout="${SECONDS}"+"${CUTTLEFISH_MAX_BOOT_TIME}"
+    echo "Wait for boot: ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
     while (( "${SECONDS}" < "${timeout}" )); do
-        sleep 4
         BOOTED_INSTANCES=$(grep -c VIRTUAL_DEVICE_BOOT_COMPLETED "${logfile}")
         if (( BOOTED_INSTANCES == NUM_INSTANCES )); then
+            echo "Boot completed."
             break
         fi
+        echo "Waiting on boot, sleep 20s ..."
+        sleep 20
     done
 }
 
-# Wait for timeout, leaving CVD session in place.
-function cuttlefish_keep_alive() {
-    local -r alive_time_max="$((CUTTLEFISH_KEEP_ALIVE_TIME * 60))"
-    local -r timeout="${SECONDS}"+"${alive_time_max}"
-    echo "Sleep for ${alive_time_max} seconds" | tee -a "${logfile}"
-    while (( "${SECONDS}" < "${timeout}" )); do
-        sleep 60
-        echo "Still alive ..." | tee -a "${logfile}"
-        adb devices | tee -a "${logfile}"
-    done
-    echo "Ready to terminate!"
+# Restart adb server
+function cuttlefish_adb_restart() {
+    if (( BOOTED_INSTANCES > 0 )); then
+        echo "Boot successful:"
+        echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
+    else
+        echo "Device(s) not booted within ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
+        echo "    Recheck post adb server restart ..."
+    fi
+    # Allow system time to settle.
+    echo "    Sleep 90 seconds"
+    # Ensure adb devices show devices.
+    sudo adb kill-server || true
+    sleep 30
+    sudo adb start-server || true
+    sleep 60
+    BOOTED_INSTANCES=$(adb devices | grep -c -E '0.+device$')
+    echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
 }
 
 # Ensure CVD is terminated.
@@ -149,29 +156,15 @@ case "${1}" in
         cuttlefish_stop
         cuttlefish_cleanup
         ;;
-    --keep-alive)
-        # Keep CVD session alive
-        cuttlefish_keep_alive
-        ;;
     --start|*)
         # Start
         cuttlefish_cleanup
         cuttlefish_extract_artifacts
         cuttlefish_start
         cuttlefish_wait_for_device_booted
-        if (( BOOTED_INSTANCES > 0 )); then
-            echo "Boot successful:"
-            echo "    Booted ${BOOTED_INSTANCES} instances of ${NUM_INSTANCES}"
-            # Allow system time to settle.
-            echo "    Sleep 90 seconds"
-			# Ensure adb devices show devices.
-            sudo adb kill-server || true
-            sleep 30
-            sudo adb start-server || true
-            sleep 60
-            adb devices
-        else
-            echo "Device(s) not booted within ${CUTTLEFISH_MAX_BOOT_TIME} seconds"
+        cuttlefish_adb_restart
+        if (( BOOTED_INSTANCES == 0 )); then
+            echo "Error: adb reboot failed, devices not booted."
             # Stop and clean up
             cuttlefish_archive_logs
             cuttlefish_stop

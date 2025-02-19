@@ -6,8 +6,6 @@ NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
 TOKEN=$(cat ${SERVICEACCOUNT}/token)
 CACERT=${SERVICEACCOUNT}/ca.crt
 
-sleep 120000
-
 npm install
 node keycloak.mjs
 SECRET=$(cat client-gerrit.json | jq -r ".secret")

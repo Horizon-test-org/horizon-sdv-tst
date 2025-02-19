@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 # Description:
-# This script creates the SDK addon file fnd devices.xml for AVD targets.
+# This script creates the SDK addon file and devices.xml for AVD targets.
 # It then packs AVD image for use with Android Studio.
 #
 # This script does the following:
@@ -29,6 +29,16 @@
 #  4. Creates the SDK Addons file.
 #  5. Adds SDK addons to archives for upload.
 #
+# The following variables must be set before running this script:
+#  - AAOS_LUNCH_TARGET: the target device.
+#  - ANDROID_VERSION: the Android version (default: 14).
+#        Determines the API level.
+#
+# Example usage:
+# AAOS_LUNCH_TARGET=sdk_car_x86_64-ap1a-userdebug \
+# ANDROID_VERSION=14 \
+# ./workloads/android/pipelines/builds/aaos_builder/aaos_avd_sdk.sh
+
 # Include common functions and variables.
 # shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")"/aaos_environment.sh "$0"
@@ -43,6 +53,7 @@ declare avd_sha1=''
 declare avd_size=''
 declare avd_image_url=''
 declare output_dir=''
+declare -r aaos_arch="${AAOS_ARCH}${AAOS_ARCH_ABI}"
 
 # Create the SDK Addons file for use with AVD images and Android Studio.
 function create_sdk_addons() {
@@ -61,7 +72,7 @@ function create_sdk_addons() {
     sed -i '/<uses-license ref=.*/a \        <channelRef ref="channel-0"/>' "${AAOS_SDK_ADDON_FILE}"
 
     # Update remote name
-    local package_path="system-images;android-${ANDROID_API_LEVEL};aaos-horizon-sdv;${AAOS_ARCH}"
+    local package_path="system-images;android-${ANDROID_API_LEVEL};aaos-horizon-sdv;${aaos_arch}"
     sed -i "s|<remotePackage path=\"[^\"]*\">|<remotePackage path=\"${package_path}\">|" "${AAOS_SDK_ADDON_FILE}"
 
     # Update Tag Display Name and ID.
@@ -73,7 +84,7 @@ function create_sdk_addons() {
     # Update API Level
     sed -i "s|<api-level>[^<]*</api-level>|<api-level>${ANDROID_API_LEVEL}</api-level>|" "${AAOS_SDK_ADDON_FILE}"
     # Update ARCH
-    sed -i "s|<abi>[^<]*</abi>|<abi>${AAOS_ARCH}</abi>|" "${AAOS_SDK_ADDON_FILE}"
+    sed -i "s|<abi>[^<]*</abi>|<abi>${aaos_arch}</abi>|" "${AAOS_SDK_ADDON_FILE}"
     # Update Display Name
     display_name="Horizon SDV AAOS - ${JOB_NAME}-${AAOS_BUILD_NUMBER}"
     sed -i "s|<display-name>\(.*\)</display-name>|<display-name>${display_name}</display-name>|" "${AAOS_SDK_ADDON_FILE}"
@@ -91,14 +102,22 @@ function create_devices_xml() {
     cp "${aaos_devices_file}" devices.xml
 
     # Device Name, ID and Manufaturer
-    sed -i "s|<d:name>\(.*\)</d:name>|<d:name>Horizon SDV AAOS</d:-name>|" devices.xml
-    sed -i "s|<d:id>\(.*\)</d:id>|<d:id>horizon_sdv_aaos</d:-id>|" devices.xml
-    sed -i "s|<d:manufacturer>\(.*\)</d:manufacturer>|<d:manufacturer>Horizon SDV</d:-manufacturer>|" devices.xml
+    sed -i "s|<d:name>\(.*\)</d:name>|<d:name>Horizon SDV AAOS</d:name>|" devices.xml
+    sed -i "s|<d:id>\(.*\)</d:id>|<d:id>horizon_sdv_aaos</d:id>|" devices.xml
+    sed -i "s|<d:manufacturer>\(.*\)</d:manufacturer>|<d:manufacturer>Horizon SDV</d:manufacturer>|" devices.xml
+    # Hardware
+    sed -i "s|<d:screen-size>\(.*\)</d:screen-size>|<d:screen-size>normal</d:screen-size>|" devices.xml
+    sed -i "s|<d:diagonal-length>\(.*\)</d:diagonal-length>|<d:diagonal-length>11.3</d:diagonal-length>|" devices.xml
+    sed -i "s|<d:pixel-density>\(.*\)</d:pixel-density>|<d:pixel-density>mdpi</d:pixel-density>|" devices.xml
+    sed -i "s|<d:x-dimension>\(.*\)</d:x-dimension>|<d:x-dimension>1152</d:x-dimension>|" devices.xml
+    sed -i "s|<d:y-dimension>\(.*\)</d:y-dimension>|<d:y-dimension>1536</d:y-dimension>|" devices.xml
+    sed -i "s|<d:xdpi>\(.*\)</d:xdpi>|<d:xdpi>180</d:xdpi>|" devices.xml
+    sed -i "s|<d:ydpi>\(.*\)</d:ydpi>|<d:ydpi>180</d:ydpi>|" devices.xml
     # Update RAM and Storage (smaller)
     sed -i 's|<d:ram unit="KiB">[0-9]*</d:ram>|<d:ram unit="GiB">2</d:ram>|' devices.xml
     sed -i 's|<d:internal-storage unit="KiB">[0-9]*</d:internal-storage>|<d:internal-storage="GiB">2</d:internal-storage>|' devices.xml
     # Arch and API Level
-    sed -i "/<d:abi>/,/<\/d:abi>/ s|x86_64|${AAOS_ARCH}|" devices.xml
+    sed -i "/<d:abi>/,/<\/d:abi>/ s|x86_64|${aaos_arch}|" devices.xml
     sed -i "s|<d:api-level>[^<]*</d:api-level>|<d:api-level>${ANDROID_API_LEVEL}</d:api-level>|" devices.xml
 }
 
