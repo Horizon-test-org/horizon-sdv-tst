@@ -27,9 +27,26 @@ This defines the version of Android Cuttlefish host packages to use, e.g.
 - `main` - the main working branch of `android-cuttlefish`
 - `v1.1.0` - the latest tagged version.
 
-This will result in an instance template of the form `instance-template-cuttlefish-vm-main-debian` or `instance-template-cuttlefish-vm-v110-debian`.
+This will result in an instance template of the form `instance-template-cuttlefish-vm-main` or `instance-template-cuttlefish-vm-v110`.
 
 User may define any valid version so long as it supports `tools/buildutils/build_packages.sh` because the scripts are dependent on that build script.
+
+### CUTTLEFISH_INSTANCE_UNIQUE_NAME
+
+Optional parameter to allow users to create their own unique instance templates for their own usage in development, testing.
+
+If left empty the name will automatically derived from `ANDROID_CUTTLEFISH_REVISION`, e.g. `cuttlefish-vm-main` and create
+instance template `instance-template-cuttlefish-vm-main`.
+
+If user defines a unique name, ensure the following is met:
+
+- The name should start with `cuttlefish-vm`
+  - Jenkins CasC must be updated to provide a new `computeEngine` entry for this unique template.
+  - Choose a sensible label, such as `cuttlefish-vm-unique-name`
+  - This new cloud will appear in `Manage Jenkins` -> `Clouds`
+  - Tests jobs may then reference that unique instance through `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label.
+
+**Note:** Must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`, i.e lower case.
 
 ### MACHINE_TYPE
 
@@ -53,22 +70,6 @@ Keep an eye out in the console logs for `deprecated` and update as required.
 
 MTK Connect requires NodeJS and as such this option allows you to update the version to install on the instance template.
 
-### UNIQUE_NAME
-
-Optional parameter to allow users to create their own unique instance templates for their own usage in development, testing.
-
-If left empty the name will automatically derived from `ANDROID_CUTTLEFISH_REVISION`.
-
-If user defines a unique name, ensure the following is met:
-
-- The name should start with `cuttlefish-vm`
-  - Jenkins CasC must be updated to provide a new `computeEngine` entry for this unique template.
-  - Choose a sensible label, such as `cuttlefish-vm-unique-name`
-  - This new cloud will appear in `Manage Jenkins` -> `Clouds`
-  - Tests jobs may then reference that unique instance through `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label.
-
-**Note:** Must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`, i.e lower case.
-
 ### DELETE
 
 Allows deletion of old redundant instance templates.
@@ -76,7 +77,7 @@ Allows deletion of old redundant instance templates.
 If user is deleting standard instances, simply define the version in `ANDROID_CUTTLEFISH_REVISION` and the instances
 names will be derived automatically.
 
-If user is deleting a uniquely created instance, i.e. one created with `UNIQUE_NAME` defined, then define the `UNIQUE_NAME`
+If user is deleting a uniquely created instance, i.e. one created with `CUTTLEFISH_INSTANCE_UNIQUE_NAME` defined, then define the `CUTTLEFISH_INSTANCE_UNIQUE_NAME`
 
 ## SYSTEM VARIABLES <a name="system-variables"></a>
 

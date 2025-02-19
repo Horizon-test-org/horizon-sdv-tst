@@ -24,10 +24,10 @@
 # From command line, such as Google Cloud Shell, create templates for all
 # versions of android-cuttlefish host tools/packages:
 #
-# CUTTLEFISH_REVISION=v0.9.29 ./cvd_create_instance_template.sh && \
-#  CUTTLEFISH_REVISION=v0.9.30 ./cvd_create_instance_template.sh && \
-#  CUTTLEFISH_REVISION=v0.9.31 ./cvd_create_instance_template.sh && \
-#  ./cvd_create_instance_template.sh # for main
+# CUTTLEFISH_REVISION=v0.9.29 ./cf_create_instance_template.sh && \
+#  CUTTLEFISH_REVISION=v0.9.30 ./cf_create_instance_template.sh && \
+#  CUTTLEFISH_REVISION=v0.9.31 ./cf_create_instance_template.sh && \
+#  ./cf_create_instance_template.sh # for main
 #
 # The following variables are required to run the script, choose to use
 # default values or override from command line.
@@ -56,7 +56,8 @@
 #  - SERVICE_ACCOUNT: The GCP service account. Default: derived from gcloud
 #        projects describe.
 #  - SUBNET: The name of the subnet. Default: sdv-subnet
-#  - UNIQUE_NAME: The name used to identify the instance. Default: cuttlefish-vm
+#  - CUTTLEFISH_INSTANCE_UNIQUE_NAME: The name used to identify the instance.
+#        Default: cuttlefish-vm
 #  - VM_INSTANCE_CREATE: If 'true', then create a stopped VM instance from
 #        the final instance template. Useful for devs to experiment with the
 #        VM instances. May be disabled to reduce managed disk costs.
@@ -90,10 +91,12 @@
 #  No args:          run all stages with exception 6 (delete).
 # Include common functions and variables.
 # shellcheck disable=SC1091
-source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
+source "$(dirname "${BASH_SOURCE[0]}")"/cf_environment.sh "$0"
 
 # Environment variables that can be overridden from command line.
 # android-cuttlefish revisions can be of the form v1.1.0, main etc.
+CUTTLEFISH_INSTANCE_UNIQUE_NAME=${CUTTLEFISH_INSTANCE_UNIQUE_NAME:-cuttlefish-vm}
+CUTTLEFISH_INSTANCE_UNIQUE_NAME=$(echo "${CUTTLEFISH_INSTANCE_UNIQUE_NAME}" | awk '{print tolower($0)}' | xargs)
 CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION:-main}
 CUTTLEFISH_REVISION=$(echo "${CUTTLEFISH_REVISION}" | xargs)
 BOOT_DISK_SIZE=${BOOT_DISK_SIZE:-200GB}
@@ -113,8 +116,6 @@ PROJECT=${PROJECT:-$(gcloud config list --format 'value(core.project)'|head -n 1
 REGION=${REGION:-europe-west1}
 SERVICE_ACCOUNT=${SERVICE_ACCOUNT:-$(gcloud projects describe "${PROJECT}" --format='get(projectNumber)')-compute@developer.gserviceaccount.com}
 SUBNET=${SUBNET:-sdv-subnet}
-UNIQUE_NAME=${UNIQUE_NAME:-cuttlefish-vm}
-UNIQUE_NAME=$(echo "${UNIQUE_NAME}" | awk '{print tolower($0)}' | xargs)
 VM_INSTANCE_CREATE=${VM_INSTANCE_CREATE:-true}
 ZONE=${ZONE:-europe-west1-d}
 
@@ -122,10 +123,10 @@ ZONE=${ZONE:-europe-west1-d}
 declare -r vm_base_instance=vm-debian
 declare -r vm_base_instance_template=instance-template-vm-debian
 declare -r cuttlefish_version=${CUTTLEFISH_REVISION//./}
-declare cuttlefish_unique_name=${UNIQUE_NAME//./-}
+declare cuttlefish_unique_name=${CUTTLEFISH_INSTANCE_UNIQUE_NAME//./-}
 if [[ "${cuttlefish_unique_name}" == "cuttlefish-vm" ]]; then
     # If unique name is default, append version.
-    cuttlefish_unique_name="${cuttlefish_unique_name}"-"${cuttlefish_version}"-debian
+    cuttlefish_unique_name="${cuttlefish_unique_name}"-"${cuttlefish_version}"
 fi
 declare -r vm_cuttlefish_image=image-"${cuttlefish_unique_name}"
 declare -r vm_cuttlefish_instance_template=instance-template-"${cuttlefish_unique_name}"
@@ -191,7 +192,7 @@ function echo_environment() {
     echo_formatted "REGION=${REGION}"
     echo_formatted "SERVICE_ACCOUNT=${SERVICE_ACCOUNT}"
     echo_formatted "SUBNET=${SUBNET}"
-    echo_formatted "UNIQUE_NAME=${cuttlefish_unique_name}"
+    echo_formatted "CUTTLEFISH_INSTANCE_UNIQUE_NAME=${cuttlefish_unique_name}"
     echo_formatted "VM_INSTANCE_CREATE=${VM_INSTANCE_CREATE}"
     echo_formatted "ZONE=${ZONE}"
 }
@@ -211,7 +212,7 @@ function print_usage() {
       REGION=${REGION} \\
       SERVICE_ACCOUNT=${SERVICE_ACCOUNT} \\
       SUBNET=${SUBNET} \\
-      UNIQUE_NAME=${cuttlefish_unique_name} \\
+      CUTTLEFISH_INSTANCE_UNIQUE_NAME=${cuttlefish_unique_name} \\
       VM_INSTANCE_CREATE=${VM_INSTANCE_CREATE} \\
       ZONE=${ZONE} \\
       ./${SCRIPT_NAME}"
@@ -229,7 +230,7 @@ function check_environment() {
         exit 1
     fi
     if [[ "${cuttlefish_unique_name}" != cuttlefish-vm* ]]; then
-        echo "UNIQUE_NAME must start with cuttlefish-vm"
+        echo "CUTTLEFISH_INSTANCE_UNIQUE_NAME must start with cuttlefish-vm"
         exit 1
     fi
 }
@@ -276,7 +277,7 @@ function create_vm_instance() {
 }
 
 # Install host tools on the base VM instance.
-# Host will reboot when installed (see cvd_host_initialise.sh)
+# Host will reboot when installed (see cf_host_initialise.sh)
 function install_host_tools() {
     echo_formatted "3. Populate Cuttlefish Host tools/packages on VM instance"
 
@@ -288,19 +289,19 @@ function install_host_tools() {
         xargs -I {} gcloud compute os-login ssh-keys remove --key={} || true
 
     gcloud compute ssh --zone "${ZONE}" "${vm_base_instance}" --tunnel-through-iap --project "${PROJECT}" \
-        --command='mkdir -p cvd' >/dev/null &
+        --command='mkdir -p cf' >/dev/null &
     progress_spinner "$!"
 
-    gcloud compute scp "${CVD_PATH}"/*.sh "${vm_base_instance}":~/cvd/ --zone="${ZONE}" >/dev/null &
+    gcloud compute scp "${CF_SCRIPT_PATH}"/*.sh "${vm_base_instance}":~/cf/ --zone="${ZONE}" >/dev/null &
     progress_spinner "$!"
 
     # Keep debug so we can see what's happening.
     gcloud compute ssh --zone "${ZONE}" "${vm_base_instance}" --tunnel-through-iap --project "${PROJECT}" \
-        --command="CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION} NODEJS_VERSION=${NODEJS_VERSION} ./cvd/cvd_host_initialise.sh" &
+        --command="CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION} NODEJS_VERSION=${NODEJS_VERSION} ./cf/cf_host_initialise.sh" &
     progress_spinner "$!"
 
     gcloud compute ssh --zone "${ZONE}" "${vm_base_instance}" --tunnel-through-iap --project "${PROJECT}" \
-        --command='rm -rf cvd' >/dev/null &
+        --command='rm -rf cf' >/dev/null &
     progress_spinner "$!"
 
     echo -e "${ORANGE}Sleep for 5 minutes while instance reboots${NC}"
@@ -415,7 +416,7 @@ function create_cuttlefish_boilerplate_template() {
         --network-interface network="${NETWORK}",subnet="${SUBNET}",stack-type=IPV4_ONLY,no-address &
     progress_spinner "$!"
 
-    echo -e "${ORANGE}Sleep for 4 minute while instance template creation completes${NC}"
+    echo -e "${ORANGE}Sleep for 4 minute while instance template creation completes, GCP settles.${NC}"
     sleep 240
 
     # Check the instance template was created.

@@ -18,15 +18,6 @@
 # Common environment functions and variables for Cuttlefish Virtual Device
 # (CVD).
 
-# Android Cuttlefish Repository that holds supporting tools to prepare host
-# to boot Cuttlefish.
-CUTTLEFISH_REPO_URL=$(echo "${CUTTLEFISH_REPO_URL}" | xargs)
-CUTTLEFISH_REPO_URL=${CUTTLEFISH_REPO_URL:-https://github.com/google/android-cuttlefish.git}
-CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION:-main}
-CUTTLEFISH_REPO_NAME=$(basename "${CUTTLEFISH_REPO_URL}" .git)
-# Must use flag because there is inconsistency between tag/branch and dpkg
-# version number, eg main = 1.0.0.
-CUTTLEFISH_UPDATE=${CUTTLEFISH_UPDATE:-false}
 # Time (seconds) to wait for Virtual Device to boot.
 CUTTLEFISH_MAX_BOOT_TIME=$(echo "${CUTTLEFISH_MAX_BOOT_TIME}" | xargs)
 CUTTLEFISH_MAX_BOOT_TIME=${CUTTLEFISH_MAX_BOOT_TIME:-240}
@@ -34,14 +25,7 @@ CUTTLEFISH_MAX_BOOT_TIME=${CUTTLEFISH_MAX_BOOT_TIME:-240}
 CUTTLEFISH_KEEP_ALIVE_TIME=$(echo "${CUTTLEFISH_KEEP_ALIVE_TIME}" | xargs)
 CUTTLEFISH_KEEP_ALIVE_TIME=${CUTTLEFISH_KEEP_ALIVE_TIME:-20}
 
-# Android CTS test harness URLs, installed on host.
-# https://source.android.com/docs/compatibility/cts/downloads
-CTS_ANDROID_15_URL="https://dl.google.com/dl/android/cts/android-cts-15_r2-linux_x86-x86.zip"
-CTS_ANDROID_14_URL="https://dl.google.com/dl/android/cts/android-cts-14_r6-linux_x86-x86.zip"
 JOB_NAME=${JOB_NAME:-AAOS_CVD}
-
-# NodeJS Version
-NODEJS_VERSION=${NODEJS_VERSION:-20.9.0}
 
 # Architecture x86_64 is only supported at this time.
 ARCHITECTURE=${ARCHITECTURE:-x86_64}
@@ -60,37 +44,10 @@ VM_CPUS=${VM_CPUS:-8}
 VM_MEMORY_MB=$(echo "${VM_MEMORY_MB}" | xargs)
 VM_MEMORY_MB=${VM_MEMORY_MB:-16384}
 
-# Support local vs Jenkins.
-if [ -z "${WORKSPACE}" ]; then
-    CVD_PATH=../cvd_launcher
-else
-    CVD_PATH=workloads/android/pipelines/tests/cvd_launcher
-fi
-
 # Show variables.
-VARIABLES="Environment:
-        CTS_ANDROID_15_URL=${CTS_ANDROID_15_URL}
-        CTS_ANDROID_14_URL=${CTS_ANDROID_14_URL}
-
-        ARCHITECTURE=${ARCHITECTURE}
-"
+VARIABLES="Environment:"
 
 case "$0" in
-    *create_instance_template.sh)
-        VARIABLES+="
-        CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION}
-
-        CVD_PATH=${CVD_PATH}
-        "
-        ;;
-    *initialise.sh)
-        VARIABLES+="
-        CUTTLEFISH_REPO_URL=${CUTTLEFISH_REPO_URL}
-        CUTTLEFISH_REPO_NAME=${CUTTLEFISH_REPO_NAME}
-        CUTTLEFISH_REVISION=${CUTTLEFISH_REVISION}
-        CUTTLEFISH_UPDATE=${CUTTLEFISH_UPDATE}
-        "
-        ;;
     *start_stop.sh)
         VARIABLES+="
         CUTTLEFISH_MAX_BOOT_TIME=${CUTTLEFISH_MAX_BOOT_TIME}
@@ -101,6 +58,8 @@ case "$0" in
         NUM_INSTANCES=${NUM_INSTANCES} (--num_instances=${NUM_INSTANCES})
         VM_CPUS=${VM_CPUS} (--cpu ${VM_CPUS})
         VM_MEMORY_MB=${VM_MEMORY_MB} (--memory_mb ${VM_MEMORY_MB})
+
+        ARCHITECTURE=${ARCHITECTURE}
         "
         ;;
     *)
@@ -111,8 +70,6 @@ VARIABLES+="
         WORKSPACE=${WORKSPACE}
 
         /proc/cpuproc vmx: $(grep -cw vmx /proc/cpuinfo)
-
-        Storage Usage (/dev/sda1): $(df -h /dev/sda1 | tail -1 | awk '{print "Used " $3 " of " $2}')
 "
 
 echo "${VARIABLES}"

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Description:
-# Initialise Cuttlefish Virtual Device (CVD) host.
+# Initialise Cuttlefish host instance.
 #
 # Script is only intended for use by cvd_create_instance_template.sh
 # for installing host tools on the base VM instance which is used to
@@ -23,7 +23,7 @@
 
 # Include common functions and variables.
 # shellcheck disable=SC1091
-source "$(dirname "${BASH_SOURCE[0]}")"/cvd_environment.sh "$0"
+source "$(dirname "${BASH_SOURCE[0]}")"/cf_environment.sh "$0"
 
 declare -r JENKINS_USER="jenkins"
 

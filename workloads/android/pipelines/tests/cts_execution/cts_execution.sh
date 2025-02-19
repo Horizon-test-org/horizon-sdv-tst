@@ -103,8 +103,11 @@ function cts_run() {
 
 function cts_store_results() {
     # Place in WORKSPACE for Jenkins artifact archive to store with job!
+    rm -rf "${WORKSPACE}"/android-cts-results
     cp -rf "${HOME}"/android-cts/results  "${WORKSPACE}"/android-cts-results
     cp -f "${HOME}"/android-cts/results/latest/invocation_summary.txt  "${WORKSPACE}"/android-cts-results
+    # Clean up.
+    rm -rf "${HOME}"/android-cts/results
 }
 
 # Main

@@ -168,6 +168,28 @@ pipeline {
           }
         }
 
+        stage ('Build: aosp_tangorpro_car') {
+          when { expression { env.GERRIT_CHANGE_NUMBER } }
+          steps {
+            container(name: 'builder') {
+              withCredentials([usernamePassword(credentialsId: 'jenkins-gerrit-http-password', passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
+                sh '''
+                  export AAOS_GERRIT_MANIFEST_URL="https://${HORIZON_DOMAIN}/android/platform/manifest"
+                  export AAOS_REVISION="${GERRIT_BRANCH}"
+                  export AAOS_LUNCH_TARGET="aosp_tangorpro_car-${ANDROID_BUILD_ID}userdebug"
+                  export AAOS_ARTIFACT_ROOT_NAME="${ANDROID_BUILD_BUCKET_ROOT_NAME}"
+                  export CLOUD_REGION="${CLOUD_REGION}"
+                  export AAOS_BUILD_NUMBER=${BUILD_NUMBER}/${AAOS_LUNCH_TARGET}
+                  export AAOS_CLEAN="NO_CLEAN"
+                  ./workloads/android/pipelines/builds/aaos_builder/aaos_build.sh
+                  ./workloads/android/pipelines/builds/aaos_builder/aaos_storage.sh
+                '''
+                archiveArtifacts artifacts: '*artifacts*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
+              }
+            }
+          }
+        }
+
         stage ('Build: aosp_cf_x86_64_auto') {
           when { expression { env.GERRIT_CHANGE_NUMBER } }
           steps {
