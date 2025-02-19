@@ -27,16 +27,16 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "parsed_branch=$PARSED_BRANCH_NAME" >> $GITHUB_OUTPUT
 
-       - name: Check if branch is allowed
-      id: check-branch
-      run: |
-        BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-        if [[ ! ",${ALLOWED_BRANCHES_FOR_TFAPPLY}," == *",$BRANCH_NAME,"* ]]; then
-          echo "Branch $BRANCH_NAME is not allowed."
-          exit 1
-        else
-          echo "Branch $BRANCH_NAME is allowed."
-        fi
+      - name: Check if branch is allowed
+        id: check-branch
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          if [[ ! ",${ALLOWED_BRANCHES_FOR_TFAPPLY}," == *",$BRANCH_NAME,"* ]]; then
+            echo "Branch $BRANCH_NAME is not allowed."
+            exit 1
+          else
+            echo "Branch $BRANCH_NAME is allowed."
+          fi
   terraform:
     needs: parsing_branch
     uses: ./.github/workflows/terraform.yaml
