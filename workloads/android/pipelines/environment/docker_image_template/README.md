@@ -17,12 +17,12 @@ registry, so that devs can test their changes before committing the image.
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### IMAGE_TAG
+### IMAGE\_TAG
 
 This is the tag that will be applied when the container image is pushed to the registry. For the current release we
 simply use `latest` because all pipelines that depend on this container image are using `latest`.
 
-### NO_PUSH
+### NO\_PUSH
 
 Build the container image but don't push to the registry.
 

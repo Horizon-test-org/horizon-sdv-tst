@@ -9,7 +9,7 @@
 
 This pipeline is run on GCE Cuttlefish VM instances from the instance templates that were previously created by the environment pipeline. It allows users to test their Cuttlefish virtual device (CVD) image builds.
 
-The pipeline first runs CVD on the Cuttlefish VM Instance and then connects to MTK Connect so that users can test their builds (UI and adb).
+The pipeline first runs CVD on the Cuttlefish VM Instance to instantiate the specified number of devices and then connects to MTK Connect so that users can test their builds (UI and adb).
 
 ### References <a name="references"></a>
 
@@ -18,14 +18,16 @@ The pipeline first runs CVD on the Cuttlefish VM Instance and then connects to M
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### JENKINS_GCE_CLOUD_LABEL
+### JENKINS\_GCE\_CLOUD\_LABEL
 
 This is the label that identifies the GCE Cloud label which will be used to identify the Cuttlefish VM instance, e.g.
 
 - `cuttlefish-vm-main`
 - `cuttlefish-vm-v110`
 
-### CUTTLEFISH_DOWNLOAD_URL
+Note: The value provided must correspond to a cloud instance or the job will hang. 
+
+### CUTTLEFISH\_DOWNLOAD\_URL
 
 This is the Cuttlefish Virtual Device image that is to be tested. It is built from `AAOS Builder` for the `aosp_cf` build targets.
 
@@ -36,30 +38,30 @@ The URL must point to the bucket where the host packages and virtual devices ima
 
 URL is of the form `gs://<ANDROID_BUILD_BUCKET_ROOT_NAME>/Android/Builds/AAOS_Builder/<BUILD_NUMBER>` where `ANDROID_BUILD_BUCKET_ROOT_NAME` is a system environment variable defined in Jenkins CasC `jenkins.yaml` and `BUILD_NUMBER` is the Jenkins build number.
 
-### CUTTLEFISH_MAX_BOOT_TIME
+### CUTTLEFISH\_MAX\_BOOT\_TIME
 
 Cuttlefish virtual devices need time to boot up. This defines the maximum time to wait for the virtual device to boot up.
 
 Time is in seconds.
 
-### CUTTLEFISH_KEEP_ALIVE_TIME
+### CUTTLEFISH\_KEEP\_ALIVE\_TIME
 
 If wishing to test using MTK Connect, Cuttlefish VM instance must be allowed to continue to run. This timeout, in
 minutes, gives the tester time to keep the instance alive so they may work with the devices via MTK Connect.
 
-### NUM_INSTANCES
+### NUM\_INSTANCES
 
 Defines the number of Cuttlefish virtual devices to launch.
 
 This applies to CVD `num-instances` parameters.
 
-### VM_CPUS
+### VM\_CPUS
 
 Defines the number of CPU cores to allocate to the Cuttlefish virtual device.
 
 This applies to CVD `cpus` parameter.
 
-### VM_MEMORY_MB
+### VM\_MEMORY\_MB
 
 Defines total memory available to guest.
 

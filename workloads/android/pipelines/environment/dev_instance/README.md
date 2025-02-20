@@ -22,7 +22,7 @@ kubectl exec -it -n jenkins <pod name> -- bash
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### INSTANCE_MAX_UPTIME
+### INSTANCE\_MAX\_UPTIME
 
 This is the maximum time that the instance may be running before it is automatically terminated and deleted. This is important to avoid leaving expensive instances in running state.
 

@@ -13,7 +13,7 @@ This is not intended for everyday usage, simply a tool when developing tests to 
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### MTK_CONNECT_TESTBENCH
+### MTK\_CONNECT\_TESTBENCH
 
 The name of the MTK Connect testbench to remove in offline state.
 

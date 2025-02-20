@@ -7,9 +7,22 @@
 
 ## Introduction <a name="introduction"></a>
 
-This pipeline is used to create the Cuttlefish instance templates that will be used by Jenkins tests pipelines to launch CVD and run CTS tests. The pipeline may not be run concurrently this is to avoid clashes with temporary artifacts the job creates in order to produce the Cuttlefish instance template.
+This pipeline creates (or deletes) Cuttlefish instance templates which are used by the Jenkins test pipelines to spin up cloud instances which are cuttlefish-ready and CTS-ready; these cloud instances are then used to launch CVD and run CTS tests. 
 
-The instance templates are referenced within Jenkins CasC `jenkins.yaml` `computeEngine` entries. These can be viewed in Jenkins UI under `Manage Jenkins` -> `Clouds`.
+During the process of creating an instance template, this pipeline also creates a custom image which is referenced by the created instance template. This image is created using the same naming convention as the instance template.
+
+For example:
+
+- <b>Name (provided or auto-generated)</b>: cuttlefish-vm-main
+- <b>Image Name</b>: image-cuttlefish-vm-main
+- <b>Instance Template Name</b>: instance-template-cuttlefish-vm-main
+
+The following gcloud commands can be used to view images and instance templates:
+
+- gcloud compute instance-templates list | grep cuttlefish-vm
+- gcloud compute instances list | grep cuttlefish-vm
+
+<b>Important:</b> This pipeline may not be run concurrently - this is to avoid clashes with temporary artifacts the job creates in order to produce the Cuttlefish instance template.
 
 ### References <a name="references"></a>
 
@@ -20,64 +33,61 @@ The instance templates are referenced within Jenkins CasC `jenkins.yaml` `comput
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### ANDROID_CUTTLEFISH_REVISION
+### ANDROID\_CUTTLEFISH\_REVISION
 
-This defines the version of Android Cuttlefish host packages to use, e.g.
+This defines the version of [Android Cuttlefish](https://github.com/google/android-cuttlefish.git) host packages to use, e.g.
 
 - `main` - the main working branch of `android-cuttlefish`
 - `v1.1.0` - the latest tagged version.
 
-This will result in an instance template of the form `instance-template-cuttlefish-vm-main` or `instance-template-cuttlefish-vm-v110`.
+User may define any valid version so long as that version contains `tools/buildutils/build_packages.sh` which is a dependency for these scripts.
 
-User may define any valid version so long as it supports `tools/buildutils/build_packages.sh` because the scripts are dependent on that build script.
+### CUTTLEFISH\_INSTANCE\_UNIQUE\_NAME
+**Note:** Name must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`, i.e lower case.
 
-### CUTTLEFISH_INSTANCE_UNIQUE_NAME
+Optional parameter to allow users to create their own unique instance templates for use in development and/or testing.
 
-Optional parameter to allow users to create their own unique instance templates for their own usage in development, testing.
-
-If left empty the name will automatically derived from `ANDROID_CUTTLEFISH_REVISION`, e.g. `cuttlefish-vm-main` and create
-instance template `instance-template-cuttlefish-vm-main`.
+If left empty, the name will be derived from `ANDROID_CUTTLEFISH_REVISION` e.g. `cuttlefish-vm-main` and create
+an instance template `instance-template-cuttlefish-vm-main` and an image `image-cuttlefish-vm-main`.
 
 If user defines a unique name, ensure the following is met:
 
 - The name should start with `cuttlefish-vm`
-  - Jenkins CasC must be updated to provide a new `computeEngine` entry for this unique template.
-  - Choose a sensible label, such as `cuttlefish-vm-unique-name`
-  - This new cloud will appear in `Manage Jenkins` -> `Clouds`
-  - Tests jobs may then reference that unique instance through `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label.
+- Jenkins CasC (`jenkins.yaml`) must be updated to provide a new `computeEngine` entry for this unique template. For reference, see existing entry for `cuttlefish-vm-main`.
+  - Choose a sensible `cloudName`, such as `cuttlefish-vm-unique-name` (e.g. the same name as the instance template with the "instance-template" prefix removed). 
+  - Once synced, this new cloud will appear in `Manage Jenkins` -> `Clouds`
+  - Tests jobs may then reference that unique instance by setting the `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label (`cloudName`).
 
-**Note:** Must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`, i.e lower case.
 
-### MACHINE_TYPE
+### MACHINE\_TYPE
 
-The machine type they wish to use for the VM instance, default is `n1-standard-64`.
+The machine type to be used for the VM instance, default is `n1-standard-64`.
 
-### BOOT_DISK_SIZE
+### BOOT\_DISK\_SIZE
 
 A boot disk is required to create the instance, therefore define the size of disk required.
 
-### MAX_RUN_DURATION
+### MAX\_RUN\_DURATION
 
-VM instances are expensive, as such it is advisable to define the maximum amount of time to run the instance template before it will automatically be terminated. Avoids leaving expensive instances in running state and consuming resources.
+VM instances are expensive so it is advisable to define the maximum amount of time to run the instance before it will automatically be terminated. This avoids leaving expensive instances in running state and consuming resources.
 
-### DEBIAN_OS_VERSION
+### DEBIAN\_OS\_VERSION
 
-Override the OS version. These become deprecated and superceded, hence option to update to newer version.
+Override the OS version. These regularly become deprecated and superceded, hence option to update to newer version.
 
 Keep an eye out in the console logs for `deprecated` and update as required.
 
-### NODEJS_VERSION
+### NODEJS\_VERSION
 
-MTK Connect requires NodeJS and as such this option allows you to update the version to install on the instance template.
+MTK Connect requires NodeJS; this option allows you to update the version to install on the instance template.
 
 ### DELETE
 
-Allows deletion of old redundant instance templates.
+Allows deletion of an existing instance templates and its referenced image.
 
-If user is deleting standard instances, simply define the version in `ANDROID_CUTTLEFISH_REVISION` and the instances
-names will be derived automatically.
+If deleting a standard instance template (i.e. name auto-generated), simply define the version in `ANDROID_CUTTLEFISH_REVISION` and the required names will be derived automatically.
 
-If user is deleting a uniquely created instance, i.e. one created with `CUTTLEFISH_INSTANCE_UNIQUE_NAME` defined, then define the `CUTTLEFISH_INSTANCE_UNIQUE_NAME`
+If user is deleting a uniquely-created instance template (i.e. name specified by `CUTTLEFISH_INSTANCE_UNIQUE_NAME`), then define `CUTTLEFISH_INSTANCE_UNIQUE_NAME` as was used to create it (i.e. the same name as the instance template with the "instance-template" prefix removed).
 
 ## SYSTEM VARIABLES <a name="system-variables"></a>
 

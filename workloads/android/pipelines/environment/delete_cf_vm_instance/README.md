@@ -13,7 +13,7 @@ This is not intended for everyday usage, simply a tool when developing tests to 
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### VM_INSTANCE_NAME
+### VM\_INSTANCE\_NAME
 
 The name of the VM instance to terminate and delete, but it is restricted to those prefixed with `cuttlefish-vm` to avoid accidental termination and removal of other unrelated VMs.
 
