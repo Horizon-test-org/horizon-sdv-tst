@@ -116,7 +116,7 @@ spec:
                             runAsUser: "jenkins"
                             sshConfiguration:
                               customPrivateKeyCredentialsId: "jenkins-cuttlefish-vm-ssh-private-key"
-                            template: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/global/instanceTemplates/instance-template-cuttlefish-vm-main-debian"
+                            template: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/global/instanceTemplates/instance-template-cuttlefish-vm-main"
                             useInternalAddress: true
                             zone: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/zones/{{ .Values.config.zone }}"
                         credentialsId: "gce-creds"
@@ -150,7 +150,7 @@ spec:
                           runAsUser: "jenkins"
                           sshConfiguration:
                             customPrivateKeyCredentialsId: "jenkins-cuttlefish-vm-ssh-private-key"
-                          template: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/global/instanceTemplates/instance-template-cuttlefish-vm-v101-debian"
+                          template: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/global/instanceTemplates/instance-template-cuttlefish-vm-v101"
                           useInternalAddress: true
                           zone: "https://www.googleapis.com/compute/v1/projects/{{ .Values.config.projectID }}/zones/{{ .Values.config.zone }}"
                         credentialsId: "gce-creds"
