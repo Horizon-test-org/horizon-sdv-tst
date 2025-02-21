@@ -363,7 +363,7 @@ spec:
                             scm {
                               git {
                                 remote {
-                                  url('{{ .Values.config.workloads.android.url }} ')
+                                  url('{{ .Values.config.workloads.android.url }}')
                                   credentials('jenkins-github-creds')
                                 }
                                 branch('*/{{ .Values.config.workloads.android.branch }}')
