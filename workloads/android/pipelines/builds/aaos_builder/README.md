@@ -5,11 +5,11 @@
 - [Environment Variables/Parameters](#environment-variables)
   * [Targets](#targets)
 - [Example Usage](#examples)
-  * [aaos\\_environment.sh](#aaos_environment)
-  * [aaos\\_initialise.sh](#aaos_initialise)
-  * [aaos\\_build.sh](#aaos_build)
-  * [aaos\\_avd\\_sdk.sh](#aaos_avd_sdk)
-  * [aaos\\_storage.sh](#aaos_storage)
+  * [`aaos_environment.sh`](#aaos_environment)
+  * [`aaos_initialise.sh`](#aaos_initialise)
+  * [`aaos_build.sh`](#aaos_build)
+  * [aaos&#95;avd&#95;sdk.sh](#aaos_avd_sdk)
+  * [`aaos_storage.sh`](#aaos_storage)
 - [System Variables](#system-variables)
 - [Known Issues](#known-issues)
 
@@ -26,7 +26,7 @@ This pipeline/scripts supports builds for:
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### AAOS\_GERRIT\_MANIFEST\_URL
+### AAOS&#95;GERRIT&#95;MANIFEST_URL
 
 This provides the URL for the Android repo manifest. Such as:
 
