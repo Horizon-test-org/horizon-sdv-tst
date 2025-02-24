@@ -9,7 +9,7 @@ on:
 
 jobs:
   parsing_branch:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       branch: ${{ steps.branch.outputs.parsed_branch }}
       parsed_branch: ${{ steps.branch.outputs.parsed_branch }}
@@ -24,6 +24,7 @@ jobs:
           PARSED_BRANCH_NAME=${BRANCH_NAME#*/}
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "parsed_branch=$PARSED_BRANCH_NAME" >> $GITHUB_OUTPUT
+
   terraform:
     needs: parsing_branch
     uses: ./.github/workflows/terraform.yaml
