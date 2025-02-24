@@ -81,8 +81,6 @@ esac
 
 VARIABLES+="
         WORKSPACE=${WORKSPACE}
-
-        Storage Usage (/dev/sda1): $(df -h /dev/sda1 | tail -1 | awk '{print "Used " $3 " of " $2}')
 "
 
 echo "${VARIABLES}"
