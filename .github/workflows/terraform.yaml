@@ -348,7 +348,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Success
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'success'
+        if: steps.tfapply.outcome == 'success'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -362,7 +362,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Failure
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
+        if: steps.tfapply.outcome == 'failure'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -376,7 +376,7 @@ jobs:
         continue-on-error: true
 
       - name: Fail if apply failed
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
+        if: steps.tfapply.outcome == 'failure'
         uses: actions/github-script@v6
         with:
           script: |
