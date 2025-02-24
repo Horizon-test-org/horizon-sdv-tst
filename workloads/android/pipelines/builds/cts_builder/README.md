@@ -15,28 +15,28 @@ The following are examples of the environment variables and Jenkins build parame
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### AAOS\_GERRIT\_MANIFEST\_URL
+### `AAOS_GERRIT_MANIFEST_URL`
 
 This provides the URL for the Android repo manifest. Such as:
 
 - https://dev.horizon-sdv.scpmtk.com/android/platform/manifest (default)
 - https://android.googlesource.com/platform/manifest
 
-### AAOS\_REVISION
+### `AAOS_REVISION`
 
 The Android revision, i.e. branch or tag to build. Tested versions are below:
 
-- horizon/android-14.0.0\_r30 (ap1a - default)
-- horizon/android-14.0.0\_r74 (ap2a - refer to Known Issues)
-- horizon/android-15.0.0\_r4 (ap3a)
-- android14-qpr1-automotiveos-release
-- android-14.0.0\_r22
-- android-14.0.0\_r30 (ap1a)
-- android-14.0.0\_r74 (ap2a, refer to Known Issues)
-- android-15.0.0\_r4 (ap3a)
-- android-15.0.0\_r10 (ap4a)
+- `horizon/android-14.0.0_r30` (ap1a - default)
+- `horizon/android-14.0.0_r74` (ap2a - refer to Known Issues)
+- `horizon/android-15.0.0_r4` (ap3a)
+- `android14-qpr1-automotiveos-release`
+- `android-14.0.0_r22`
+- `android-14.0.0_r30` (ap1a)
+- `android-14.0.0_r74` (ap2a, refer to Known Issues)
+- `android-15.0.0_r4` (ap3a)
+- `android-15.0.0_r10` (ap4a)
 
-### AAOS\_LUNCH\_TARGET <a name="targets"></a>
+### `AAOS_LUNCH_TARGET` <a name="targets"></a>
 
 The Android cuttlefish target to build CTS from. Must be one of the `aosp_cf` targets.
 
@@ -56,29 +56,29 @@ Examples:
     -   `aosp_cf_arm64_auto-ap3a-userdebug`
     -   `aosp_cf_arm64_auto-ap4a-userdebug`
 
-### AAOS\_CLEAN
+### `AAOS_CLEAN`
 
 Option to clean the build workspace, either fully or simply for the `AAOS_LUNCH_TARGET` target defined.
 
-### GERRIT\_REPO\_SYNC\_JOBS
+### `GERRIT_REPO_SYNC_JOBS`
 
 This is the value used for parallel jobs for `repo sync`, i.e. `-j <GERRIT_REPO_SYNC_JOBS>`.
 The default is defined in system environment variable: `REPO_SYNC_JOBS`.
 The minimum is 1 and the maximum is 24.
 
-### INSTANCE\_RETENTION\_TIME
+### `INSTANCE_RETENTION_TIME`
 
 Keep the build VM instance and container running to allow user to connect to it. Useful for debugging build issues, determining target output archives etc.
 
 Access using `kubectl` e.g. `kubectl exec -it -n jenkins <pod name> -- bash` from `bastion` host.
 
-### AAOS\_ARTIFACT\_STORAGE\_SOLUTION
+### `AAOS_ARTIFACT_STORAGE_SOLUTION`
 
 Define storage solution used to push artifacts.
 
 Currently `GCS_BUCKET` default pushes to GCS bucket, if empty then nothing will be stored.
 
-### GERRIT\_PROJECT / GERRIT\_CHANGE\_NUMBER / GERRIT\_PATCHSET\_NUMBER
+### `GERRIT_PROJECT` / `GERRIT_CHANGE_NUMBER` / `GERRIT_PATCHSET_NUMBER`
 
 These are optional but allow the user to fetch a specific Gerrit patchset if required.
 
