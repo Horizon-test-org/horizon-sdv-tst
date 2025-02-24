@@ -41,10 +41,10 @@ spec:
             - github-branch-source:1810.v913311241fa_9
             - gerrit-trigger:2.42.0
             - gerrit-code-review:0.4.9
-            - google-compute-engine:4.589.v8a_eeb_b_d3c45c
+            - google-compute-engine:4.580.v005441dfeea_d
             - ssh-slaves:3.1021.va_cc11b_de26a_e
             - google-kubernetes-engine:0.430.v4cc1fa_1847a_9
-            - pipeline-stage-view:2.37
+            - pipeline-stage-view:2.34
             - build-blocker-plugin:166.vc82fc20b_a_ed6
             - startup-trigger-plugin:2.9.4
             - timestamper:1.28
