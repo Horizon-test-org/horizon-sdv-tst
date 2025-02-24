@@ -33,7 +33,7 @@ The following gcloud commands can be used to view images and instance templates:
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### ANDROID\_CUTTLEFISH\_REVISION
+### `ANDROID_CUTTLEFISH_REVISION`
 
 This defines the version of [Android Cuttlefish](https://github.com/google/android-cuttlefish.git) host packages to use, e.g.
 
@@ -42,7 +42,7 @@ This defines the version of [Android Cuttlefish](https://github.com/google/andro
 
 User may define any valid version so long as that version contains `tools/buildutils/build_packages.sh` which is a dependency for these scripts.
 
-### CUTTLEFISH\_INSTANCE\_UNIQUE\_NAME
+### `CUTTLEFISH_INSTANCE_UNIQUE_NAME`
 **Note:** Name must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`, i.e lower case.
 
 Optional parameter to allow users to create their own unique instance templates for use in development and/or testing.
@@ -59,25 +59,25 @@ If user defines a unique name, ensure the following is met:
   - Tests jobs may then reference that unique instance by setting the `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label (`cloudName`).
 
 
-### MACHINE\_TYPE
+### `MACHINE_TYPE`
 
 The machine type to be used for the VM instance, default is `n1-standard-64`.
 
-### BOOT\_DISK\_SIZE
+### `BOOT_DISK_SIZE`
 
 A boot disk is required to create the instance, therefore define the size of disk required.
 
-### MAX\_RUN\_DURATION
+### `MAX_RUN_DURATION`
 
 VM instances are expensive so it is advisable to define the maximum amount of time to run the instance before it will automatically be terminated. This avoids leaving expensive instances in running state and consuming resources.
 
-### DEBIAN\_OS\_VERSION
+### `DEBIAN_OS_VERSION`
 
 Override the OS version. These regularly become deprecated and superceded, hence option to update to newer version.
 
 Keep an eye out in the console logs for `deprecated` and update as required.
 
-### NODEJS\_VERSION
+### `NODEJS_VERSION`
 
 MTK Connect requires NodeJS; this option allows you to update the version to install on the instance template.
 
