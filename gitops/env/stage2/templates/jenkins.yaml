@@ -41,10 +41,10 @@ spec:
             - github-branch-source:1810.v913311241fa_9
             - gerrit-trigger:2.42.0
             - gerrit-code-review:0.4.9
-            - google-compute-engine:4.580.v005441dfeea_d
+            - google-compute-engine:4.683.v0ce26579a_ee7
             - ssh-slaves:3.1021.va_cc11b_de26a_e
             - google-kubernetes-engine:0.430.v4cc1fa_1847a_9
-            - pipeline-stage-view:2.34
+            - pipeline-stage-view:2.37
             - build-blocker-plugin:166.vc82fc20b_a_ed6
             - startup-trigger-plugin:2.9.4
             - timestamper:1.28
@@ -430,14 +430,6 @@ spec:
                   - script: >
                       pipelineJob('Android/Tests/CTS Execution') {
                         description('<p>Run the CTS test harness against Cuttlefish Virtual Device images.</p>')
-                        triggers {
-                          hudsonStartupTrigger {
-                            nodeParameterName("")
-                            label("")
-                            quietPeriod("0")
-                            runOnChoice("ON_CONNECT")
-                          }
-                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -457,14 +449,6 @@ spec:
                   - script: >
                       pipelineJob('Android/Tests/CVD Launcher') {
                         description('<p>Launches Cuttlefish Virtual Devices (CVD) on the Cuttlefish Virtual Machine instances created by GCE from Cuttlefish instance templates</p>')
-                        triggers {
-                          hudsonStartupTrigger {
-                            nodeParameterName("")
-                            label("")
-                            quietPeriod("0")
-                            runOnChoice("ON_CONNECT")
-                          }
-                        }
                         definition {
                           cpsScm {
                             lightweight()

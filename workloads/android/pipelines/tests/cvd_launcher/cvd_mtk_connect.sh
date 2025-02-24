@@ -183,8 +183,6 @@ Environment:
     MTK_CONNECT_HOST=${MTK_CONNECT_HOST}
     MTK_CONNECT_TEST_ARTIFACT=${MTK_CONNECT_TEST_ARTIFACT}
     MTK_CONNECT_DELETE_OFFLINE_TESTBENCHES=${MTK_CONNECT_DELETE_OFFLINE_TESTBENCHES}
-
-    Storage Usage (/dev/sda1): $(df -h /dev/sda1 | tail -1 | awk '{print "Used " $3 " of " $2}')
    "
 echo "${VARIABLES}"
 
