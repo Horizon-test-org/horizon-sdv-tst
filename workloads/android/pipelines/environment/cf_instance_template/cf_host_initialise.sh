@@ -65,6 +65,14 @@ function cuttlefish_install_additional_packages() {
     node -v
 }
 
+# Disable unattended-upgrades
+function disable_unattended_upgrades() {
+    sudo systemctl status unattended-upgrades || true
+    sudo apt remove -y --purge unattended-upgrades
+    sudo apt autoremove -y
+    sudo rm -rf /var/log/unattended-upgrades
+}
+
 # Install CTS test harness on instance to avoid lengthy CTS runs.
 function cuttlefish_install_cts() {
     su -l "${JENKINS_USER}" -c "mkdir -p android-cts_15"
@@ -109,6 +117,9 @@ function cuttlefish_cleanup() {
 
 # Install the Cuttlefish packages.
 function cuttlefish_install() {
+    # Disable unattended-upgrades
+    disable_unattended_upgrades
+
     # Install additional packages
     cuttlefish_install_additional_packages
 
