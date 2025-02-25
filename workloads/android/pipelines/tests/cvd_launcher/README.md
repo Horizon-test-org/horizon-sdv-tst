@@ -25,7 +25,7 @@ This is the label that identifies the GCE Cloud label which will be used to iden
 - `cuttlefish-vm-main`
 - `cuttlefish-vm-v110`
 
-Note: The value provided must correspond to a cloud instance or the job will hang. 
+Note: The value provided must correspond to a cloud instance or the job will hang.
 
 ### `CUTTLEFISH_DOWNLOAD_URL`
 

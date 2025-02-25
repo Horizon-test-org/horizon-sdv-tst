@@ -15,7 +15,7 @@
 
 ## Introduction <a name="introduction"></a>
 
-The following provides examples of the environment variables and Jenkins build parameters that are required to build Android Automotive virtual devices and platform targets. 
+The following provides examples of the environment variables and Jenkins build parameters that are required to build Android Automotive virtual devices and platform targets.
 It also demonstrates how to run the scripts standalone on build instances.
 
 This pipeline/scripts supports builds for:

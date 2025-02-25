@@ -21,6 +21,8 @@ spec:
           existingClaim: "jenkins-home-volume"
         rbac:
           readSecrets: true
+        agent:
+          containerCap: 20
         controller:
           jenkinsUriPrefix: /jenkins
           admin:

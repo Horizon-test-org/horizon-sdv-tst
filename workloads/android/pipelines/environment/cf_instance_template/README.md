@@ -7,7 +7,7 @@
 
 ## Introduction <a name="introduction"></a>
 
-This pipeline creates (or deletes) Cuttlefish instance templates which are used by the Jenkins test pipelines to spin up cloud instances which are cuttlefish-ready and CTS-ready; these cloud instances are then used to launch CVD and run CTS tests. 
+This pipeline creates (or deletes) Cuttlefish instance templates which are used by the Jenkins test pipelines to spin up cloud instances which are cuttlefish-ready and CTS-ready; these cloud instances are then used to launch CVD and run CTS tests.
 
 During the process of creating an instance template, this pipeline also creates a custom image which is referenced by the created instance template. This image is created using the same naming convention as the instance template.
 
@@ -54,7 +54,7 @@ If user defines a unique name, ensure the following is met:
 
 - The name should start with `cuttlefish-vm`
 - Jenkins CasC (`jenkins.yaml`) must be updated to provide a new `computeEngine` entry for this unique template. For reference, see existing entry for `cuttlefish-vm-main`.
-  - Choose a sensible `cloudName`, such as `cuttlefish-vm-unique-name` (e.g. the same name as the instance template with the "instance-template" prefix removed). 
+  - Choose a sensible `cloudName`, such as `cuttlefish-vm-unique-name` (e.g. the same name as the instance template with the "instance-template" prefix removed).
   - Once synced, this new cloud will appear in `Manage Jenkins` -> `Clouds`
   - Tests jobs may then reference that unique instance by setting the `JENKINS_GCE_CLOUD_LABEL` parameter to the new cloud label (`cloudName`).
 
