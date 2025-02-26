@@ -32,24 +32,24 @@ spec:
             passwordkey: jenkins-admin-password
           jenkinsUrl: https://{{ .Values.config.domain }}/jenkins
           installPlugins:
-            - kubernetes:4306.vc91e951ea_eb_d
-            - kubernetes-credentials-provider:1.273.v15e69b_55ea_8e
+            - build-blocker-plugin:166.vc82fc20b_a_ed6
             - configuration-as-code:1932.v75cb_b_f1b_698d
             - configuration-as-code-groovy:1.1
-            - workflow-aggregator:600.vb_57cdd26fdd7
-            - keycloak:2.3.2
-            - job-dsl:1.90
+            - gerrit-code-review:0.4.9
+            - gerrit-trigger:2.42.0
             - git:5.7.0
             - github-branch-source:1810.v913311241fa_9
-            - gerrit-trigger:2.42.0
-            - gerrit-code-review:0.4.9
             - google-compute-engine:4.683.v0ce26579a_ee7
-            - ssh-slaves:3.1021.va_cc11b_de26a_e
             - google-kubernetes-engine:0.430.v4cc1fa_1847a_9
+            - job-dsl:1.91
+            - keycloak:2.3.2
+            - kubernetes:4314.v5b_846cf499eb_
+            - kubernetes-credentials-provider:1.273.v15e69b_55ea_8e
             - pipeline-stage-view:2.37
-            - build-blocker-plugin:166.vc82fc20b_a_ed6
+            - ssh-slaves:3.1031.v72c6b_883b_869
             - startup-trigger-plugin:2.9.4
             - timestamper:1.28
+            - workflow-aggregator:600.vb_57cdd26fdd7
           additionalExistingSecrets:
             - name: jenkins-keycloak
               keyName: keycloakJson
