@@ -60,7 +60,7 @@ pipeline {
 
     string(name: 'CTS_DOWNLOAD_URL',
            defaultValue: '',
-           description: "<p>Optional CTS test harness download URL.<br/>Use official CTS test harness (empty field) or one built from CTS Builder job and stored in GS Bucket, e.g.<br/>gs://${env.ANDROID_BUILD_BUCKET_ROOT_NAME}/Android/Builds/CTS_Builder/<BUILD_NUMBER>/android-cts.zip</p>")
+           description: "<p>Optional CTS test harness download URL.<br/>Use official CTS test harness (empty field) or one built from CTS Builder job and stored in GS Bucket, e.g.<br/>gs://${env.ANDROID_BUILD_BUCKET_ROOT_NAME}/Android/Builds/CTS_Builder/&lt;BUILD_NUMBER&gt;/android-cts.zip</p>")
 
     string(name: 'CTS_TESTPLAN',
            defaultValue: 'cts-virtual-device-stable',
