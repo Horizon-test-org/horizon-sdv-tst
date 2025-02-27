@@ -102,6 +102,13 @@ This defines the maximum time, in minutes, to wait for CTS to complete.
 
 Enable if user wishes to view devices via MTK Connect (e.g. to watch UI tests).
 
+### `CUTTLEFISH_KEEP_ALIVE_TIME`
+
+If wishing to debug HOST using MTK Connect, Cuttlefish VM instance must be allowed to continue to run. This timeout, in
+minutes, gives the tester time to keep the instance alive so they may work with the host via MTK Connect.
+
+It is only applicable when `MTK_CONNECT_ENABLE` is enabled.
+
 ## SYSTEM VARIABLES <a name="system-variables"></a>
 
 There are a number of system environment variables that are unique to each platform but required by Jenkins build, test and environment pipelines.
