@@ -33,6 +33,7 @@ spec:
           jenkinsUrl: https://{{ .Values.config.domain }}/jenkins
           installPlugins:
             - build-blocker-plugin:166.vc82fc20b_a_ed6
+            - build-user-vars-plugin:195.v8c35f9d5c3dc
             - configuration-as-code:1932.v75cb_b_f1b_698d
             - configuration-as-code-groovy:1.1
             - gerrit-code-review:0.4.9
@@ -468,6 +469,8 @@ spec:
                         }
                       }
                 unclassified:
+                  buildUserVars:
+                    allBuilds: true
                   gerrit-trigger:
                     servers:
                       - name: "Gerrit"
