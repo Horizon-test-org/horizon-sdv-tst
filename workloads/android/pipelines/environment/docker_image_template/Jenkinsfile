@@ -59,6 +59,9 @@ pipeline {
       when { expression { env.IMAGE_TAG } }
       steps {
         container(name: 'kaniko') {
+          script {
+            currentBuild.description = "$BUILD_USER"
+          }
           sh '''
             # Build the docker image and push to Artifact registry using service account configured with
             # correct roles/permissions.
