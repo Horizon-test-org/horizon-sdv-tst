@@ -96,6 +96,10 @@ pipeline {
                  defaultValue: false,
                  description: '''<p>Enable if wishing to use MTK Connect to view UI of CTS tests on virtual devices</p>''')
 
+    choice(name: 'CUTTLEFISH_KEEP_ALIVE_TIME',
+           choices: ['0', '5', '15', '30', '60', '90', '120', '180'],
+           description: '''<p>Time in minutes, to keep CVD alive before stopping the devices and instance.</br>.
+           Only applicable when <i>MTK_CONNECT_ENABLE</i> enabled so as to connect via HOST.</p>''')
   }
 
   agent none
@@ -113,6 +117,7 @@ pipeline {
             }
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               script { env.VM_NODE_NAME = env.NODE_NAME }
+              script { env.CTS_STAGE = 'false' }
               sh '''
                 CUTTLEFISH_DOWNLOAD_URL="${CUTTLEFISH_DOWNLOAD_URL}" \
                 CUTTLEFISH_MAX_BOOT_TIME="${CUTTLEFISH_MAX_BOOT_TIME}" \
@@ -161,6 +166,7 @@ pipeline {
           }
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              script { env.CTS_STAGE = 'true' }
               sh '''
                 ANDROID_VERSION=${ANDROID_VERSION} \
                 CTS_DOWNLOAD_URL="${CTS_DOWNLOAD_URL}" \
@@ -176,7 +182,24 @@ pipeline {
               archiveArtifacts artifacts: 'android-cts-results/invocation_summary.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
               archiveArtifacts artifacts: 'android-cts-results/*.zip', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
             }
-	  }
+          }
+        }
+
+        stage ('Keep Devices Alive') {
+          when {
+            allOf {
+              expression { env.CUTTLEFISH_DOWNLOAD_URL }
+              expression { env.MTK_CONNECT_ENABLE == 'true' }
+              expression { env.CTS_STAGE == 'true' }
+            }
+          }
+          steps {
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              script {
+                sleep(time: "${CUTTLEFISH_KEEP_ALIVE_TIME}", unit: 'MINUTES')
+              }
+            }
+          }
         }
 
         stage ('Stop Virtual Devices') {
