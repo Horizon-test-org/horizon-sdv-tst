@@ -9,7 +9,7 @@
 
 This pipeline is run on GCE Cuttlefish VM instances from the instance templates that were previously created by the environment pipeline. It allows users to test their Cuttlefish virtual device (CVD) image builds.
 
-The pipeline first runs CVD on the Cuttlefish VM Instance to instantiate the specified number of devices and then connects to MTK Connect so that users can test their builds (UI and adb).
+The pipeline first runs CVD on the Cuttlefish VM Instance to instantiate the specified number of virtual devices and then connects to MTK Connect so that users can test their builds (UI and adb). Devices are kept alive for the user-specified amount of time.
 
 ### References <a name="references"></a>
 
