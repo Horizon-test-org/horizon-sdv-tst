@@ -216,6 +216,12 @@ spec:
                             runOnChoice("ON_CONNECT")
                           }
                         }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -242,6 +248,12 @@ spec:
                             quietPeriod("0")
                             runOnChoice("ON_CONNECT")
                           }
+                        }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
                         }
                         definition {
                           cpsScm {
@@ -275,6 +287,12 @@ spec:
                             runOnChoice("ON_CONNECT")
                           }
                         }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -303,6 +321,12 @@ spec:
                             quietPeriod("0")
                             runOnChoice("ON_CONNECT")
                           }
+                        }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
                         }
                         definition {
                           cpsScm {
@@ -333,6 +357,12 @@ spec:
                             runOnChoice("ON_CONNECT")
                           }
                         }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -359,6 +389,12 @@ spec:
                             quietPeriod("0")
                             runOnChoice("ON_CONNECT")
                           }
+                        }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
                         }
                         definition {
                           cpsScm {
@@ -387,6 +423,12 @@ spec:
                             runOnChoice("ON_CONNECT")
                           }
                         }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -414,6 +456,12 @@ spec:
                             runOnChoice("ON_CONNECT")
                           }
                         }
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -433,6 +481,12 @@ spec:
                   - script: >
                       pipelineJob('Android/Tests/CTS Execution') {
                         description('<p>Run the CTS test harness against Cuttlefish Virtual Device images.</p>')
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
@@ -452,6 +506,12 @@ spec:
                   - script: >
                       pipelineJob('Android/Tests/CVD Launcher') {
                         description('<p>Launches Cuttlefish Virtual Devices (CVD) on the Cuttlefish Virtual Machine instances created by GCE from Cuttlefish instance templates</p>')
+                        logRotator {
+                          artifactDaysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          artifactNumToKeep({{ .Values.config.workloads.android.numToKeep }})
+                          daysToKeep({{ .Values.config.workloads.android.daysToKeep }})
+                          numToKeep({{ .Values.config.workloads.android.numToKeep }})
+                        }
                         definition {
                           cpsScm {
                             lightweight()
