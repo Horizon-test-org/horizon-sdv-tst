@@ -16,6 +16,8 @@ config:
     android:
       url: https://github.com/AGBG-ASG/acn-horizon-sdv
       branch: env/dev
+      daysToKeep: 28
+      numToKeep: 100
 spec:
   destination:
     server: https://kubernetes.default.svc
