@@ -15,14 +15,16 @@
 
 ## Introduction <a name="introduction"></a>
 
-The following provides examples of the environment variables and Jenkins build parameters that are required to build Android Automotive virtual devices and platform targets.
-It also demonstrates how to run the scripts standalone on build instances.
+This job is used to build Android Automotive virtual devices and platform targets from the provided source manifest.
 
 This pipeline/scripts supports builds for:
 
 - [Android Virtual Devices](https://source.android.com/docs/automotive/start/avd/android_virtual_device) for use with [Android Studio](https://source.android.com/docs/automotive/start/avd/android_virtual_device#share-an-avd-image-with-android-studio-users)
 - [Cuttlefish Virtual Devices](https://source.android.com/docs/devices/cuttlefish) for use with [CTS](https://source.android.com/docs/compatibility/cts) and emulators.
 - Reference hardware platforms such as [RPi](https://github.com/raspberry-vanilla/android_local_manifest) and [Pixel Tablets](https://source.android.com/docs/automotive/start/pixelxl).
+
+The following provides examples of the environment variables and Jenkins build parameters that are required.
+It also demonstrates how to run the scripts standalone on build instances.
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
@@ -238,7 +240,7 @@ These are as follows:
     - The URL domain which is required by pipeline jobs to derive URL for tools and GCP.
 
 -   `JENKINS_CACHE_STORAGE_CLASS_NAME`
-    - For build jobs we use persistent storage class to store the build cache. This defines the class name to use.
+    - This identifies the Persistent Volume Claim (PVC) that provisions persistent storage for build cache, ensuring efficient reuse of cached resources across builds.  The default is [`pd-balanced`](https://cloud.google.com/compute/docs/disks/performance), which strikes a balance between optimal performance and cost-effectiveness.
 
 -   `JENKINS_SERVICE_ACCOUNT`
     - Service account to use for pipelines. Required to ensure correct roles and permissions for GCP resources.
@@ -308,3 +310,7 @@ These are as follows:
 ### Resource Limits (Pod)
 
 -    The resource limits in the Jenkins Pod templates were chosen to give the optimal performance of builds. Higher values exposed issues with Jenkins kubernetes plugin and losing connection with the agent. e.g. The instance has 112 cores but some of those are required by Jenkins agent, 96 was most reliable to get the optimal performance.
+
+### Build Cache Corruption
+
+- The shared build cache can significantly accelerate build jobs, but it's not without risks. If a build job crashes or is aborted during initialization, the cache can become unstable, causing subsequent jobs to encounter issues with the `repo sync` command due to lingering lock files. To mitigate this, a retry and recovery process is triggered after multiple failed attempts, which involves deleting and recreating the cache. However, this process can substantially prolong the build job duration.

@@ -15,6 +15,7 @@ Note:
 
 - This pipeline offers the flexibility to run using a user-defined CTS suite (built by the `CTS Builder` pipeline) instead of the default Android 14 and Android 15 CTS suites provided by google.
 - It allows user to enable MTK Connect should they wish to view the virtual devices during testing (e.g. useful for UI tests).
+- It allows users to keep the cuttlefish virtual devices alive for a certain amount of time after the CTS run has completed in order to facilitate debugging via MTK Connect. MTK Connect must be enabled for this option.
 
 ### References <a name="references"></a>
 

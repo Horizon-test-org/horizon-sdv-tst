@@ -109,7 +109,7 @@ These are as follows:
     - The URL domain which is required by pipeline jobs to derive URL for tools and GCP.
 
 -   `JENKINS_CACHE_STORAGE_CLASS_NAME`
-    - For build jobs we use persistent storage class to store the build cache. This defines the class name to use.
+    - This identifies the Persistent Volume Claim (PVC) that provisions persistent storage for build cache, ensuring efficient reuse of cached resources across builds. The default is [`pd-balanced`](https://cloud.google.com/compute/docs/disks/performance), which strikes a balance between optimal performance and cost-effectiveness.
 
 -   `JENKINS_SERVICE_ACCOUNT`
     - Service account to use for pipelines. Required to ensure correct roles and permissions for GCP resources.
