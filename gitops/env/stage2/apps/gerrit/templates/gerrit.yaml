@@ -20,6 +20,9 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
+  containerImages:
+    gerritImages:
+      tag: v0.1-764-g2f33a537b8-3.11.1-489-g177cc22f91
   eventsBroker:
     brokerType: NONE
   storage:

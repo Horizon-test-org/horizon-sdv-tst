@@ -25,7 +25,7 @@ spec:
   project: horizon-sdv
   source:
     repoURL: https://github.com/GerritCodeReview/k8s-gerrit/
-    targetRevision: master
+    targetRevision: 01c9f75d92ceb357ddc7982ce5bf9120b60a8cd7
     path: helm-charts/gerrit-operator
   destination:
     server: https://kubernetes.default.svc
