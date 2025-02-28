@@ -91,12 +91,13 @@ module "sdv_gke_cluster" {
   location        = var.sdv_location
   network         = var.sdv_network
   subnetwork      = var.sdv_subnetwork
-  service_account = var.sdv_default_computer_sa
+  service_account = var.sdv_computer_sa
 
   # Default node pool configuration
   node_pool_name = var.sdv_cluster_node_pool_name
   machine_type   = var.sdv_cluster_node_pool_machine_type
   node_count     = var.sdv_cluster_node_pool_count
+  node_locations = var.sdv_cluster_node_locations
 
   # build node pool configuration
   build_node_pool_name           = var.sdv_build_node_pool_name
@@ -178,7 +179,7 @@ module "sdv_bash_on_bastion_host" {
 module "sdv_sa_key_secret_gce_creds" {
   source = "../sdv-sa-key-secret"
 
-  service_account_id = var.sdv_default_computer_sa
+  service_account_id = var.sdv_computer_sa
   secret_id          = "gce-creds"
   location           = var.sdv_location
   project_id         = data.google_project.project.project_id
@@ -200,7 +201,7 @@ module "sdv_sa_key_secret_gce_creds" {
 module "sdv_iam_gcs_users" {
   source = "../sdv-iam"
   member = [
-    "serviceAccount:${var.sdv_default_computer_sa}"
+    "serviceAccount:${var.sdv_computer_sa}"
   ]
 
   role = "roles/storage.objectUser"
@@ -210,7 +211,7 @@ module "sdv_iam_gcs_users" {
 module "sdv_iam_compute_instance_admin" {
   source = "../sdv-iam"
   member = [
-    "serviceAccount:${var.sdv_default_computer_sa}"
+    "serviceAccount:${var.sdv_computer_sa}"
   ]
 
   role = "roles/compute.instanceAdmin.v1"
@@ -220,7 +221,7 @@ module "sdv_iam_compute_instance_admin" {
 module "sdv_iam_compute_network_admin" {
   source = "../sdv-iam"
   member = [
-    "serviceAccount:${var.sdv_default_computer_sa}"
+    "serviceAccount:${var.sdv_computer_sa}"
   ]
 
   role = "roles/compute.networkAdmin"
@@ -231,7 +232,7 @@ module "sdv_iam_compute_network_admin" {
 module "sdv_iam_secured_tunnel_user" {
   source = "../sdv-iam"
   member = [
-    "serviceAccount:${var.sdv_default_computer_sa}",
+    "serviceAccount:${var.sdv_computer_sa}",
   ]
 
   role = "roles/iap.tunnelResourceAccessor"
@@ -242,7 +243,7 @@ module "sdv_iam_secured_tunnel_user" {
 module "sdv_iam_service_account_user" {
   source = "../sdv-iam"
   member = [
-    "serviceAccount:${var.sdv_default_computer_sa}"
+    "serviceAccount:${var.sdv_computer_sa}"
   ]
 
   role = "roles/iam.serviceAccountUser"
@@ -251,7 +252,7 @@ module "sdv_iam_service_account_user" {
 
 # defininion for custom VPN Firewall to to and from the instances.
 # All traffic to instances, even from other instances, is blocked by the firewall unless firewall rules are created to allow it.
-# allow tcp port 22 for default_computer_sa
+# allow tcp port 22 for computer_sa
 
 resource "google_compute_firewall" "allow_tcp_22" {
   name    = "cuttflefish-allow-tcp-22"
@@ -265,7 +266,7 @@ resource "google_compute_firewall" "allow_tcp_22" {
   #source_ranges = ["10.1.0.0/24"]
   source_ranges = ["0.0.0.0/0"]
 
-  target_service_accounts = [var.sdv_default_computer_sa]
+  target_service_accounts = [var.sdv_computer_sa]
 
   depends_on = [
     module.sdv_network

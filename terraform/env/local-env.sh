@@ -29,3 +29,12 @@ export TF_VAR_sdv_gh_cuttlefish_vm_ssh_private_key="123"
 
 # Github access token
 export TF_VAR_sdv_gh_access_token="123"
+export TF_VAR_sdv_gh_repo_name="123"
+export TF_VAR_sdv_gh_env_name="123"
+export TF_VAR_sdv_gh_domain_name="123"
+
+# GCP configuration variables
+export TF_VAR_sdv_gcp_project_id="123"
+export TF_VAR_sdv_computer_sa="123"
+export TF_VAR_sdv_gcp_cloud_region="123"
+export TF_VAR_sdv_gcp_cloud_zone="123"

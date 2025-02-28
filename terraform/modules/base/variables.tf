@@ -45,8 +45,8 @@ variable "sdv_zone" {
   type        = string
 }
 
-variable "sdv_default_computer_sa" {
-  description = "The default Computer SA"
+variable "sdv_computer_sa" {
+  description = "The Computer SA"
   type        = string
 }
 
@@ -70,6 +70,11 @@ variable "sdv_cluster_node_pool_count" {
   description = "Define the number of nodes for the node pool"
   type        = number
   default     = 1
+}
+
+variable "sdv_cluster_node_locations" {
+  description = "Define node locations/zones"
+  type        = list(string)
 }
 
 variable "sdv_bastion_host_name" {
@@ -128,16 +133,6 @@ variable "sdv_target_https_proxy_name" {
   description = "Define the HTTPs proxy name"
   type        = string
   default     = "horizon-sdv-https-proxy"
-}
-
-variable "sdv_auth_config_display_name" {
-  description = "Define the auth config display name"
-  type        = string
-}
-
-variable "sdv_auth_config_endpoint_uri" {
-  description = "Define the auth config endpont URI"
-  type        = string
 }
 
 variable "sdv_build_node_pool_name" {

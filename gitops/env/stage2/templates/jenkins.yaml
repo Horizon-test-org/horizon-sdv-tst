@@ -292,7 +292,7 @@ spec:
                             scm {
                               git {
                                 remote {
-                                  url('https://github.com/AGBG-ASG/acn-horizon-sdv.git')
+                                  url('{{ .Values.config.workloads.android.url }}')
                                   credentials('jenkins-github-creds')
                                 }
                                 branch('*/{{ .Values.config.workloads.android.branch }}')
@@ -321,7 +321,7 @@ spec:
                             scm {
                               git {
                                 remote {
-                                  url('https://github.com/AGBG-ASG/acn-horizon-sdv.git')
+                                  url('{{ .Values.config.workloads.android.url }}')
                                   credentials('jenkins-github-creds')
                                 }
                                 branch('*/{{ .Values.config.workloads.android.branch }}')
@@ -350,7 +350,7 @@ spec:
                             scm {
                               git {
                                 remote {
-                                  url('https://github.com/AGBG-ASG/acn-horizon-sdv.git')
+                                  url('{{ .Values.config.workloads.android.url }}')
                                   credentials('jenkins-github-creds')
                                 }
                                 branch('*/{{ .Values.config.workloads.android.branch }}')

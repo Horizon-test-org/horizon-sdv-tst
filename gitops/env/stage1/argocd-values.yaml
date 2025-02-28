@@ -19,4 +19,4 @@ configs:
   secret:
     createSecret: false
 global:
-  domain: sbx.horizon-sdv.com
+  domain: ##SUBDOMAIN##.##DOMAIN##

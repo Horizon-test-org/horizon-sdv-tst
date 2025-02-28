@@ -75,3 +75,38 @@ variable "sdv_gh_access_token" {
   description = "Github access token"
   type        = string
 }
+
+variable "sdv_gh_repo_name" {
+  description = "Github repo name"
+  type        = string
+}
+
+variable "sdv_gh_env_name" {
+  description = "Github environment name"
+  type        = string
+}
+
+variable "sdv_gh_domain_name" {
+  description = "Horizon domain name"
+  type        = string
+}
+
+variable "sdv_gcp_project_id" {
+  description = "GCP project id"
+  type        = string
+}
+
+variable "sdv_computer_sa" {
+  description = "GCP computer SA"
+  type        = string
+}
+
+variable "sdv_gcp_cloud_region" {
+  description = "GCP cloud region"
+  type        = string
+}
+
+variable "sdv_gcp_cloud_zone" {
+  description = "GCP cloud zone"
+  type        = string
+}

@@ -17,24 +17,19 @@
 # project ID, region, zone, network etc. Set up service accounts and
 # the required secrets.
 
-# Actions workflow trigger 2
-locals {
-  sdv_default_computer_sa = "966518152012-compute@developer.gserviceaccount.com"
-}
-
 module "base" {
   source = "../modules/base"
 
   # The project is used by provider.tf to define the GCP project
-  sdv_project  = "sdvc-2108202401"
-  sdv_location = "europe-west1"
-  sdv_region   = "europe-west1"
-  sdv_zone     = "europe-west1-d"
+  sdv_project  = var.sdv_gcp_project_id
+  sdv_location = var.sdv_gcp_cloud_region
+  sdv_region   = var.sdv_gcp_cloud_region
+  sdv_zone     = var.sdv_gcp_cloud_zone
 
   sdv_network    = "sdv-network"
   sdv_subnetwork = "sdv-subnet"
 
-  sdv_default_computer_sa = local.sdv_default_computer_sa
+  sdv_computer_sa = var.sdv_computer_sa
 
   sdv_list_of_apis = toset([
     "compute.googleapis.com",
@@ -62,6 +57,10 @@ module "base" {
   sdv_cluster_node_pool_name         = "sdv-node-pool"
   sdv_cluster_node_pool_machine_type = "n1-standard-4"
   sdv_cluster_node_pool_count        = 3
+  sdv_cluster_node_locations = [
+    "${var.sdv_gcp_cloud_zone}"
+  ]
+
   sdv_build_node_pool_machine_type   = "c2d-highcpu-112"
   sdv_build_node_pool_max_node_count = 10
 
@@ -74,15 +73,11 @@ module "base" {
   sdv_artifact_registry_repository_id      = "horizon-sdv"
   sdv_artifact_registry_repository_members = []
   sdv_artifact_registry_repository_reader_members = [
-    "serviceAccount:${local.sdv_default_computer_sa}",
+    "serviceAccount:${var.sdv_computer_sa}",
   ]
 
   sdv_ssl_certificate_name   = "horizon-sdv"
-  sdv_ssl_certificate_domain = "sbx.horizon-sdv.com"
-
-  # sdv-apis-services
-  sdv_auth_config_display_name = "horizon-sdv-sbx-oauth-2"
-  sdv_auth_config_endpoint_uri = "https://sbx.horizon-sdv.com/auth/realms/horizon/broker/google/endpoint"
+  sdv_ssl_certificate_domain = "${var.sdv_gh_env_name}.${var.sdv_gh_domain_name}"
 
   #
   # To create a new SA with access from GKE to GC, add a new saN block.
@@ -328,6 +323,20 @@ module "base" {
   sdv_bastion_host_bash_command = <<EOT
     export GITHUB_ACCESS_TOKEN=${var.sdv_gh_access_token}
     echo $GITHUB_ACCESS_TOKEN
+    export GITHUB_REPO_NAME=${var.sdv_gh_repo_name}
+    echo $GITHUB_REPO_NAME
+    export GITHUB_ENV_NAME=${var.sdv_gh_env_name}
+    echo $GITHUB_ENV_NAME
+    export GITHUB_DOMAIN_NAME=${var.sdv_gh_domain_name}
+    echo $GITHUB_DOMAIN_NAME
+    export GCP_PROJECT_ID=${var.sdv_gcp_project_id}
+    echo $GCP_PROJECT_ID
+    export GCP_COMPUTER_SA=${var.sdv_computer_sa}
+    echo $GCP_COMPUTER_SA
+    export GCP_CLOUD_REGION=${var.sdv_gcp_cloud_region}
+    echo $GCP_CLOUD_REGION
+    export GCP_CLOUD_ZONE=${var.sdv_gcp_cloud_zone}
+    echo $GCP_CLOUD_ZONE
     cd bash-scripts
     chmod +x stage1.sh
     ./stage1.sh

@@ -86,9 +86,6 @@ variable "service_account" {
 variable "node_locations" {
   description = "Define the location of the nodes"
   type        = list(string)
-  default = [
-    "europe-west1-d",
-  ]
 }
 
 variable "node_count" {

@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-config:
-  domain: sbx.horizon-sdv.com
 spec:
   destination:
     server: https://kubernetes.default.svc
-  source:
-    repoURL: https://github.com/AGBG-ASG/acn-horizon-sdv
-    targetRevision: env/sbx

@@ -25,9 +25,8 @@
 
 #!/bin/bash
 
-CLOUD_REGION=europe-west1
 CLUSTER_NAME="sdv-cluster"
-REPOSITORY=github.com/AGBG-ASG/acn-horizon-sdv
+REPOSITORY=github.com/${GITHUB_REPO_NAME}
 
 touch ~/terraform-log.log
 echo $(date) >>~/terraform-log.log
@@ -46,7 +45,7 @@ sudo apt-get install apt-transport-https --yes
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sudo apt-get update
 sudo apt install -y helm
-gcloud container clusters get-credentials sdv-cluster --region ${CLOUD_REGION}
+gcloud container clusters get-credentials sdv-cluster --region ${GCP_CLOUD_REGION}
 
 echo ""
 echo "Helm Version"
@@ -70,7 +69,7 @@ gcloud info
 
 echo ""
 echo "Connecting to Kubernetes"
-gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${CLOUD_REGION}
+gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${GCP_CLOUD_REGION}
 
 echo ""
 echo "List $SDV_CLUSTER_NAME nodes"
@@ -83,8 +82,8 @@ sudo usermod -aG docker $USER
 
 echo ""
 echo "Docker configurations"
-gcloud auth configure-docker ${CLOUD_REGION}-docker.pkg.dev --quiet
-sudo gcloud auth configure-docker ${CLOUD_REGION}-docker.pkg.dev --quiet
+gcloud auth configure-docker ${GCP_CLOUD_REGION}-docker.pkg.dev --quiet
+sudo gcloud auth configure-docker ${GCP_CLOUD_REGION}-docker.pkg.dev --quiet
 
 echo ""
 echo "Removing old project"
@@ -97,7 +96,7 @@ git clone https://x-access-token:${GITHUB_ACCESS_TOKEN}@${REPOSITORY} ~/horizon-
 echo ""
 echo "List current branch and remote"
 cd ~/horizon-sdv
-git checkout -t origin/env/sbx
+git checkout -t origin/env/${GITHUB_ENV_NAME}
 
 echo ""
 echo "Build config post jobs"

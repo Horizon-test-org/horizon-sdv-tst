@@ -26,6 +26,12 @@ spec:
   source:
     repoURL: {{ .Values.spec.source.repoURL }}
     targetRevision: {{ .Values.spec.source.targetRevision }}
+    helm:
+      values: |
+        spec:
+          source:
+            repoURL: {{ .Values.spec.source.repoURL }}
+            targetRevision: {{ .Values.spec.source.targetRevision }}
     path: gitops/env/stage2/apps/mtk-connect
   destination:
     server: https://kubernetes.default.svc
