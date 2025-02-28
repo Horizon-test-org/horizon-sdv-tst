@@ -192,7 +192,7 @@ async function configureDevice(i) {
             'name': 'HOST',
             'driver': 'spawn',
             'command': 'bash',
-            'args': []
+            'args': ['-c', 'cd ~/; bash --login', '']
           }
         ]
       },
