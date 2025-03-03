@@ -1,3 +1,20 @@
+# Copyright (c) 2024-2025 Accenture, All Rights Reserved.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#         http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+# Description:
+# Configuration file containing variables for the main env configuration.
+
 
 variable "sdv_gh_app_id" {
   description = "The var gh_app_id value"
@@ -56,5 +73,40 @@ variable "sdv_gh_cuttlefish_vm_ssh_private_key" {
 
 variable "sdv_gh_access_token" {
   description = "Github access token"
+  type        = string
+}
+
+variable "sdv_gh_repo_name" {
+  description = "Github repo name"
+  type        = string
+}
+
+variable "sdv_gh_env_name" {
+  description = "Github environment name"
+  type        = string
+}
+
+variable "sdv_gh_domain_name" {
+  description = "Horizon domain name"
+  type        = string
+}
+
+variable "sdv_gcp_project_id" {
+  description = "GCP project id"
+  type        = string
+}
+
+variable "sdv_computer_sa" {
+  description = "GCP computer SA"
+  type        = string
+}
+
+variable "sdv_gcp_cloud_region" {
+  description = "GCP cloud region"
+  type        = string
+}
+
+variable "sdv_gcp_cloud_zone" {
+  description = "GCP cloud zone"
   type        = string
 }

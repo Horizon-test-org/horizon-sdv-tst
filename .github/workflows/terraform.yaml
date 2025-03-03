@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2025 Accenture, All Rights Reserved.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#         http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: terraform
 on:
   workflow_call:
@@ -173,6 +187,11 @@ jobs:
           echo "TF_VAR_sdv_gh_keycloak_initial_password=${{ secrets.gh-keycloak-initial-password }}" >> $GITHUB_ENV
           echo "TF_VAR_sdv_gh_gerrit_admin_initial_password=${{ secrets.gh-gerrit-admin-initial-password }}" >> $GITHUB_ENV
           echo "TF_VAR_sdv_gh_keycloak_horizon_admin_password=${{ secrets.gh-keycloak-horizon-admin-password }}" >> $GITHUB_ENV
+          echo "TF_VAR_sdv_gcp_project_id=${{ vars.GCP_PROJECT_ID }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_computer_sa=${{ vars.GCP_COMPUTER_SA }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gcp_cloud_region=${{ vars.GCP_CLOUD_REGION }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gcp_cloud_zone=${{ vars.GCP_CLOUD_ZONE }}" >> $GITHUB_ENV;
+          echo "TF_VAR_sdv_gh_domain_name=${{ vars.HORIZON_DOMAIN }}" >> $GITHUB_ENV;
 
           if [[ "${{ secrets.gcp-sa }}" != '' && "${{ secrets.wif-provider }}" != '' ]]; then
             echo "GCP_SA=${{ secrets.gcp-sa }}" >> $GITHUB_ENV;
@@ -287,14 +306,16 @@ jobs:
         id: tfplan
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
+          TF_VAR_sdv_gh_repo_name: ${{ github.event.repository.full_name }}
+          TF_VAR_sdv_gh_env_name: ${{ inputs.environment }}
         run: |
           git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
-          terraform init -input=false
+          terraform init -input=false -backend-config bucket="${{ vars.GCP_BACKEND_BUCKET_NAME }}"
           terraform plan -parallelism=${{ inputs.parallelism }} -input=false -no-color -out=tfplan && terraform show -no-color tfplan
         continue-on-error: true
 
       - name: Reformat Plan
-        if: ${{ inputs.environment }} != ''
+        if: inputs.environment != ''
         env:
           TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
           TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
@@ -308,7 +329,7 @@ jobs:
           fi
 
       - name: Put Plan in Env Var
-        if: ${{ inputs.environment }} != ''
+        if: inputs.environment != ''
         run: |
           PLAN=$(cat plan.txt)
           echo "PLAN<<EOF" >> $GITHUB_ENV
@@ -317,7 +338,7 @@ jobs:
 
       - name: Post Plan to GitHub PR
         uses: mshick/add-pr-comment@v2
-        if: ${{ inputs.environment }} != ''
+        if: inputs.environment != ''
         with:
           allow-repeats: false
           repo-token: ${{steps.get_github_app_token.outputs.token}}
@@ -339,16 +360,18 @@ jobs:
       - name: terraform apply
         working-directory: ${{ inputs.directory }}/
         id: tfapply
-        if: ${{ inputs.environment }} != ''
+        if: inputs.environment != ''
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
+          TF_VAR_sdv_gh_repo_name: ${{ github.event.repository.full_name }}
+          TF_VAR_sdv_gh_env_name: ${{ inputs.environment }}
         run: |
           git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
           terraform apply -parallelism=${{ inputs.parallelism }} -input=false -no-color tfplan
         continue-on-error: true
 
       - name: Post Apply Success
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'success'
+        if: steps.tfapply.outcome == 'success'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -362,7 +385,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Apply Failure
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
+        if: steps.tfapply.outcome == 'failure'
         uses: mshick/add-pr-comment@v2
         with:
           allow-repeats: false
@@ -376,7 +399,7 @@ jobs:
         continue-on-error: true
 
       - name: Fail if apply failed
-        if: ${{ inputs.environment }} != '' && steps.tfapply.outcome == 'failure'
+        if: steps.tfapply.outcome == 'failure'
         uses: actions/github-script@v6
         with:
           script: |

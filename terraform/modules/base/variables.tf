@@ -1,3 +1,20 @@
+# Copyright (c) 2024-2025 Accenture, All Rights Reserved.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#         http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Description:
+# Configuration file containing variables for the "base" module.
+
 variable "sdv_project" {
   description = "Define the GCP project id"
   type        = string
@@ -28,8 +45,8 @@ variable "sdv_zone" {
   type        = string
 }
 
-variable "sdv_default_computer_sa" {
-  description = "The default Computer SA"
+variable "sdv_computer_sa" {
+  description = "The Computer SA"
   type        = string
 }
 
@@ -53,6 +70,11 @@ variable "sdv_cluster_node_pool_count" {
   description = "Define the number of nodes for the node pool"
   type        = number
   default     = 1
+}
+
+variable "sdv_cluster_node_locations" {
+  description = "Define node locations/zones"
+  type        = list(string)
 }
 
 variable "sdv_bastion_host_name" {
@@ -111,16 +133,6 @@ variable "sdv_target_https_proxy_name" {
   description = "Define the HTTPs proxy name"
   type        = string
   default     = "horizon-sdv-https-proxy"
-}
-
-variable "sdv_auth_config_display_name" {
-  description = "Define the auth config display name"
-  type        = string
-}
-
-variable "sdv_auth_config_endpoint_uri" {
-  description = "Define the auth config endpont URI"
-  type        = string
 }
 
 variable "sdv_build_node_pool_name" {

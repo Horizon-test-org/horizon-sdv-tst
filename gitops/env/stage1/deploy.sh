@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2025 Accenture, All Rights Reserved.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#         http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #!/bin/bash
 
 ES_NS=external-secrets
@@ -13,6 +27,8 @@ ARGOCD_CHART=argo-cd
 ARGOCD_PATH=argocd
 ARGOCD_VERSION=7.6.12
 ARGOCD_VALUES=argocd-values.yaml
+
+REPOSITORY=https://github.com/${GITHUB_REPO_NAME}
 
 helm repo add argocd https://argoproj.github.io/argo-helm
 helm repo add external-secrets https://charts.external-secrets.io
@@ -40,7 +56,23 @@ deploy() {
 }
 
 deploy $ES_NS $ES_NAME $ES_CHART $ES_PATH $ES_VERSION $ES_VALUES
+
+sed -i "s,##REPO_URL##,${REPOSITORY},g" ./argocd-secrets.yaml
+sed -i "s,##PROJECT_ID##,${GCP_PROJECT_ID},g" ./argocd-secrets.yaml
+sed -i "s,##CLOUD_REGION##,${GCP_CLOUD_REGION},g" ./argocd-secrets.yaml
+
 kubectl apply -f argocd-secrets.yaml
+
+sed -i "s,##SUBDOMAIN##,${GITHUB_ENV_NAME},g" ./argocd-values.yaml
+sed -i "s,##DOMAIN##,${GITHUB_DOMAIN_NAME},g" ./argocd-values.yaml
+
 deploy $ARGOCD_NS $ARGOCD_NAME $ARGOCD_CHART $ARGOCD_PATH $ARGOCD_VERSION $ARGOCD_VALUES
+
+sed -i "s,##REPO_URL##,${REPOSITORY},g" ./argocd-config.yaml
+sed -i "s,##REPO_BRANCH##,env/${GITHUB_ENV_NAME},g" ./argocd-config.yaml
+sed -i "s,##DOMAIN##,${GITHUB_ENV_NAME}.${GITHUB_DOMAIN_NAME},g" ./argocd-config.yaml
+sed -i "s,##PROJECT_ID##,${GCP_PROJECT_ID},g" ./argocd-config.yaml
+sed -i "s,##CLOUD_REGION##,${GCP_CLOUD_REGION},g" ./argocd-config.yaml
+sed -i "s,##CLOUD_ZONE##,${GCP_CLOUD_ZONE},g" ./argocd-config.yaml
 
 kubectl apply -f argocd-config.yaml
