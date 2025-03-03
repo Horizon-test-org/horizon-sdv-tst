@@ -44,7 +44,7 @@ pipeline {
 
   // Block concurrent builds to avoid clashing.
   options {
-    buildBlocker (useBuildBlocker: true, blockLevel: 'GLOBAL', scanQueueFor: 'BUILDABLE', blockingJobs: '.*CF.*Template.*')
+    buildBlocker (useBuildBlocker: true, blockLevel: 'GLOBAL', scanQueueFor: 'BUILDABLE', blockingJobs: '.*Template.*')
   }
 
   parameters {
