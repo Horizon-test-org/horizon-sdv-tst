@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
   * [Targets](#targets)
 - [Example Usage](#examples)
@@ -26,9 +27,16 @@ This pipeline/scripts supports builds for:
 The following provides examples of the environment variables and Jenkins build parameters that are required.
 It also demonstrates how to run the scripts standalone on build instances.
 
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following template has been created by running the corresponding job:
+  - Docker image template: `Android Workflows/Environment/Docker Image Template`
+
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### AAOS&#95;GERRIT&#95;MANIFEST_URL
+### `AAOS_GERRIT_MANIFEST_URL`
 
 This provides the URL for the Android repo manifest. Such as:
 

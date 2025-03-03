@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
 - [System Variables](#system-variables)
 
@@ -21,6 +22,14 @@ Note:
 
 - [Cuttlefish Virtual Devices](https://source.android.com/docs/devices/cuttlefish) for use with [CTS](https://source.android.com/docs/compatibility/cts) and emulators.
 - [Compatibility Test Suite downloads](https://source.android.com/docs/compatibility/cts/downloads)
+
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following templates have been created by running the corresponding jobs:
+  - Docker image template: `Android Workflows/Environment/Docker Image Template`
+  - Cuttlefish instance template: `Android Workflows/Environment/CF Instance Template`
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
