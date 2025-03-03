@@ -1,3 +1,0 @@
-[submodule "gitops/env/dev/horizon-sdv-stage2/apps/k8s-gerrit"]
-	path = gitops/env/dev/horizon-sdv-stage2/apps/k8s-gerrit
-	url = https://github.com/GerritCodeReview/k8s-gerrit.git
