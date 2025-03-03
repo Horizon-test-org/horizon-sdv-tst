@@ -5,17 +5,17 @@
 - [Environment Variables/Parameters](#environment-variables)
   * [Targets](#targets)
 - [Example Usage](#examples)
-  * [aaos_environment.sh](#aaos_environment)
-  * [aaos_initialise.sh](#aaos_initialise)
-  * [aaos_build.sh](#aaos_build)
-  * [aaos_avd_sdk.sh](#aaos_avd_sdk)
-  * [aaos_storage.sh](#aaos_storage)
+  * [`aaos_environment.sh`](#aaos_environment)
+  * [`aaos_initialise.sh`](#aaos_initialise)
+  * [`aaos_build.sh`](#aaos_build)
+  * [`aaos_avd_sdk.sh`](#aaos_avd_sdk)
+  * [`aaos_storage.sh`](#aaos_storage)
 - [System Variables](#system-variables)
 - [Known Issues](#known-issues)
 
 ## Introduction <a name="introduction"></a>
 
-The following provides examples of the environment variables and Jenkins build parameters in order to build Android Automotive virtual devices, and platform targets. It also provides examples to run the scripts standalone on build instances.
+This job is used to build Android Automotive virtual devices and platform targets from the provided source manifest.
 
 This pipeline/scripts supports builds for:
 
@@ -23,30 +23,33 @@ This pipeline/scripts supports builds for:
 - [Cuttlefish Virtual Devices](https://source.android.com/docs/devices/cuttlefish) for use with [CTS](https://source.android.com/docs/compatibility/cts) and emulators.
 - Reference hardware platforms such as [RPi](https://github.com/raspberry-vanilla/android_local_manifest) and [Pixel Tablets](https://source.android.com/docs/automotive/start/pixelxl).
 
+The following provides examples of the environment variables and Jenkins build parameters that are required.
+It also demonstrates how to run the scripts standalone on build instances.
+
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### AAOS_GERRIT_MANIFEST_URL
+### AAOS&#95;GERRIT&#95;MANIFEST_URL
 
 This provides the URL for the Android repo manifest. Such as:
 
 - https://dev.horizon-sdv.scpmtk.com/android/platform/manifest (default)
 - https://android.googlesource.com/platform/manifest
 
-### AAOS_REVISION
+### `AAOS_REVISION`
 
 The Android revision, i.e. branch or tag to build. Tested versions are below:
 
-- horizon/android-14.0.0_r30 (ap1a - default)
-- horizon/android-14.0.0_r74 (ap2a - refer to Known Issues)
-- horizon/android-15.0.0_r4 (ap3a)
-- android14-qpr1-automotiveos-release
-- android-14.0.0_r22
-- android-14.0.0_r30 (ap1a)
-- android-14.0.0_r74 (ap2a, refer to Known Issues)
-- android-15.0.0_r4 (ap3a)
-- android-15.0.0_r10 (ap4a)
+- `horizon/android-14.0.0_r30` (ap1a - default)
+- `horizon/android-14.0.0_r74` (ap2a - refer to Known Issues)
+- `horizon/android-15.0.0_r4` (ap3a)
+- `android14-qpr1-automotiveos-release`
+- `android-14.0.0_r22`
+- `android-14.0.0_r30` (ap1a)
+- `android-14.0.0_r74` (ap2a, refer to Known Issues)
+- `android-15.0.0_r4` (ap3a)
+- `android-15.0.0_r10` (ap4a)
 
-### AAOS_LUNCH_TARGET <a name="targets"></a>
+### `AAOS_LUNCH_TARGET` <a name="targets"></a>
 
 The Android target to build Android cuttlefish, virtual devices, Pixel and RPi targets.
 
@@ -82,11 +85,11 @@ Examples:
 -   Raspberry Pi:
     -   `aosp_rpi5_car-ap3a-userdebug`
 
-### ANDROID_VERSION
+### `ANDROID_VERSION`
 
 This is required for the SDK Car AVD builds so that the correct `devices.xml` and SDK Addon can be generated for use with Android Studio.
 
-### POST_REPO_INITIALISE_COMMAND
+### `POST_REPO_INITIALISE_COMMAND`
 
 Optional parameter that allows the user to include additional commands to run after the repo has been initialised.
 
@@ -94,7 +97,7 @@ Some build targets already define this command, so if user updates this then the
 
 Useful for tasks such as updating manifests, such as those used to build RPi targets.
 
-### POST_REPO_SYNC_COMMAND
+### `POST_REPO_SYNC_COMMAND`
 
 Optional parameter that allows the user to include additional commands to run after the repo has been synced.
 
@@ -104,35 +107,35 @@ Useful for installing additional code, tools etc, prior to build.
 
 e.g: [Pixel Devices](https://source.android.com/docs/automotive/start/pixelxl) where you need to download and extract vendor device images.
 
-### OVERRIDE_MAKE_COMMAND
+### `OVERRIDE_MAKE_COMMAND`
 
 Optional parameter that allows the user to override the default target make command with their own.
 
 This is a single command line, so use of logical operators to execute subsequent commands is essential.
 
-### AAOS_CLEAN
+### `AAOS_CLEAN`
 
 Option to clean the build workspace, either fully or simply for the `AAOS_LUNCH_TARGET` target defined.
 
-### GERRIT_REPO_SYNC_JOBS
+### `GERRIT_REPO_SYNC_JOBS`
 
 This is the value used for parallel jobs for `repo sync`, i.e. `-j <GERRIT_REPO_SYNC_JOBS>`.
 The default is defined in system environment variable: `REPO_SYNC_JOBS`.
 The minimum is 1 and the maximum is 24.
 
-### INSTANCE_RETENTION_TIME
+### `INSTANCE_RETENTION_TIME`
 
 Keep the build VM instance and container running to allow user to connect to it. Useful for debugging build issues, determining target output archives etc.
 
 Access using `kubectl` e.g. `kubectl exec -it -n jenkins <pod name> -- bash` from `bastion` host.
 
-### AAOS_ARTIFACT_STORAGE_SOLUTION
+### `AAOS_ARTIFACT_STORAGE_SOLUTION`
 
 Define storage solution used to push artifacts.
 
 Currently `GCS_BUCKET` default pushes to GCS bucket, if empty then nothing will be stored.
 
-### GERRIT_PROJECT / GERRIT_CHANGE_NUMBER / GERRIT_PATCHSET_NUMBER
+### `GERRIT_PROJECT` / `GERRIT_CHANGE_NUMBER / GERRIT_PATCHSET_NUMBER`
 
 These are optional but allow the user to fetch a specific Gerrit patchset if required.
 
@@ -202,7 +205,7 @@ ANDROID_VERSION=14 \
 ```
 
 ### `aaos_storage.sh` <a name="aaos_storage"></a>
-This for standalone is effectively a noop. Storage is currently dependent on Jenkins `BUILD_NUMBER`.
+Not applicable in standalone mode. Storage is currently dependent on Jenkins `BUILD_NUMBER`.
 Developers may upload their build artifacts to their own storage solution.
 
 ```
@@ -237,7 +240,7 @@ These are as follows:
     - The URL domain which is required by pipeline jobs to derive URL for tools and GCP.
 
 -   `JENKINS_CACHE_STORAGE_CLASS_NAME`
-    - For build jobs we use persistent storage class to store the build cache. This defines the class name to use.
+    - This identifies the Persistent Volume Claim (PVC) that provisions persistent storage for build cache, ensuring efficient reuse of cached resources across builds.  The default is [`pd-balanced`](https://cloud.google.com/compute/docs/disks/performance), which strikes a balance between optimal performance and cost-effectiveness.
 
 -   `JENKINS_SERVICE_ACCOUNT`
     - Service account to use for pipelines. Required to ensure correct roles and permissions for GCP resources.
@@ -272,7 +275,7 @@ These are as follows:
 
 -   Avoid surround view automotive test issues breaking builds:
 
-    -   i.e. Unknown installed file for module 'sv_2d_session_tests'/'sv_3d_session_tests'
+    -   i.e. Unknown installed file for module `sv_2d_session_tests`/`sv_3d_session_tests`
 
     -   Either [Revert](https://android.googlesource.com/platform/platform_testing/+/b608b75b5f2a5f614bd75599023a45f3c321d4a9 "https://android.googlesource.com/platform/platform_testing/+/b608b75b5f2a5f614bd75599023a45f3c321d4a9") commit, or download the revert change from Gerrit review:
 	    - `GERRIT_PROJECT=platform/platform_testing`
@@ -307,3 +310,7 @@ These are as follows:
 ### Resource Limits (Pod)
 
 -    The resource limits in the Jenkins Pod templates were chosen to give the optimal performance of builds. Higher values exposed issues with Jenkins kubernetes plugin and losing connection with the agent. e.g. The instance has 112 cores but some of those are required by Jenkins agent, 96 was most reliable to get the optimal performance.
+
+### Build Cache Corruption
+
+- The shared build cache can significantly accelerate build jobs, but it's not without risks. If a build job crashes or is aborted during initialization, the cache can become unstable, causing subsequent jobs to encounter issues with the `repo sync` command due to lingering lock files. To mitigate this, a retry and recovery process is triggered after multiple failed attempts, which involves deleting and recreating the cache. However, this process can substantially prolong the build job duration.

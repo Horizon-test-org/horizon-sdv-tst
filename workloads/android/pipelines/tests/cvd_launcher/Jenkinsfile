@@ -87,6 +87,9 @@ pipeline {
         stage ('Launch Virtual Devices') {
           when { expression { env.CUTTLEFISH_DOWNLOAD_URL } }
           steps {
+            script {
+              currentBuild.description = "$BUILD_USER"
+            }
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               script { env.VM_NODE_NAME = env.NODE_NAME }
               sh '''
@@ -110,8 +113,8 @@ pipeline {
           }
           // MTKC installer may error and hang on dpkg lock, so timeout after 15m.
           steps {
-            withCredentials([usernamePassword(credentialsId: 'jenkins-mtk-connect-apikey', passwordVariable: 'MTK_CONNECT_PASSWORD', usernameVariable: 'MTK_CONNECT_USERNAME')]) {
-              catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              withCredentials([usernamePassword(credentialsId: 'jenkins-mtk-connect-apikey', passwordVariable: 'MTK_CONNECT_PASSWORD', usernameVariable: 'MTK_CONNECT_USERNAME')]) {
                 sh '''
                   sudo \
                   MTK_CONNECT_DOMAIN=${HORIZON_DOMAIN} \

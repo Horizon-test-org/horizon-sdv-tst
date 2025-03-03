@@ -156,6 +156,11 @@ async function configureDevice(i) {
             'name': 'adb',
             'driver': 'adb',
             'root': '/'
+          },
+          {
+            'name': 'HOST',
+            'driver': 'native',
+            'root': '/root'
           }
         ]
       },
@@ -182,6 +187,12 @@ async function configureDevice(i) {
             'name': 'adb',
             'driver': 'adb',
             'icon': 'adb'
+          },
+          {
+            'name': 'HOST',
+            'driver': 'spawn',
+            'command': 'bash',
+            'args': ['-c', 'cd ~/; bash --login', '']
           }
         ]
       },

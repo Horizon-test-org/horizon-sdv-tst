@@ -22,7 +22,7 @@ provisioner: pd.csi.storage.gke.io
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
 parameters:
-  type: pd-standard
+  type: pd-balanced
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

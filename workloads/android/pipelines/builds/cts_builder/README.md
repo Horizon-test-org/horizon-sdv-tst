@@ -9,35 +9,36 @@
 
 ## Introduction <a name="introduction"></a>
 
-The following provides examples of the environment variables and Jenkins build parameters in order to build Android
-Automotive Compatibility Test Suite ([CTS](https://source.android.com/docs/compatibility/cts)) test harness.
+This pipeline builds the Android Automotive Compatibility Test Suite ([CTS](https://source.android.com/docs/compatibility/cts)) test harness from the specified code base.
+
+The following are examples of the environment variables and Jenkins build parameters that can be used.
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### AAOS_GERRIT_MANIFEST_URL
+### `AAOS_GERRIT_MANIFEST_URL`
 
 This provides the URL for the Android repo manifest. Such as:
 
 - https://dev.horizon-sdv.scpmtk.com/android/platform/manifest (default)
 - https://android.googlesource.com/platform/manifest
 
-### AAOS_REVISION
+### `AAOS_REVISION`
 
 The Android revision, i.e. branch or tag to build. Tested versions are below:
 
-- horizon/android-14.0.0_r30 (ap1a - default)
-- horizon/android-14.0.0_r74 (ap2a - refer to Known Issues)
-- horizon/android-15.0.0_r4 (ap3a)
-- android14-qpr1-automotiveos-release
-- android-14.0.0_r22
-- android-14.0.0_r30 (ap1a)
-- android-14.0.0_r74 (ap2a, refer to Known Issues)
-- android-15.0.0_r4 (ap3a)
-- android-15.0.0_r10 (ap4a)
+- `horizon/android-14.0.0_r30` (ap1a - default)
+- `horizon/android-14.0.0_r74` (ap2a - refer to Known Issues)
+- `horizon/android-15.0.0_r4` (ap3a)
+- `android14-qpr1-automotiveos-release`
+- `android-14.0.0_r22`
+- `android-14.0.0_r30` (ap1a)
+- `android-14.0.0_r74` (ap2a, refer to Known Issues)
+- `android-15.0.0_r4` (ap3a)
+- `android-15.0.0_r10` (ap4a)
 
-### AAOS_LUNCH_TARGET <a name="targets"></a>
+### `AAOS_LUNCH_TARGET` <a name="targets"></a>
 
-The Android cuttlefish target to build CTS from.
+The Android cuttlefish target to build CTS from. Must be one of the `aosp_cf` targets.
 
 Reference: [Codenames, tags, and build numbers](https://source.android.com/docs/setup/reference/build-numbers)
 
@@ -55,29 +56,29 @@ Examples:
     -   `aosp_cf_arm64_auto-ap3a-userdebug`
     -   `aosp_cf_arm64_auto-ap4a-userdebug`
 
-### AAOS_CLEAN
+### `AAOS_CLEAN`
 
 Option to clean the build workspace, either fully or simply for the `AAOS_LUNCH_TARGET` target defined.
 
-### GERRIT_REPO_SYNC_JOBS
+### `GERRIT_REPO_SYNC_JOBS`
 
 This is the value used for parallel jobs for `repo sync`, i.e. `-j <GERRIT_REPO_SYNC_JOBS>`.
 The default is defined in system environment variable: `REPO_SYNC_JOBS`.
 The minimum is 1 and the maximum is 24.
 
-### INSTANCE_RETENTION_TIME
+### `INSTANCE_RETENTION_TIME`
 
 Keep the build VM instance and container running to allow user to connect to it. Useful for debugging build issues, determining target output archives etc.
 
 Access using `kubectl` e.g. `kubectl exec -it -n jenkins <pod name> -- bash` from `bastion` host.
 
-### AAOS_ARTIFACT_STORAGE_SOLUTION
+### `AAOS_ARTIFACT_STORAGE_SOLUTION`
 
 Define storage solution used to push artifacts.
 
 Currently `GCS_BUCKET` default pushes to GCS bucket, if empty then nothing will be stored.
 
-### GERRIT_PROJECT / GERRIT_CHANGE_NUMBER / GERRIT_PATCHSET_NUMBER
+### `GERRIT_PROJECT` / `GERRIT_CHANGE_NUMBER` / `GERRIT_PATCHSET_NUMBER`
 
 These are optional but allow the user to fetch a specific Gerrit patchset if required.
 
@@ -108,7 +109,7 @@ These are as follows:
     - The URL domain which is required by pipeline jobs to derive URL for tools and GCP.
 
 -   `JENKINS_CACHE_STORAGE_CLASS_NAME`
-    - For build jobs we use persistent storage class to store the build cache. This defines the class name to use.
+    - This identifies the Persistent Volume Claim (PVC) that provisions persistent storage for build cache, ensuring efficient reuse of cached resources across builds. The default is [`pd-balanced`](https://cloud.google.com/compute/docs/disks/performance), which strikes a balance between optimal performance and cost-effectiveness.
 
 -   `JENKINS_SERVICE_ACCOUNT`
     - Service account to use for pipelines. Required to ensure correct roles and permissions for GCP resources.
