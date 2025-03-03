@@ -91,7 +91,7 @@ pipeline {
           when { expression { env.GERRIT_CHANGE_NUMBER } }
           steps {
             script {
-              currentBuild.description = "Project: ${env.GERRIT_PROJECT}"
+              currentBuild.description = "Project: ${env.GERRIT_PROJECT}" + "<br>" + "${env.AAOS_REVISION}"
             }
             container(name: 'builder') {
               withCredentials([usernamePassword(credentialsId: env.GERRIT_CREDENTIALS_ID, passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
