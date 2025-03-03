@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
 - [System Variables](#system-variables)
 
@@ -9,20 +10,23 @@
 
 This pipeline builds the container image used on Kubernetes for building Android targets and miscellaneous environment pipelines.
 
-This need only be run once, or when Dockerfile is updated. There is an option not to push the resulting image to the
-registry, so that devs can test their changes before committing the image.
+This need only be run once, or when Dockerfile is updated. There is an option not to push the resulting image to the registry, so that devs can test their changes before committing the image.
 
 ### References
 - [Kaniko](https://github.com/GoogleContainerTools/kaniko)
 
+## Prerequisites<a name="prerequisites"></a>
+
+This depends only on [`kaniko`](https://github.com/GoogleContainerTools/kaniko) which should be installed by default.
+
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 
-### IMAGE\_TAG
+### `IMAGE_TAG`
 
 This is the tag that will be applied when the container image is pushed to the registry. For the current release we
 simply use `latest` because all pipelines that depend on this container image are using `latest`.
 
-### NO\_PUSH
+### `NO_PUSH`
 
 Build the container image but don't push to the registry.
 

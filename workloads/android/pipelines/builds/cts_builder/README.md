@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
   * [Targets](#targets)
 - [System Variables](#system-variables)
@@ -12,6 +13,13 @@
 This pipeline builds the Android Automotive Compatibility Test Suite ([CTS](https://source.android.com/docs/compatibility/cts)) test harness from the specified code base.
 
 The following are examples of the environment variables and Jenkins build parameters that can be used.
+
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following template has been created by running the corresponding job:
+  - Docker image template: `Android Workflows/Environment/Docker Image Template`
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 

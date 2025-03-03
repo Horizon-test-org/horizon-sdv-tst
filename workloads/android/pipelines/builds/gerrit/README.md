@@ -27,6 +27,14 @@ It builds the following targets:
 
 Once completed the build artifacts are available to test within the GCS bucket. Artifact summaries are provided stored with the job to provide details of the location of these artifacts.
 
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following templates have been created by running the corresponding jobs:
+  - Docker image template: `Android Workflows/Environment/Docker Image Template`
+  - Cuttlefish instance template: `Android Workflows/Environment/CF Instance Template`
+
 ## Gerrit Triggers
 
 The pipeline is triggered by a Gerrit patchset change based on Gerrit Triggers plugin. It uses the Horizon default path and branch name prefixes:
