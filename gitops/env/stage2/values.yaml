@@ -14,6 +14,13 @@
 
 config:
   name: Horizon SDV
+  workloads:
+    android:
+      logRotation:
+        artifactDaysToKeep: 60
+        artifactNumToKeep: 100
+        daysToKeep: 60
+        numToKeep: 200
 spec:
   destination:
     server: https://kubernetes.default.svc
