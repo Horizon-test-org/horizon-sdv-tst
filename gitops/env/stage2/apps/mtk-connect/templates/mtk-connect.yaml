@@ -13,36 +13,6 @@
 # limitations under the License.
 
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mtk-connect-artifacts
-  namespace: mtk-connect
-  annotations:
-    argocd.argoproj.io/sync-wave: "6"
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mtk-connect-mongodb
-  namespace: mtk-connect
-  annotations:
-    argocd.argoproj.io/sync-wave: "6"
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 50Gi
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mtk-connect-config

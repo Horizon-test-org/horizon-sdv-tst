@@ -38,6 +38,11 @@ spec:
               secretKeys:
                 adminPasswordKey: postgres-password
                 userPasswordKey: password
+        primary:
+          persistence:
+            accessMode: "ReadWriteOnce"
+            enabled: true
+            existingClaim: "postgresql-data"
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak

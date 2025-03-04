@@ -12,31 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: zookeeper
-  namespace: argocd
+  name: zookeeper-rwo
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+provisioner: pd.csi.storage.gke.io
+volumeBindingMode: Immediate
+reclaimPolicy: Delete
+parameters:
+  type: pd-standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zookeeper-data
+  namespace: zookeeper
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
-  project: horizon-sdv
-  source:
-    chart: zookeeper
-    repoURL: https://charts.bitnami.com/bitnami
-    targetRevision: 13.5.1
-    helm:
-      values: |
-        persistence:
-          accessMode: "ReadWriteOnce"
-          enabled: true
-          existingClaim: "zookeeper-data"
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: zookeeper
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
-    automated: {}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: zookeeper-rwo
+  volumeMode: Filesystem

@@ -12,23 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgresql-initial-creds
-  namespace: keycloak
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
-stringData:
-  password: dbpassword
-  postgres-password: dbpassword
----
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: postgresql-rwo
+  name: mtk-connect-rwo
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "3"
 provisioner: pd.csi.storage.gke.io
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
@@ -38,15 +27,33 @@ parameters:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgresql-data
-  namespace: keycloak
+  name: mtk-connect-artifacts
+  namespace: mtk-connect
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 8Gi
-  storageClassName: postgresql-rwo
+  storageClassName: mtk-connect-rwo
   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mtk-connect-mongodb
+  namespace: mtk-connect
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: mtk-connect-rwo
+  volumeMode: Filesystem
+
