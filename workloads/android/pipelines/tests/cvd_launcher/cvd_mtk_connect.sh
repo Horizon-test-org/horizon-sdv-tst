@@ -114,7 +114,7 @@ function mtkc_start() {
         echo "agent__log__appender=file"
     } >> "${app_path}"/.env
 
-    local -a mtkc_files=(create-testbench.js download-agent.js package.json remove-testbench.js)
+    local -a mtkc_files=(create-testbench.js package.json remove-testbench.js)
 
     # Copy over the MTKC files.
     for file in "${mtkc_files[@]}"; do
@@ -126,20 +126,17 @@ function mtkc_start() {
     npm install
 
     if [[ "$1" == "--start" ]]; then
-        # Download the agent
-        node download-agent.js
-        unzip mtk-connect-agent.node.zip >/dev/null 2>&1
+        # Local Linux host install.
+        AUTH=$(echo -n "${MTK_CONNECT_USERNAME}:${MTK_CONNECT_PASSWORD}" | base64)
+        sudo curl -sSL https://"${MTK_CONNECT_DOMAIN}"/mtk-connect/get-agent?platform=linux | sudo AUTH="${AUTH}" bash
+        RESULT="$?"
+        if (( RESULT != 0 )); then
+            echo "Error Download/install returned ${RESULT}"
+            exit "${RESULT}"
+        fi
 
-        # Reorganise the files
-        mv -f "${scripts_path}"/config ../
-        mv -f src/* "${app_path}"
-        cd "${app_path}" || exit
-        npm install
-
-        # Start the agent
-        pm2 start -f runAgent.js
-
-        cd "${scripts_path}" || exit # If fails, exit, don't continue!
+        rm -rf "${config_path}"
+        ln -sf /opt/mtk-connect-agent/config "${config_path}"
 
         echo "Waiting on ${config_path}/registration.name ..."
         wait-on "${config_path}"/registration.name
@@ -157,7 +154,6 @@ function mtkc_create_testbench() {
 function mtkc_stop() {
     cd "${scripts_path}" || exit
     node remove-testbench.js
-    pm2 stop all || true
 }
 
 # Print a summary of the MTK Connect agent.
