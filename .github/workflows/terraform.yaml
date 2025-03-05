@@ -63,9 +63,13 @@ on:
         description: "Github Secret CUTTLEFISH_VM_SSH_PRIVATE_KEY"
 
     inputs:
-      environment:
+      branch_env:
         required: false
-        description: "environment to use"
+        description: "used branch_env"
+        type: string
+      prefix:
+        required: false
+        description: "prefix branch name"
         type: string
       gh-app-id:
         required: false
@@ -92,10 +96,6 @@ on:
         required: false
         default: latest
         type: string
-      terraform-apply:
-        required: false
-        default: false
-        type: boolean
       parallelism:
         required: false
         description: "Terraform parallelism"
@@ -108,21 +108,31 @@ jobs:
     runs-on: self-hosted
     outputs:
       environment: ${{ steps.get-env.outputs.environment }}
-      env_only: ${{ steps.get-env.outputs.env_only }}
+      action: ${{ steps.get-env.outputs.action }}
     steps:
       - name: Print environment name to output
-        run: echo "Parsed environment name is ${{ inputs.environment }}"
+        run: |
+          echo "branch_env name is ${{ inputs.branch_env }}"
+          echo "branch prefix is ${{ inputs.prefix }}"
 
       - name: get environment
         id: get-env
         shell: bash
         run: |
-          if [[ "${{ inputs.environment }}" != '' ]]; then
-            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT;
-            temp=${{ inputs.environment }}
-            env_only=${temp%-plan*}
-            env_only=${env_only%-apply*}
-            echo "env_only=$env_only" >> $GITHUB_OUTPUT;
+          if [[ "${{ inputs.prefix }}" == 'env' && ${{ inputs.branch_env }} != '' ]]; then
+            echo "environment=${{ inputs.branch_env }}" >> $GITHUB_OUTPUT;
+            temp=${{ inputs.branch_env }}
+            action="${temp}-plan-apply"
+            echo "action=$action" >> $GITHUB_OUTPUT;
+          elif [[ "${{ inputs.prefix }}" == 'feature' && ${{ inputs.branch_env }} != '' ]]; then
+            echo "environment=${{ inputs.branch_env }}" >> $GITHUB_OUTPUT;
+            temp=${{ inputs.branch_env }}
+            action="${temp}-plan"
+            echo "action=$action" >> $GITHUB_OUTPUT;
+          else
+            echo "Missing proper prefix in branch name" >> $GITHUB_OUTPUT;
+            action="${temp}-no-action"
+            echo "action=$action" >> $GITHUB_OUTPUT;
           fi
 
   terraform:
@@ -209,7 +219,7 @@ jobs:
           elif [[ "${{ inputs.gh-app-id }}" != '0' && "${{ inputs.gh-installation-id }}" != '0' ]]; then
             echo "GITHUB_APP_ID=${{ inputs.gh-app-id }}" >> $GITHUB_ENV;
             echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.gh-installation-id }}" >> $GITHUB_ENV;
-          else 
+          else
             echo "Missing Github App id and/or Github Installation ID"
             exit 1
           fi
@@ -304,6 +314,7 @@ jobs:
       - name: terraform plan
         working-directory: ${{ inputs.directory }}/
         id: tfplan
+        if: ${{ contains(needs.get-env.outputs.action, 'plan')}}
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
           TF_VAR_sdv_gh_repo_name: ${{ github.event.repository.full_name }}
@@ -344,7 +355,7 @@ jobs:
           repo-token: ${{steps.get_github_app_token.outputs.token}}
           message-id: plan-${{ needs.get-env.outputs.environment }}
           message: |
-            ## Terraform plan ${{ needs.get-env.outputs.env_only }}
+            ## Terraform plan ${{ needs.get-env.outputs.environment }}
             ```diff
             ${{ env.PLAN }}
             ```
@@ -360,11 +371,11 @@ jobs:
       - name: terraform apply
         working-directory: ${{ inputs.directory }}/
         id: tfapply
-        if: inputs.environment != ''
+        if: ${{ contains(needs.get-env.outputs.action, 'apply')}}
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
           TF_VAR_sdv_gh_repo_name: ${{ github.event.repository.full_name }}
-          TF_VAR_sdv_gh_env_name: ${{ inputs.environment }}
+          TF_VAR_sdv_gh_env_name: ${{ needs.get-env.outputs.environment }}
         run: |
           git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
           terraform apply -parallelism=${{ inputs.parallelism }} -input=false -no-color tfplan
@@ -378,7 +389,7 @@ jobs:
           repo-token: ${{steps.get_github_app_token.outputs.token}}
           message-id: apply-${{ needs.get-env.outputs.environment }}
           message: |
-            ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Succeeded
+            ## Terraform Apply ${{ needs.get-env.outputs.environment }} Succeeded
             ```
             ${{ steps.tfapply.outputs.stdout }}
             ```
@@ -392,7 +403,7 @@ jobs:
           repo-token: ${{steps.get_github_app_token.outputs.token}}
           message-id: apply-${{ needs.get-env.outputs.environment }}
           message: |
-            ## Terraform Apply ${{ needs.get-env.outputs.env_only }} Failed
+            ## Terraform Apply ${{ needs.get-env.outputs.environment }} Failed
             ```
             ${{ steps.tfapply.outputs.stderr }}
             ```
