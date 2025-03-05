@@ -258,7 +258,7 @@ case "${AAOS_LUNCH_TARGET}" in
         # If the AAOS_BUILD_CTS variable is set, build only the cts image.
         if [[ "$AAOS_BUILD_CTS" -eq 1 ]]; then
             AAOS_MAKE_CMDLINE="m cts -j16"
-            AAOS_ARTIFACT_LIST=("${OUT_DIR}/host/linux-x86/cts/android-cts.zip")
+            AAOS_ARTIFACT_LIST+=("${OUT_DIR}/host/linux-x86/cts/android-cts.zip")
         fi
         ;;
     *tangorpro_car*)
@@ -390,7 +390,7 @@ case "$0" in
         AAOS_MAKE_CMDLINE=${AAOS_MAKE_CMDLINE}
         AAOS_CLEAN=${AAOS_CLEAN}
 
-        BUILD_CTS=${BUILD_CTS}
+        AAOS_BUILD_CTS=${AAOS_BUILD_CTS}
         "
         ;;
     *avd_sdk.sh)
@@ -414,7 +414,7 @@ case "$0" in
         AAOS_ARTIFACT_STORAGE_SOLUTION=${AAOS_ARTIFACT_STORAGE_SOLUTION}
         AAOS_ARTIFACT_ROOT_NAME=${AAOS_ARTIFACT_ROOT_NAME}
 
-        BUILD_CTS=${BUILD_CTS}
+        AAOS_BUILD_CTS=${AAOS_BUILD_CTS}
         "
         ;;
     *)
