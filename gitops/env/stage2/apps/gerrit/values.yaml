@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
-=======
-config:
-  domain: sbx.horizon-sdv.com
->>>>>>> 7e65fd4 (add apache-2.0 license and licence headers)
 spec:
   destination:
     server: https://kubernetes.default.svc
