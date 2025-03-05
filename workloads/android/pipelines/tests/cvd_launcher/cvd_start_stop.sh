@@ -169,7 +169,6 @@ case "${1}" in
             cuttlefish_archive_logs
             cuttlefish_stop
             cuttlefish_cleanup
-            sudo reboot
             exit 1
         fi
         ;;
