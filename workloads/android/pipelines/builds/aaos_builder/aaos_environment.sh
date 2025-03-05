@@ -170,6 +170,9 @@ fi
 # Clean commands
 AAOS_CLEAN=${AAOS_CLEAN:-NO_CLEAN}
 
+# Build info file name
+BUILD_INFO_FILE="${WORKSPACE}/build_info.txt"
+
 # Override build output directory to keep builds
 # separate from each other.
 export OUT_DIR="out_sdv-${AAOS_LUNCH_TARGET}"
@@ -205,9 +208,13 @@ AAOS_MAKE_CMDLINE=""
 declare -a POST_BUILD_COMMANDS
 
 # Declare artifact array.
-declare -a AAOS_ARTIFACT_LIST
+declare -a AAOS_ARTIFACT_LIST=(
+    "${BUILD_INFO_FILE}"
+)
 # Post storage commands
-declare -a POST_STORAGE_COMMANDS
+declare -a POST_STORAGE_COMMANDS=(
+    "rm -f ${BUILD_INFO_FILE}"
+)
 # Post repo sync commands
 
 # This is a dictionary mapping the target names to the command line
@@ -218,7 +225,7 @@ case "${AAOS_LUNCH_TARGET}" in
         # FIXME: we can build full flashable image but may require special
         # permissions, for now host the individual parts.
         # ${VERSION}-${DATE}-rpi5.img # rpi5-mkimg.sh
-        AAOS_ARTIFACT_LIST=(
+        AAOS_ARTIFACT_LIST+=(
             "${OUT_DIR}/target/product/${AAOS_ARCH}/boot.img"
             "${OUT_DIR}/target/product/${AAOS_ARCH}/system.img"
             "${OUT_DIR}/target/product/${AAOS_ARCH}/vendor.img"
@@ -231,19 +238,19 @@ case "${AAOS_LUNCH_TARGET}" in
         ;;
     sdk_car*)
         AAOS_MAKE_CMDLINE="m && m emu_img_zip && m sbom"
-        AAOS_ARTIFACT_LIST=(
+        AAOS_ARTIFACT_LIST+=(
             "${OUT_DIR}/target/product/emulator_car64_${AAOS_ARCH}/sbom.spdx.json"
             "${OUT_DIR}/target/product/emulator_car64_${AAOS_ARCH}/${AAOS_SDK_SYSTEM_IMAGE_PREFIX}*.zip"
             "${OUT_DIR}/target/product/emulator_car64_${AAOS_ARCH}/${AAOS_SDK_ADDON_FILE}"
         )
-        POST_STORAGE_COMMANDS=(
+        POST_STORAGE_COMMANDS+=(
             "rm -f devices.xml"
             "rm -f ${AAOS_SDK_ADDON_FILE}"
         )
         ;;
     aosp_cf*)
         AAOS_MAKE_CMDLINE="m dist"
-        AAOS_ARTIFACT_LIST=(
+        AAOS_ARTIFACT_LIST+=(
             "${OUT_DIR}/dist/cvd-host_package.tar.gz"
             "${OUT_DIR}/dist/sbom/sbom.spdx.json"
             "${OUT_DIR}/dist/aosp_cf_${AAOS_ARCH}_auto-img*.zip"
@@ -255,7 +262,7 @@ case "${AAOS_LUNCH_TARGET}" in
         fi
         ;;
     *tangorpro_car*)
-        AAOS_ARTIFACT_LIST=(
+        AAOS_ARTIFACT_LIST+=(
             "${OUT_DIR}.tgz"
         )
         AAOS_MAKE_CMDLINE="m && m android.hardware.automotive.vehicle@2.0-default-service android.hardware.automotive.audiocontrol-service.example"
@@ -305,7 +312,7 @@ case "${AAOS_LUNCH_TARGET}" in
                 ${OUT_DIR}/target/product/tangorpro/super_empty.img \
                 ${OUT_DIR}/target/product/tangorpro/vendor"
         )
-        POST_STORAGE_COMMANDS=(
+        POST_STORAGE_COMMANDS+=(
             "rm -f ${OUT_DIR}.tgz"
             "rm -rf vendor"
             "rm -f extract-google_devices-tangorpro.sh"
@@ -382,6 +389,8 @@ case "$0" in
         VARIABLES+="
         AAOS_MAKE_CMDLINE=${AAOS_MAKE_CMDLINE}
         AAOS_CLEAN=${AAOS_CLEAN}
+
+        BUILD_CTS=${BUILD_CTS}
         "
         ;;
     *avd_sdk.sh)
@@ -404,6 +413,8 @@ case "$0" in
 
         AAOS_ARTIFACT_STORAGE_SOLUTION=${AAOS_ARTIFACT_STORAGE_SOLUTION}
         AAOS_ARTIFACT_ROOT_NAME=${AAOS_ARTIFACT_ROOT_NAME}
+
+        BUILD_CTS=${BUILD_CTS}
         "
         ;;
     *)
@@ -416,8 +427,9 @@ VARIABLES+="
 
         Storage Usage (${AAOS_CACHE_DIRECTORY}): $(df -h "${AAOS_CACHE_DIRECTORY}" | tail -1 | awk '{print "Used " $3 " of " $2}')
 "
-
-echo "${VARIABLES}"
+# Add to build info for storage.
+echo "$0 Build Info:" | tee -a "${BUILD_INFO_FILE}"
+echo "${VARIABLES}" | tee -a "${BUILD_INFO_FILE}"
 
 # Remove directories if requested.
 RSYNC_DELETE=${RSYNC_DELETE:-false}
