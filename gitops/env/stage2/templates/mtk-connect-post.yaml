@@ -76,18 +76,6 @@ spec:
       serviceAccountName: mtk-connect-writer-sa
       containers:
         - name: mtk-connect-post-container
-          env:
-            - name: AGENT_VERSION
-              value: "v1.7.0"
-            - name: TUNNEL_VERSION
-              value: "v1.7.0"
-            - name: GUACD_VERSION
-              value: "v1.7.0"
-            - name: NAMESPACE
-              value: "mtk-connect"
-            - name: REGISTRY
-              value: "harbor.scpmtk.com/mtk-connect"
-
           image: {{ .Values.config.postjobs.mtkconnect }}
           imagePullPolicy: Always
       restartPolicy: Never

@@ -42,7 +42,7 @@ data:
       },
       "router": {
         "port": 8081,
-        "services": "127.0.0.1:8082,127.0.0.1:8083/api,127.0.0.1:8084",
+        "services": "127.0.0.1:8082,127.0.0.1:8083/api,127.0.0.1:8084,127.0.0.1:8087",
         "authenticator": {
           "host": "127.0.0.1",
           "port": 8082
@@ -56,9 +56,9 @@ data:
         "routes": [
           {"source": "^/docs", "target": "http://127.0.0.1:8085"},
           {"source": "^/portal", "target": "http://127.0.0.1:8083"},
-          {"source": "^/get-agent", "target": "http://127.0.0.1:8083/api/get-agent", "authenticated": false},
-          {"source": "^/get-tunnel", "target": "http://127.0.0.1:8083/api/get-tunnel", "authenticated": false},
-          {"source": "^/get-guacd", "target": "http://127.0.0.1:8083/api/get-guacd", "authenticated": false}
+          {"source": "^/get-agent", "target": "http://127.0.0.1:8087/get-agent", "authenticated": false},
+          {"source": "^/get-tunnel", "target": "http://127.0.0.1:8087/get-tunnel", "authenticated": false},
+          {"source": "^/get-guacd", "target": "http://127.0.0.1:8087/get-guacd", "authenticated": false}
         ],
         "schema": {
           "enabled": false
@@ -101,7 +101,11 @@ data:
         "player": {
           "liveDriftMax": 0.3
         }
-      }
+      },
+      "installers": {
+        "port": 8087,
+        "subpath": "/mtk-connect"
+      }      
     }
 ---
 apiVersion: apps/v1
@@ -232,7 +236,7 @@ spec:
               memory: 400Mi
           env:
             - name: devices__version
-              value: "v1.7.0-619847e"
+              value: "v1.7.0-8e58677"
           volumeMounts:
             - mountPath: /usr/src/config/config.json
               name: mtk-connect-config
@@ -250,6 +254,19 @@ spec:
             - mountPath: /usr/src/artifacts
               name: mtk-connect-artifacts
               subPath: data/artifacts
+            - mountPath: /usr/src/config/config.json
+              name: mtk-connect-config
+              subPath: config.json
+        - name: installers
+          image: {{ .Values.config.gitops.mtkconnect.installers }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 1
+              memory: 100Mi
+          volumeMounts:
             - mountPath: /usr/src/config/config.json
               name: mtk-connect-config
               subPath: config.json
