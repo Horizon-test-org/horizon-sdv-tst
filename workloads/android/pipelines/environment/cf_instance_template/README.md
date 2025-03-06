@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
 - [System Variables](#system-variables)
 
@@ -30,6 +31,13 @@ The following gcloud commands can be used to view images and instance templates:
 - [Virtual Device for Android host-side utilities](https://github.com/google/android-cuttlefish)
 - [Compatibility Test Suite downloads](https://source.android.com/docs/compatibility/cts/downloads)
 - [Compute Instance Templates](https://cloud.google.com/sdk/gcloud/reference/compute/instance-templates/create)
+
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following template has been created by running the corresponding job:
+  - Docker image template: ``Android Workflows/Environment/Docker Image Template`
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 

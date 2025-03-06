@@ -91,7 +91,7 @@ pipeline {
           when { expression { env.GERRIT_CHANGE_NUMBER } }
           steps {
             script {
-              currentBuild.description = "Project: ${env.GERRIT_PROJECT}"
+              currentBuild.description = "Project: ${env.GERRIT_PROJECT}" + "<br>" + "${env.GERRIT_BRANCH}"
             }
             container(name: 'builder') {
               withCredentials([usernamePassword(credentialsId: env.GERRIT_CREDENTIALS_ID, passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
@@ -106,7 +106,11 @@ pipeline {
                   if ( "$ANDROID_BUILD_ID" =~ "ap3a" ) env.ANDROID_VERSION=15
                   if ( "$ANDROID_BUILD_ID" =~ "ap4a" ) env.ANDROID_VERSION=15
                 }
-
+                sh '''
+                  set +x
+                  echo "AAOS CACHE Persistent Volume Claim: ${NODE_NAME}-aaos-cache" | tee -a build_cache_volume.txt
+                  /usr/bin/kubectl get pod ${NODE_NAME} -n jenkins -o=jsonpath='{.spec.nodeName}' | xargs -I {} gcloud compute instances describe {} --zone=${CLOUD_ZONE} | grep 'deviceName: pvc' | awk '{print "AAOS CACHE Persistent Volume: " $2}' | tee -a build_cache_volume.txt || true
+                '''
                 sh '''
                   git config --global credential.helper store
                   git config --global url."https://${GERRIT_USERNAME}@${HORIZON_DOMAIN}".insteadOf "https://${HORIZON_DOMAIN}"
@@ -118,6 +122,7 @@ pipeline {
                   ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
                 '''
               }
+              archiveArtifacts artifacts: 'build_cache*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
             }
           }
         }

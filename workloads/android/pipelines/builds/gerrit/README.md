@@ -5,7 +5,7 @@ This pipeline builds Android targets based on a Gerrit patchset change. It is on
 
 Currently it is designed to run a base set of builds that can be used to verify the change, together with a basic CTS test run.
 
-It currently supports the following branches:
+It supports the following branches:
 
 -   `android-14.0.0_r30`
 -   `android-14.0.0_r74`
@@ -24,8 +24,24 @@ It builds the following targets:
 -   `sdk_car_x86_64`
 -   `sdk_car_arm64`
 -   `aosp_cf_x86_64_auto`
+-   `aosp_tangorpro_car`
 
 Once completed the build artifacts are available to test within the GCS bucket. Artifact summaries are provided stored with the job to provide details of the location of these artifacts.
+
+## Notes
+**Pipeline scope and future plans**
+
+This pipeline is a starting point for demonstrating automated build capabilities, but it is not intended to be a universal solution. Currently, it builds a single component. Future plans include enhancing the pipeline to support topic-based change sets, allowing for the automated build of all related changes.
+
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following templates have been created by running the corresponding jobs:
+  - Docker image template: `Android Workflows/Environment/Docker Image Template`
+  - Cuttlefish instance template: `Android Workflows/Environment/CF Instance Template`
+
+Gerrit depends on a ` Cuttlefish instance template`, the job includes reference to `cuttlefish-vm-main`. If user chooses not to create a `cuttlefish-vm-main` instance, the job will fail. Update the Jenkinsfile to match the instance name you wish to use.
 
 ## Gerrit Triggers
 

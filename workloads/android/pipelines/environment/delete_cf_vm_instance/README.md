@@ -2,6 +2,7 @@
 
 ## Table of contents
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Environment Variables/Parameters](#environment-variables)
 - [System Variables](#system-variables)
 
@@ -10,6 +11,13 @@
 During developing the Android workload and test workflow/pipelines, sometimes it may be necessary to delete VM instances created for Cuttlefish related test jobs that may have been left in place.
 
 This is not intended for everyday usage, simply a tool when developing tests to ensure that resources can be removed if errors occur during development.
+
+## Prerequisites<a name="prerequisites"></a>
+
+One-time setup requirements.
+
+- Before running this pipeline job, ensure that the following template has been created by running the corresponding job:
+  - Docker image template: ``Android Workflows/Environment/Docker Image Template`
 
 ## Environment Variables/Parameters <a name="environment-variables"></a>
 

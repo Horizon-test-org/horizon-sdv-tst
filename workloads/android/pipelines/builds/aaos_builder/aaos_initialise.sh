@@ -66,7 +66,11 @@ source "$(dirname "${BASH_SOURCE[0]}")"/aaos_environment.sh "$0"
 MAX_RETRIES=4
 for ((i=1; i<="${MAX_RETRIES}"; i++)); do
     # Initialise repo checkout.
-    repo init -u "${AAOS_GERRIT_MANIFEST_URL}" -b "${AAOS_REVISION}" --depth=1
+    if ! repo init -u "${AAOS_GERRIT_MANIFEST_URL}" -b "${AAOS_REVISION}" --depth=1
+    then
+        echo "ERROR: repo init failed, exit!"
+        exit 1
+    fi
 
     for command in "${POST_REPO_INITIALISE_COMMANDS_LIST[@]}"; do
         echo "${command}"
@@ -84,7 +88,7 @@ for ((i=1; i<="${MAX_RETRIES}"; i++)); do
         fi
         if [ "$i" -eq 4 ]; then
             echo "ERROR: repo sync retry failed, giving up."
-            exit 255
+            exit 1
         fi
     else
         break

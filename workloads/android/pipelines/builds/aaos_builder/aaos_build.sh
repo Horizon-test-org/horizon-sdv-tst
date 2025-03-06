@@ -47,7 +47,7 @@ if [ -n "${AAOS_MAKE_CMDLINE}" ]; then
     RESULT=$?
 else
     echo "Error: make command line undefined!"
-    exit 255
+    exit 1
 fi
 
 if (( RESULT == 0 )); then

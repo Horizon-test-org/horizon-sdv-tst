@@ -37,7 +37,7 @@ function cuttlefish_virtualization() {
 
 # Install additional packages.
 function cuttlefish_install_additional_packages() {
-    local -a package_list=("default-jdk" "adb" "git" "npm" "aapt")
+    local -a package_list=("default-jdk" "adb" "git" "npm" "aapt" "htop")
 
     # Ensure update to latest package list.
     sudo apt update -y

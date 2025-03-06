@@ -186,6 +186,11 @@ pipeline {
               catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 withCredentials([usernamePassword(credentialsId: 'jenkins-gerrit-http-password', passwordVariable: 'GERRIT_PASSWORD', usernameVariable: 'GERRIT_USERNAME')]) {
                   sh '''
+                    set +x
+                    echo "AAOS CACHE Persistent Volume Claim: ${NODE_NAME}-aaos-cache" | tee -a build_cache_volume.txt
+                    /usr/bin/kubectl get pod ${NODE_NAME} -n jenkins -o=jsonpath='{.spec.nodeName}' | xargs -I {} gcloud compute instances describe {} --zone=${CLOUD_ZONE} | grep 'deviceName: pvc' | awk '{print "AAOS CACHE Persistent Volume: " $2}' | tee -a build_cache_volume.txt || true
+                  '''
+                  sh '''
                     git config --global credential.helper store
                     git config --global url."https://${GERRIT_USERNAME}@${HORIZON_DOMAIN}".insteadOf "https://${HORIZON_DOMAIN}"
                     echo https://"${GERRIT_USERNAME}":"${GERRIT_PASSWORD}"@"${HORIZON_DOMAIN}" > ~/.git-credentials
@@ -200,6 +205,7 @@ pipeline {
                     ./workloads/android/pipelines/builds/aaos_builder/aaos_initialise.sh
                   '''
                 }
+                archiveArtifacts artifacts: 'build_cache*.txt', followSymlinks: false, onlyIfSuccessful: false, allowEmptyArchive: true
               }
             }
           }

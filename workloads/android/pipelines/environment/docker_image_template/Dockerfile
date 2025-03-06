@@ -26,7 +26,7 @@ RUN apt-get update -y && \
     g++-multilib libncurses5 libssl-dev python3 python3-setuptools python3-pip \
     python3-requests python3-venv python3-virtualenv procps \
     meson bc coreutils dosfstools e2fsprogs fdisk kpartx mtools ninja-build \
-    pkg-config rsync less curl sudo vim ssh findutils gawk jq && \
+    pkg-config rsync less curl sudo vim ssh findutils gawk jq htop && \
     apt-get update -y && apt install -y npm nodejs && \
     rm -rf /var/lib/apt/lists/*
 
@@ -38,7 +38,7 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
     gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    apt-get update -y && apt-get install -y google-cloud-cli && \
+    apt-get update -y && apt-get install -y google-cloud-cli kubectl && \
     apt-get -y clean
 # GCS:END
 
