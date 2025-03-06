@@ -21,4 +21,4 @@ ADD secret.json ./
 ADD configure.sh ./
 RUN chmod +x configure.sh
 USER node
-CMD ["/bin/sh", "-c", "/home/node/configure.sh"]
+CMD ["/bin/bash", "-c", "/home/node/configure.sh"]

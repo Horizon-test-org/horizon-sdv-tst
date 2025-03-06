@@ -27,8 +27,8 @@ const config = {
     },
     client: {
       clientId: 'gerrit',
-      adminUrl: process.env.DOMAIN + '/',
-      redirectUris: [process.env.DOMAIN + '/*'],
+      adminUrl: process.env.DOMAIN + '/gerrit',
+      redirectUris: [process.env.DOMAIN + '/gerrit/*'],
       protocol: 'openid-connect',
       publicClient: false
     },

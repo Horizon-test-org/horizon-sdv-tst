@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: "gerritoperator.google.com/v1beta13"
+apiVersion: "gerritoperator.google.com/v1beta15"
 kind: GerritCluster
 metadata:
   name: gerrit
@@ -39,6 +39,7 @@ spec:
       connectString: zookeeper.zookeeper.svc.cluster.local:2181
   ingress:
     enabled: false
+    pathPrefix: /gerrit
   serverId: "gerrit-0"
   fluentBitSidecar:
     enabled: false
@@ -92,7 +93,7 @@ spec:
         configFiles:
           gerrit.config: |-
             [gerrit]
-              canonicalWebUrl = https://{{ .Values.config.domain }}/
+              canonicalWebUrl = https://{{ .Values.config.domain }}/gerrit/
             [core]
               packedGitLimit = 1g
               packedGitWindowSize = 8k
@@ -106,7 +107,7 @@ spec:
               gitOAuthProvider = gerrit-oauth-provider:keycloak-oauth
               trustedOpenID=^.*$
             [httpd]
-              listenUrl = proxy-https://*:8080/
+              listenUrl = proxy-https://*:8080/gerrit/
               requestLog = true
               maxThreads = 25
             [user]

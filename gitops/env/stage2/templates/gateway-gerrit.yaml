@@ -33,14 +33,14 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /gerrit
       filters:
         - type: URLRewrite
           urlRewrite:
             hostname: {{ .Values.config.domain }}
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
+              replacePrefixMatch: /gerrit
       backendRefs:
         - name: gerrit-service
           port: 8080
@@ -64,7 +64,7 @@ spec:
       type: HTTP
       httpHealthCheck:
         port: 8080
-        requestPath: /config/server/healthcheck~status
+        requestPath: /gerrit/config/server/healthcheck~status
   targetRef:
     group: ""
     kind: Service

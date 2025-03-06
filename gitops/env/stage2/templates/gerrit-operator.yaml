@@ -24,9 +24,13 @@ metadata:
 spec:
   project: horizon-sdv
   source:
-    repoURL: https://github.com/GerritCodeReview/k8s-gerrit/
-    targetRevision: 01c9f75d92ceb357ddc7982ce5bf9120b60a8cd7
+    repoURL: https://gerrit.googlesource.com/k8s-gerrit
+    targetRevision: 7c0185d9f1c72fafde047bcb70d6943671fe7f06
     path: helm-charts/gerrit-operator
+    helm:
+      values: |
+        image:
+          tag: v0.1-767-g7c0185d9
   destination:
     server: https://kubernetes.default.svc
     namespace: gerrit-operator

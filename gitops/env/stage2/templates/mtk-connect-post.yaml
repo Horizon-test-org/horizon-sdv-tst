@@ -102,6 +102,7 @@ metadata:
 spec:
   schedule: "0 0 * * *"
   startingDeadlineSeconds: 300
+  ttlSecondsAfterFinished: 120
   jobTemplate:
     spec:
       template:
