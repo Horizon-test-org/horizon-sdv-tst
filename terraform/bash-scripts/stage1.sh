@@ -102,7 +102,7 @@ echo ""
 echo "Build config post jobs"
 cd ~/horizon-sdv/gitops/env/stage2/configs
 chmod +x ./build.sh
-sudo -s ./build.sh
+sudo -s GCP_CLOUD_REGION=$GCP_CLOUD_REGION GCP_PROJECT_ID=$GCP_PROJECT_ID ./build.sh
 
 echo ""
 echo "Run stage1 deployment"
