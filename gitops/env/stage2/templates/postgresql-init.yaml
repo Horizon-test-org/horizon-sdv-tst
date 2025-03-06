@@ -30,6 +30,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 provisioner: pd.csi.storage.gke.io
+allowVolumeExpansion: true
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
 parameters:
