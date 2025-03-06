@@ -318,7 +318,7 @@ jobs:
         env:
           TF_VAR_sdv_gh_access_token: ${{ steps.get_github_app_token.outputs.token }}
           TF_VAR_sdv_gh_repo_name: ${{ github.event.repository.full_name }}
-          TF_VAR_sdv_gh_env_name: ${{ inputs.environment }}
+          TF_VAR_sdv_gh_env_name: ${{ needs.get-env.outputs.environment }}
         run: |
           git config --global url."https://x-access-token:${{steps.get_github_app_token.outputs.token}}@github.com".insteadOf https://github.com
           terraform init -input=false -backend-config bucket="${{ vars.GCP_BACKEND_BUCKET_NAME }}"
@@ -326,7 +326,7 @@ jobs:
         continue-on-error: true
 
       - name: Reformat Plan
-        if: inputs.environment != ''
+        if: ${{ needs.get-env.outputs.environment != '' }}
         env:
           TFPLAN_STDOUT: ${{ steps.tfplan.outputs.stdout }}
           TFPLAN_STDERR: ${{ steps.tfplan.outputs.stderr }}
@@ -340,7 +340,7 @@ jobs:
           fi
 
       - name: Put Plan in Env Var
-        if: inputs.environment != ''
+        if: ${{ needs.get-env.outputs.environment != '' }}
         run: |
           PLAN=$(cat plan.txt)
           echo "PLAN<<EOF" >> $GITHUB_ENV
@@ -349,7 +349,7 @@ jobs:
 
       - name: Post Plan to GitHub PR
         uses: mshick/add-pr-comment@v2
-        if: inputs.environment != ''
+        if: ${{ needs.get-env.outputs.environment != '' }}
         with:
           allow-repeats: false
           repo-token: ${{steps.get_github_app_token.outputs.token}}
