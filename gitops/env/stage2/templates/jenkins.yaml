@@ -631,7 +631,7 @@ spec:
                             - verdictDescription: "Verified"
                               verdictValue: "Verified"
                           gerritAuthKeyFile: "/run/secrets/additional/jenkins-gerrit-ssh-private-key-privateKey"
-                          gerritFrontEndUrl: "https://{{ .Values.config.domain }}/"
+                          gerritFrontEndUrl: "https://{{ .Values.config.domain }}/gerrit/"
                           gerritHostName: "gerrit-service.gerrit.svc.cluster.local"
                           gerritUserName: "gerrit-admin"
                           useRestApi: false
